@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.LoginPage"
+             BackgroundColor="#F0F1EA"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <!-- Fondo Superior con Gradiente de la paleta -->
+        <Border StrokeThickness="0" VerticalOptions="Start" HeightRequest="450" Margin="0,-50,0,0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#92A38D" Offset="0.0" /> <!-- Sage Green -->
+                    <GradientStop Color="#AC8A6E" Offset="1.0" /> <!-- Medium Brown -->
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,40,40" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Padding="30,120,30,0" Spacing="5">
+                <Label Text="ArchiSpace." 
+                       FontSize="42" 
+                       FontAttributes="Bold" 
+                       TextColor="#F0F1EA" />
+                <Label Text="Visualización 3D" 
+                       FontSize="34" 
+                       TextColor="#E4C99D" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Tarjeta Flotante -->
+        <ScrollView VerticalOptions="End" Margin="0,250,0,0">
+            <Border BackgroundColor="#FFFFFF" 
+                    StrokeThickness="0"
+                    Margin="20,0,20,30"
+                    Padding="25,35,25,30">
+                <Border.Shadow>
+                    <Shadow Brush="#856C4E" Offset="0,15" Radius="30" Opacity="0.15" />
+                </Border.Shadow>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="25" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="20">
+                    
+                    <Label Text="¡Bienvenido! Inicia sesión para ver tus modelos"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="#856C4E"
+                           Margin="0,0,0,10"/>
+
+                    <!-- Campo IP -->
+                    <Border Stroke="#E4C99D" StrokeThickness="1" BackgroundColor="#FFFFFF" Padding="15,5">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,30">
+                            <Entry x:Name="IpEntry" 
+                                   Placeholder="IP Local (ej. 192.168.1.x)" 
+                                   Text=""
+                                   Keyboard="Url"
+                                   BackgroundColor="Transparent"
+                                   PlaceholderColor="#AC8A6E"
+                                   TextColor="#856C4E" />
+                            <Label Grid.Column="1" Text="🌐" FontSize="16" TextColor="#AC8A6E" VerticalOptions="Center" HorizontalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Campo Correo -->
+                    <Border Stroke="#E4C99D" StrokeThickness="1" BackgroundColor="#FFFFFF" Padding="15,5">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,30">
+                            <Entry x:Name="EmailEntry" 
+                                   Placeholder="Correo electrónico" 
+                                   Keyboard="Email"
+                                   BackgroundColor="Transparent"
+                                   PlaceholderColor="#AC8A6E"
+                                   TextColor="#856C4E" />
+                            <Label Grid.Column="1" Text="✉️" FontSize="16" TextColor="#AC8A6E" VerticalOptions="Center" HorizontalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Campo Contraseña -->
+                    <Border Stroke="#E4C99D" StrokeThickness="1" BackgroundColor="#FFFFFF" Padding="15,5">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,30">
+                            <Entry x:Name="PasswordEntry" 
+                                   Placeholder="Contraseña" 
+                                   IsPassword="True"
+                                   BackgroundColor="Transparent"
+                                   PlaceholderColor="#AC8A6E"
+                                   TextColor="#856C4E" />
+                            <Label Grid.Column="1" Text="🔒" FontSize="16" TextColor="#AC8A6E" VerticalOptions="Center" HorizontalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Botón Principal -->
+                    <Button x:Name="LoginButton"
+                            Text="Iniciar Sesión"
+                            TextColor="#F0F1EA"
+                            CornerRadius="12"
+                            HeightRequest="56"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            Clicked="OnLoginClicked" 
+                            Margin="0,15,0,5">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#92A38D" Offset="0.0" />
+                                <GradientStop Color="#856C4E" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+
+                    <Label Text="Entrar sin cuenta"
+                           TextColor="#AC8A6E"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextDecorations="Underline"
+                           HorizontalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSkipClicked" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                </VerticalStackLayout>
+            </Border>
+        </ScrollView>
+    </Grid>
+</ContentPage>

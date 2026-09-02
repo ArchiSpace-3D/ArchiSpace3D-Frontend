@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.DashboardPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F0F1EA">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,50,20,40" Spacing="25">
+            
+            <!-- Cabecera del Dashboard -->
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="¡Hola, Arquitecto!" 
+                           FontSize="28" 
+                           FontAttributes="Bold" 
+                           TextColor="#856C4E" />
+                    <Label Text="Bienvenido a tu espacio de trabajo" 
+                           FontSize="15" 
+                           TextColor="#AC8A6E" />
+                </VerticalStackLayout>
+                
+                <!-- Avatar de usuario -->
+                <Frame Grid.Column="1" HeightRequest="50" WidthRequest="50" CornerRadius="25" BackgroundColor="#E4C99D" Padding="0" HasShadow="False" BorderColor="Transparent">
+                    <Label Text="👤" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
+            </Grid>
+
+            <!-- Tarjeta Principal: Acceso Rápido a AR -->
+            <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#92A38D" Offset="0.0" />
+                        <GradientStop Color="#856C4E" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#856C4E" Offset="0,10" Radius="20" Opacity="0.2" />
+                </Border.Shadow>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Explora tu último modelo" FontSize="20" FontAttributes="Bold" TextColor="#F0F1EA" />
+                    <Label Text="Proyecto: 'Casa Moderna en la Costa'" FontSize="14" TextColor="#E4C99D" />
+                    
+                    <Button Text="Abrir en Realidad Aumentada" 
+                            BackgroundColor="#F0F1EA" 
+                            TextColor="#856C4E" 
+                            CornerRadius="12" 
+                            HeightRequest="48" 
+                            FontAttributes="Bold"
+                            Margin="0,10,0,0"
+                            Clicked="OnEnterARClicked"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Sección: Mis Proyectos -->
+            <VerticalStackLayout Spacing="15">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Mis Proyectos" FontSize="20" FontAttributes="Bold" TextColor="#856C4E" VerticalOptions="Center"/>
+                    <Label Grid.Column="1" Text="Ver todos" FontSize="14" TextColor="#AC8A6E" FontAttributes="Bold" VerticalOptions="Center"/>
+                </Grid>
+
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                    <HorizontalStackLayout Spacing="15">
+                        
+                        <!-- Proyecto 1 -->
+                        <Border WidthRequest="200" BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
+                            <Border.Shadow><Shadow Brush="#856C4E" Offset="0,5" Radius="10" Opacity="0.05" /></Border.Shadow>
+                            <VerticalStackLayout Spacing="10">
+                                <Frame HeightRequest="100" BackgroundColor="#F0F1EA" CornerRadius="10" HasShadow="False" BorderColor="Transparent" Padding="0">
+                                    <Label Text="🏠" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Frame>
+                                <Label Text="Edificio Nova" FontAttributes="Bold" FontSize="16" TextColor="#856C4E"/>
+                                <Label Text="Actualizado ayer" FontSize="12" TextColor="#AC8A6E"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Proyecto 2 -->
+                        <Border WidthRequest="200" BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
+                            <Border.Shadow><Shadow Brush="#856C4E" Offset="0,5" Radius="10" Opacity="0.05" /></Border.Shadow>
+                            <VerticalStackLayout Spacing="10">
+                                <Frame HeightRequest="100" BackgroundColor="#F0F1EA" CornerRadius="10" HasShadow="False" BorderColor="Transparent" Padding="0">
+                                    <Label Text="🏢" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Frame>
+                                <Label Text="Centro Comercial" FontAttributes="Bold" FontSize="16" TextColor="#856C4E"/>
+                                <Label Text="Hace 3 días" FontSize="12" TextColor="#AC8A6E"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <!-- Sección: Invitaciones y Notificaciones -->
+            <VerticalStackLayout Spacing="15" Margin="0,10,0,0">
+                <Label Text="Novedades" FontSize="20" FontAttributes="Bold" TextColor="#856C4E" />
+                
+                <Border BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Frame WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#E4C99D" HasShadow="False" BorderColor="Transparent" Padding="0">
+                            <Label Text="📩" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Frame>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Nueva Invitación" FontAttributes="Bold" FontSize="15" TextColor="#856C4E"/>
+                            <Label Text="Te han invitado al proyecto 'Residencial'." FontSize="12" TextColor="#AC8A6E"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2" Text="Ver" BackgroundColor="#92A38D" TextColor="#FFFFFF" CornerRadius="8" HeightRequest="35" Padding="10,0"/>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
