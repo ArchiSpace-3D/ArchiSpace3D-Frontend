@@ -39,7 +39,7 @@ namespace MauiApp1
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"No se pudo cargar el motor AR: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"No se pudo cargar el motor AR: {ex.Message}", "OK");
             }
         }
 
@@ -62,7 +62,7 @@ namespace MauiApp1
             try { OrientationSensor.Default.ReadingChanged -= Orientation_ReadingChanged; OrientationSensor.Default.Stop(); } catch { }
         }
 
-        private void Orientation_ReadingChanged(object sender, OrientationSensorChangedEventArgs e)
+        private void Orientation_ReadingChanged(object? sender, OrientationSensorChangedEventArgs e)
         {
             var q = e.Reading.Orientation; // Quaternion
             SyncOrientationWithThreeJs(q.X, q.Y, q.Z, q.W);
@@ -84,8 +84,9 @@ namespace MauiApp1
             }
         }
 
-        private async void OnCloseClicked(object sender, EventArgs e)
+        private async void OnCloseClicked(object? sender, EventArgs e)
         {
+            if (sender is VisualElement btn) { await btn.ScaleToAsync(0.92, 50); await btn.ScaleToAsync(1.0, 50); }
             StopSensors();
             await Navigation.PopModalAsync();
         }

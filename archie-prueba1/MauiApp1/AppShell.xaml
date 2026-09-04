@@ -6,27 +6,34 @@
     xmlns:local="clr-namespace:MauiApp1"
     Title="MauiApp1">
 
-    <!-- Personalización de colores de la barra inferior y superior (quitando el morado) -->
+    <!-- Personalización de colores de la barra inferior y superior con la nueva paleta -->
     <Shell.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#92A38D</Color> <!-- Verde salvia (Reemplaza al morado) -->
+            <Color x:Key="Primary">#A27B5B</Color>
             <Style TargetType="TabBar">
-                <Setter Property="Shell.BackgroundColor" Value="#FFFFFF" />
-                <Setter Property="Shell.TitleColor" Value="#856C4E" />
-                <Setter Property="Shell.UnselectedColor" Value="#E4C99D" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="#FFFFFF" />
-                <Setter Property="Shell.TabBarTitleColor" Value="#92A38D" />
-                <Setter Property="Shell.TabBarUnselectedColor" Value="#AC8A6E" />
+                <Setter Property="Shell.BackgroundColor" Value="#2C3639" />
+                <Setter Property="Shell.ForegroundColor" Value="#DCD7C9" />
+                <Setter Property="Shell.TitleColor" Value="#A27B5B" />
+                <Setter Property="Shell.UnselectedColor" Value="#DCD7C9" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="#2C3639" />
+                <Setter Property="Shell.TabBarTitleColor" Value="#A27B5B" />
+                <Setter Property="Shell.TabBarUnselectedColor" Value="#C2BDB0" />
             </Style>
         </ResourceDictionary>
     </Shell.Resources>
 
     <TabBar>
-        <Tab Title="Inicio" Icon="dotnet_bot.png">
+        <Tab Title="Inicio" Icon="nav_home.svg">
             <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" Route="DashboardPage" />
         </Tab>
-        <Tab Title="Sensores" Icon="dotnet_bot.png">
+        <Tab Title="Diseño 3D" Icon="nav_layers.svg">
+            <ShellContent ContentTemplate="{DataTemplate local:DesignPage}" Route="DesignPage" />
+        </Tab>
+        <Tab Title="Medición" Icon="nav_measure.svg">
             <ShellContent ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" />
+        </Tab>
+        <Tab Title="Perfil" Icon="nav_user.svg">
+            <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" Route="ProfilePage" />
         </Tab>
     </TabBar>
 

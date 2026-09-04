@@ -1,31 +1,43 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <!-- Paleta Oficial ArchiSpace3D -->
+    <Color x:Key="Inkwell">#2C3639</Color>
+    <Color x:Key="LunarEclipse">#3F4E4F</Color>
+    <Color x:Key="CremeBrulee">#A27B5B</Color>
+    <Color x:Key="AuLait">#DCD7C9</Color>
+
+    <!-- Mapeo de tema con la nueva paleta -->
+    <Color x:Key="Primary">#A27B5B</Color>
+    <Color x:Key="PrimaryDark">#2C3639</Color>
+    <Color x:Key="PrimaryDarkText">#DCD7C9</Color>
+    <Color x:Key="Secondary">#3F4E4F</Color>
+    <Color x:Key="SecondaryDarkText">#A27B5B</Color>
+    <Color x:Key="Tertiary">#2C3639</Color>
 
     <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
+    <Color x:Key="Black">#1A1A1A</Color>
+    <Color x:Key="Magenta">#A27B5B</Color>
+    <Color x:Key="MidnightBlue">#2C3639</Color>
+    <Color x:Key="OffBlack">#2C3639</Color>
 
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
+    <Color x:Key="Gray100">#F5F3EF</Color>
+    <Color x:Key="Gray200">#DCD7C9</Color>
+    <Color x:Key="Gray300">#C2BDB0</Color>
+    <Color x:Key="Gray400">#A27B5B</Color>
+    <Color x:Key="Gray500">#5C6566</Color>
+    <Color x:Key="Gray600">#3F4E4F</Color>
+    <Color x:Key="Gray900">#2C3639</Color>
+    <Color x:Key="Gray950">#1E2527</Color>
+
+    <SolidColorBrush x:Key="InkwellBrush" Color="{StaticResource Inkwell}"/>
+    <SolidColorBrush x:Key="LunarEclipseBrush" Color="{StaticResource LunarEclipse}"/>
+    <SolidColorBrush x:Key="CremeBruleeBrush" Color="{StaticResource CremeBrulee}"/>
+    <SolidColorBrush x:Key="AuLaitBrush" Color="{StaticResource AuLait}"/>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>

@@ -1,120 +1,310 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiApp1.Models"
              x:Class="MauiApp1.DashboardPage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#F0F1EA">
+             BackgroundColor="#DCD7C9">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,50,20,40" Spacing="25">
-            
-            <!-- Cabecera del Dashboard -->
-            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="¡Hola, Arquitecto!" 
-                           FontSize="28" 
-                           FontAttributes="Bold" 
-                           TextColor="#856C4E" />
-                    <Label Text="Bienvenido a tu espacio de trabajo" 
-                           FontSize="15" 
-                           TextColor="#AC8A6E" />
-                </VerticalStackLayout>
+    <Grid>
+        <!-- Contenido Principal Desplazable -->
+        <ScrollView>
+            <VerticalStackLayout Padding="20,40,20,40" Spacing="22">
                 
-                <!-- Avatar de usuario -->
-                <Frame Grid.Column="1" HeightRequest="50" WidthRequest="50" CornerRadius="25" BackgroundColor="#E4C99D" Padding="0" HasShadow="False" BorderColor="Transparent">
-                    <Label Text="👤" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
-                </Frame>
-            </Grid>
-
-            <!-- Tarjeta Principal: Acceso Rápido a AR -->
-            <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#92A38D" Offset="0.0" />
-                        <GradientStop Color="#856C4E" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Border.Background>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="20"/>
-                </Border.StrokeShape>
-                <Border.Shadow>
-                    <Shadow Brush="#856C4E" Offset="0,10" Radius="20" Opacity="0.2" />
-                </Border.Shadow>
-                
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Explora tu último modelo" FontSize="20" FontAttributes="Bold" TextColor="#F0F1EA" />
-                    <Label Text="Proyecto: 'Casa Moderna en la Costa'" FontSize="14" TextColor="#E4C99D" />
+                <!-- Cabecera del Dashboard Apple Style -->
+                <Grid x:Name="HeaderSection" ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="3">
+                        <Label x:Name="WelcomeLabel" Text="¡Hola!" FontSize="28" FontAttributes="Bold" TextColor="#2C3639" />
+                        <Label x:Name="SubWelcomeLabel" Text="Espacio de trabajo arquitectónico" FontSize="13" TextColor="#3F4E4F" />
+                    </VerticalStackLayout>
                     
-                    <Button Text="Abrir en Realidad Aumentada" 
-                            BackgroundColor="#F0F1EA" 
-                            TextColor="#856C4E" 
-                            CornerRadius="12" 
-                            HeightRequest="48" 
-                            FontAttributes="Bold"
-                            Margin="0,10,0,0"
-                            Clicked="OnEnterARClicked"/>
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Sección: Mis Proyectos -->
-            <VerticalStackLayout Spacing="15">
-                <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="Mis Proyectos" FontSize="20" FontAttributes="Bold" TextColor="#856C4E" VerticalOptions="Center"/>
-                    <Label Grid.Column="1" Text="Ver todos" FontSize="14" TextColor="#AC8A6E" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <!-- Acciones de Cabecera -->
+                    <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                        <Border x:Name="RefreshBorder" StrokeThickness="0" BackgroundColor="#3F4E4F" WidthRequest="40" HeightRequest="40">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                            <Image Source="ic_refresh.svg" WidthRequest="18" HeightRequest="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRefreshClicked"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                        
+                        <Border WidthRequest="40" HeightRequest="40" BackgroundColor="#A27B5B" StrokeThickness="0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                            <Label x:Name="HeaderAvatarInitials" Text="AS" FontSize="15" FontAttributes="Bold" TextColor="#FFFFFF" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnProfileClicked" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </HorizontalStackLayout>
                 </Grid>
 
-                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                    <HorizontalStackLayout Spacing="15">
+                <!-- Tarjeta Principal: Proyecto Activo & Acceso a AR -->
+                <Border x:Name="ActiveProjectCard" BackgroundColor="#2C3639" StrokeThickness="0" Padding="22">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,8" Radius="18" Opacity="0.2" /></Border.Shadow>
+                    
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="PROYECTO ACTIVO" FontSize="11" TextColor="#A27B5B" FontAttributes="Bold" CharacterSpacing="1" />
+                            <Border Grid.Column="1" BackgroundColor="#3F4E4F" Padding="10,3">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Label x:Name="ActiveProjectStatusLabel" Text="En progreso" FontSize="11" FontAttributes="Bold" TextColor="#DCD7C9" />
+                            </Border>
+                        </Grid>
+
+                        <Label x:Name="ActiveProjectBannerLabel" Text="Selecciona un proyecto abajo" FontSize="22" FontAttributes="Bold" TextColor="#FFFFFF" LineBreakMode="TailTruncation" MaxLines="1"/>
+                        <Label x:Name="ActiveProjectLocationLabel" Text="Ubicación no especificada" FontSize="12" TextColor="#DCD7C9" Opacity="0.8"/>
                         
-                        <!-- Proyecto 1 -->
-                        <Border WidthRequest="200" BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
-                            <Border.Shadow><Shadow Brush="#856C4E" Offset="0,5" Radius="10" Opacity="0.05" /></Border.Shadow>
-                            <VerticalStackLayout Spacing="10">
-                                <Frame HeightRequest="100" BackgroundColor="#F0F1EA" CornerRadius="10" HasShadow="False" BorderColor="Transparent" Padding="0">
-                                    <Label Text="🏠" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center"/>
-                                </Frame>
-                                <Label Text="Edificio Nova" FontAttributes="Bold" FontSize="16" TextColor="#856C4E"/>
-                                <Label Text="Actualizado ayer" FontSize="12" TextColor="#AC8A6E"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <!-- Proyecto 2 -->
-                        <Border WidthRequest="200" BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
-                            <Border.Shadow><Shadow Brush="#856C4E" Offset="0,5" Radius="10" Opacity="0.05" /></Border.Shadow>
-                            <VerticalStackLayout Spacing="10">
-                                <Frame HeightRequest="100" BackgroundColor="#F0F1EA" CornerRadius="10" HasShadow="False" BorderColor="Transparent" Padding="0">
-                                    <Label Text="🏢" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center"/>
-                                </Frame>
-                                <Label Text="Centro Comercial" FontAttributes="Bold" FontSize="16" TextColor="#856C4E"/>
-                                <Label Text="Hace 3 días" FontSize="12" TextColor="#AC8A6E"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                    </HorizontalStackLayout>
-                </ScrollView>
-            </VerticalStackLayout>
-
-            <!-- Sección: Invitaciones y Notificaciones -->
-            <VerticalStackLayout Spacing="15" Margin="0,10,0,0">
-                <Label Text="Novedades" FontSize="20" FontAttributes="Bold" TextColor="#856C4E" />
-                
-                <Border BackgroundColor="#FFFFFF" Stroke="#E4C99D" StrokeThickness="1" Padding="15">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
-                        <Frame WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#E4C99D" HasShadow="False" BorderColor="Transparent" Padding="0">
-                            <Label Text="📩" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Frame>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Nueva Invitación" FontAttributes="Bold" FontSize="15" TextColor="#856C4E"/>
-                            <Label Text="Te han invitado al proyecto 'Residencial'." FontSize="12" TextColor="#AC8A6E"/>
-                        </VerticalStackLayout>
-                        <Button Grid.Column="2" Text="Ver" BackgroundColor="#92A38D" TextColor="#FFFFFF" CornerRadius="8" HeightRequest="35" Padding="10,0"/>
-                    </Grid>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,4,0,0">
+                            <Button Text="Realidad Aumentada" 
+                                    BackgroundColor="#A27B5B" 
+                                    TextColor="#FFFFFF" 
+                                    CornerRadius="16" 
+                                    HeightRequest="48" 
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Clicked="OnEnterARClicked"/>
+                            <Button Grid.Column="1"
+                                    Text="Detalles" 
+                                    BackgroundColor="#3F4E4F" 
+                                    TextColor="#DCD7C9" 
+                                    CornerRadius="16" 
+                                    HeightRequest="48" 
+                                    Padding="18,0"
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Clicked="OnActiveProjectDetailsClicked"/>
+                        </Grid>
+                    </VerticalStackLayout>
                 </Border>
-            </VerticalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Sección: Mis Proyectos -->
+                <VerticalStackLayout x:Name="ProjectsSection" Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                        <Label Text="Proyectos" FontSize="20" FontAttributes="Bold" TextColor="#2C3639" VerticalOptions="Center"/>
+                        
+                        <!-- Botón para Arquitectos: Crear Proyecto -->
+                        <Button x:Name="BtnNuevoProyecto" 
+                                Grid.Column="1"
+                                Text="+ Nuevo" 
+                                BackgroundColor="#A27B5B" 
+                                TextColor="#FFFFFF" 
+                                FontSize="12" 
+                                FontAttributes="Bold" 
+                                HeightRequest="34" 
+                                CornerRadius="17" 
+                                Padding="14,0"
+                                Clicked="OnOpenNewProjectSheetClicked" />
+
+                        <!-- Botón para Clientes: Unirse con código -->
+                        <Button x:Name="BtnUnirseCodigo" 
+                                Grid.Column="2"
+                                Text="Unirse a Proyecto" 
+                                BackgroundColor="#3F4E4F" 
+                                TextColor="#DCD7C9" 
+                                FontSize="12" 
+                                FontAttributes="Bold" 
+                                HeightRequest="34" 
+                                CornerRadius="17" 
+                                Padding="14,0"
+                                Clicked="OnOpenJoinCodeSheetClicked" />
+                    </Grid>
+
+                    <ActivityIndicator x:Name="LoadingProjectsIndicator" IsRunning="False" IsVisible="False" Color="#A27B5B" HorizontalOptions="Center"/>
+
+                    <!-- Carrusel Horizontal de Proyectos -->
+                    <CollectionView x:Name="ProjectsCollectionView" 
+                                    HeightRequest="185"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnProjectSelected">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="14" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProyectoDto">
+                                <Border WidthRequest="180" BackgroundColor="#FFFFFF" Stroke="#DCD7C9" StrokeThickness="1" Padding="14">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06" /></Border.Shadow>
+                                    <VerticalStackLayout Spacing="8">
+                                        <!-- Header de Tarjeta: Tag de Estado -->
+                                        <Border BackgroundColor="#F5F3EF" Padding="8,4" HorizontalOptions="Start">
+                                            <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                                            <Label Text="{Binding EstadoNormalizado}" FontSize="10" FontAttributes="Bold" TextColor="#A27B5B"/>
+                                        </Border>
+
+                                        <Label Text="{Binding Nombre}" FontAttributes="Bold" FontSize="16" TextColor="#2C3639" LineBreakMode="TailTruncation" MaxLines="1"/>
+                                        <Label Text="{Binding PresupuestoFormateado}" FontSize="13" FontAttributes="Bold" TextColor="#3F4E4F"/>
+                                        
+                                        <Label Text="{Binding FechaFormateada, StringFormat='Act: {0}'}" FontSize="11" TextColor="#7A8485" Margin="0,4,0,0"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="6" Padding="20">
+                                <Label x:Name="EmptyProjectsLabel" Text="No hay proyectos disponibles." TextColor="#7A8485" FontSize="13" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Sección: Notificaciones de la API -->
+                <VerticalStackLayout x:Name="NotificationsSection" Spacing="14" Margin="0,4,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Notificaciones del Sistema" FontSize="20" FontAttributes="Bold" TextColor="#2C3639" VerticalOptions="Center"/>
+                        <Label x:Name="NotificationCountBadge" Grid.Column="1" Text="" FontSize="12" FontAttributes="Bold" TextColor="#A27B5B" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <VerticalStackLayout x:Name="NotificationsContainer" Spacing="10">
+                        <!-- Se agregan notificaciones con cards limpias -->
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ==================== APPLE BOTTOM SHEET: DETALLES DEL PROYECTO ==================== -->
+        <Grid x:Name="ProjectDetailsSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="DetailsBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseDetailsSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="DetailsSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label x:Name="SheetProjectTitleLabel" Text="Nombre Proyecto" FontSize="22" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label x:Name="SheetProjectStatusLabel" Text="En progreso" FontSize="12" FontAttributes="Bold" TextColor="#A27B5B"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseDetailsSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <!-- Ficha de Datos en Cards Limpias -->
+                    <VerticalStackLayout Spacing="10">
+                        <Border BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="14,10">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Text="Ubicación:" FontSize="13" TextColor="#7A8485" WidthRequest="90"/>
+                                <Label Grid.Column="1" x:Name="SheetProjectLocationLabel" Text="--" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
+                            </Grid>
+                        </Border>
+
+                        <Border BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="14,10">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Text="Presupuesto:" FontSize="13" TextColor="#7A8485" WidthRequest="90"/>
+                                <Label Grid.Column="1" x:Name="SheetProjectBudgetLabel" Text="$0.00" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
+                            </Grid>
+                        </Border>
+
+                        <Border BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="14,10">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Text="Fecha:" FontSize="13" TextColor="#7A8485" WidthRequest="90"/>
+                                <Label Grid.Column="1" x:Name="SheetProjectDateLabel" Text="--" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
+                            </Grid>
+                        </Border>
+
+                        <Border BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="14,10">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Text="Sala Activa:" FontSize="13" TextColor="#7A8485" WidthRequest="90"/>
+                                <Label Grid.Column="1" x:Name="SheetProjectCodeLabel" Text="SALA-..." FontSize="13" FontAttributes="Bold" TextColor="#A27B5B"/>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Botones de Acción Apple Style -->
+                    <VerticalStackLayout Spacing="10" Margin="0,6,0,0">
+                        <Button Text="Fijar como Proyecto Activo" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnSetProjectAsActiveClicked"/>
+                        <Button Text="Abrir en Realidad Aumentada (AR)" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnOpenArFromDetailsClicked"/>
+                        
+                        <Button x:Name="BtnSheetGenerarInvitacion" Text="Generar Código de Invitación" BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnGenerarInvitacionFromDetailsClicked"/>
+                        <Button x:Name="BtnSheetEliminarProyecto" Text="Eliminar Proyecto" BackgroundColor="#B84A39" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnEliminarProyectoFromDetailsClicked"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE BOTTOM SHEET: NUEVO PROYECTO ==================== -->
+        <Grid x:Name="NewProjectSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="NewProjectBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseNewProjectSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="NewProjectSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Nuevo Proyecto" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label Text="Ingresa los datos para registrar en el backend" FontSize="12" TextColor="#7A8485"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseNewProjectSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <Entry x:Name="EntryNombreProyecto" Placeholder="Nombre del Proyecto" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EntryDescripcionProyecto" Placeholder="Descripción breve" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EntryUbicacionProyecto" Placeholder="Ubicación o Ciudad" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EntryPresupuestoProyecto" Placeholder="Presupuesto Estimado ($)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+
+                    <Button Text="Crear Proyecto" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnSubmitCrearProyectoClicked" Margin="0,6,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE BOTTOM SHEET: UNIRSE CON CODIGO ==================== -->
+        <Grid x:Name="JoinCodeSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="JoinCodeBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="JoinCodeSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Unirse a Proyecto" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <Label Text="Ingresa el código que te compartió tu Arquitecto:" FontSize="13" TextColor="#7A8485"/>
+                    <Entry x:Name="EntryCodigoInvitacion" Placeholder="ej. ARCHI-1A2B3C" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="48" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold"/>
+
+                    <Button Text="Vincularme al Proyecto" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnSubmitUsarCodigoClicked"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE TOAST ==================== -->
+        <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
+                BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
+            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+            <Border.Shadow><Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.2"/></Border.Shadow>
+            <Label x:Name="AppleToastMessage" Text="" FontSize="14" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalTextAlignment="Center"/>
+        </Border>
+
+    </Grid>
 </ContentPage>
