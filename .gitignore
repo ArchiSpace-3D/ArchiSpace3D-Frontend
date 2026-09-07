@@ -1,0 +1,33 @@
+﻿# Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+*.apk
+*.aab
+*.msix
+*.appx
+*.appxbundle
+*.ipa
+*.dex
+*.apk.idsig
+*.xap
+
+# Visual Studio / VS Code
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & Temp
+*.log
+*.tmp
