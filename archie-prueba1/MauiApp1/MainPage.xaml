@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.MainPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#DCD7C9">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="20,40,20,40" Spacing="22">
+                
+                <!-- Encabezado Apple -->
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Herramientas y Sensores" FontSize="26" FontAttributes="Bold" TextColor="#2C3639" />
+                    <Label Text="Instrumentos de telemetría y medición física" FontSize="13" TextColor="#3F4E4F" />
+                </VerticalStackLayout>
+
+                <!-- Selector de Proyecto Destino -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="18">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06"/></Border.Shadow>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="PROYECTO DESTINO" FontSize="10" TextColor="#A27B5B" FontAttributes="Bold" CharacterSpacing="1"/>
+                            <Label x:Name="CurrentProjectNameLabel" Text="Selecciona un proyecto" FontSize="16" FontAttributes="Bold" TextColor="#2C3639" LineBreakMode="TailTruncation" MaxLines="1"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1" Text="Cambiar" FontSize="12" HeightRequest="34" Padding="14,0" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="17" FontAttributes="Bold" Clicked="OnSelectProjectClicked" />
+                    </Grid>
+                </Border>
+
+                <!-- Botón para entrar al módulo de AR -->
+                <Button Clicked="OnEnterARClicked" 
+                        Text="Abrir Visor Realidad Aumentada"
+                        TextColor="#FFFFFF" 
+                        CornerRadius="18" 
+                        HeightRequest="52" 
+                        FontSize="15"
+                        FontAttributes="Bold">
+                    <Button.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#2C3639" Offset="0.0" />
+                            <GradientStop Color="#3F4E4F" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Button.Background>
+                </Button>
+
+                <!-- 1. TELÉMETRO TRIGONOMÉTRICO -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06"/></Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Telémetro Trigonométrico" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Label Text="Calcula altura y distancia mediante inclinación óptica." TextColor="#7A8485" FontSize="12"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalOptions="Center">
+                            <Label Text="Altura del observador (m):" TextColor="#2C3639" VerticalOptions="Center" FontSize="13"/>
+                            <Entry Grid.Column="1" x:Name="UserHeightEntry" Text="1.50" Keyboard="Numeric" TextColor="#2C3639" BackgroundColor="#F5F3EF" HeightRequest="40" HorizontalTextAlignment="Center"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                            <Button Grid.Column="0" Text="Marcar Base" Clicked="OnMarkBaseClicked" 
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="14" FontAttributes="Bold" HeightRequest="44" FontSize="13"/>
+                            <Button Grid.Column="1" Text="Marcar Tope" Clicked="OnMarkTopClicked" 
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="14" FontAttributes="Bold" HeightRequest="44" FontSize="13"/>
+                        </Grid>
+
+                        <Label x:Name="TrigResultLabel" Text="Alinea el objetivo y presiona Base y Tope" TextColor="#2C3639" FontSize="14" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,4,0,0"/>
+                        <Button x:Name="BtnSaveTrigMeasure" Text="Guardar Altura en Proyecto" Clicked="OnSaveTrigMeasureClicked" 
+                                BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="14" HeightRequest="44" FontSize="13" FontAttributes="Bold" IsVisible="False"/>
+                    </VerticalStackLayout>
+                </Border>
+                
+                <!-- 2. MEDICIÓN POR SATÉLITE (GPS) -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06"/></Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Distancia Satelital (GPS)" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Label Text="Mide separación entre dos ubicaciones geográficas." TextColor="#7A8485" FontSize="12"/>
+                        
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                            <Button Grid.Column="0" Text="Fijar Punto A" Clicked="OnGpsPointAClicked" 
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="14" FontAttributes="Bold" HeightRequest="44" FontSize="13"/>
+                            <Button Grid.Column="1" Text="Fijar Punto B" Clicked="OnGpsPointBClicked" 
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="14" FontAttributes="Bold" HeightRequest="44" FontSize="13"/>
+                        </Grid>
+                        
+                        <Label x:Name="GpsResultLabel" Text="Fija el Punto A para comenzar" TextColor="#7A8485" FontSize="13" HorizontalTextAlignment="Center" Margin="0,4,0,0"/>
+                        <Button x:Name="BtnSaveGpsMeasure" Text="Guardar Distancia GPS en Proyecto" Clicked="OnSaveGpsMeasureClicked" 
+                                BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="14" HeightRequest="44" FontSize="13" FontAttributes="Bold" IsVisible="False"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 3. FOTO-MEDICIÓN POR REFERENCIA -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06"/></Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Foto-Medición por Escala" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Label Text="Fotografía un elemento junto a una tarjeta (8.56 cm)." TextColor="#7A8485" FontSize="12"/>
+                        
+                        <Button Text="Capturar Fotografía" Clicked="OnTakePhotoForMeasureClicked" 
+                                BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="14" HeightRequest="46" FontAttributes="Bold" FontSize="13"/>
+                                
+                        <Label x:Name="PhotoMeasureInstructionLabel" Text="" TextColor="#A27B5B" FontSize="13" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                        
+                        <Grid x:Name="ImageContainer" HeightRequest="280" IsVisible="False">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnImageTapped"/>
+                            </Grid.GestureRecognizers>
+                            <Image x:Name="CapturedImage" Aspect="AspectFit" />
+                            <AbsoluteLayout x:Name="DotsLayout" BackgroundColor="Transparent" />
+                        </Grid>
+                        
+                        <Label x:Name="PhotoMeasureResultLabel" Text="" TextColor="#2C3639" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                        <Button x:Name="BtnSavePhotoMeasure" Text="Guardar Medición en Proyecto" Clicked="OnSavePhotoMeasureClicked" 
+                                BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="14" HeightRequest="44" FontSize="13" FontAttributes="Bold" IsVisible="False"/>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button x:Name="BtnUndoPhotoMeasure" Grid.Column="0" Text="Deshacer" Clicked="OnUndoPhotoMeasureClicked" IsVisible="False"
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="12" HeightRequest="40" FontSize="12" FontAttributes="Bold"/>
+                            <Button x:Name="BtnResetPhotoMeasure" Grid.Column="1" Text="Reiniciar" Clicked="OnResetPhotoMeasureClicked" IsVisible="False"
+                                    BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="12" HeightRequest="40" FontSize="12" FontAttributes="Bold"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 4. HISTORIAL DE MEDICIONES GUARDADAS EN EL BACKEND -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06"/></Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Mediciones Guardadas" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                                <Label Text="Historial registrado en la base de datos" FontSize="12" TextColor="#7A8485"/>
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Text="Actualizar" HeightRequest="32" CornerRadius="16" Padding="12,0"
+                                    BackgroundColor="#3F4E4F" TextColor="#DCD7C9" FontSize="11" FontAttributes="Bold"
+                                    Clicked="OnRefreshMedicionesClicked"/>
+                        </Grid>
+
+                        <VerticalStackLayout x:Name="MedicionesGuardadasStack" Spacing="8">
+                            <!-- Las mediciones se listan dinámicamente -->
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Grid de Sensores de Diagnóstico -->
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                    <!-- Batería -->
+                    <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="14">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Batería" FontSize="14" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label x:Name="BatteryLabel" Text="Calculando..." TextColor="#7A8485" FontSize="11" />
+                            <Button Text="Refrescar" Clicked="OnRefreshBatteryClicked" BackgroundColor="#F5F3EF" TextColor="#2C3639" CornerRadius="10" FontSize="11" HeightRequest="28" Padding="0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Acelerómetro -->
+                    <Border Grid.Column="1" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="14">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Acelerómetro" FontSize="14" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label x:Name="AccelLabel" Text="Inactivo" TextColor="#7A8485" FontSize="11" />
+                            <Button x:Name="BtnToggleAccel" Text="Activar" Clicked="OnToggleAccelClicked" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="10" HeightRequest="28" FontSize="11" Padding="0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Giroscopio -->
+                    <Border Grid.Row="1" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="14">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Giroscopio" FontSize="14" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label x:Name="GyroLabel" Text="Inactivo" TextColor="#7A8485" FontSize="11" />
+                            <Button x:Name="BtnToggleGyro" Text="Activar" Clicked="OnToggleGyroClicked" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="10" HeightRequest="28" FontSize="11" Padding="0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Brújula -->
+                    <Border Grid.Row="1" Grid.Column="1" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="14">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Brújula" FontSize="14" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label x:Name="CompassLabel" Text="Inactivo" TextColor="#7A8485" FontSize="11" />
+                            <Button x:Name="BtnToggleCompass" Text="Activar" Clicked="OnToggleCompassClicked" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="10" HeightRequest="28" FontSize="11" Padding="0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Barómetro -->
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="14">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Barómetro" FontSize="14" FontAttributes="Bold" TextColor="#2C3639"/>
+                                <Label x:Name="BarometerLabel" Text="Inactivo" TextColor="#7A8485" FontSize="11" />
+                            </VerticalStackLayout>
+                            <Button x:Name="BtnToggleBarometer" Grid.Column="1" Text="Activar" Clicked="OnToggleBarometerClicked" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="10" HeightRequest="28" FontSize="11" Padding="14,0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ==================== APPLE BOTTOM SHEET: SELECCIONAR PROYECTO ==================== -->
+        <Grid x:Name="SelectProjectSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="SelectProjectBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseSelectProjectSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="SelectProjectSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Seleccionar Proyecto Destino" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseSelectProjectSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <ScrollView HeightRequest="250">
+                        <VerticalStackLayout x:Name="ProjectsSelectionList" Spacing="8">
+                            <!-- Los proyectos seleccionables se inyectan dinámicamente -->
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE TOAST ==================== -->
+        <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
+                BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
+            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+            <Border.Shadow><Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.2"/></Border.Shadow>
+            <Label x:Name="AppleToastMessage" Text="" FontSize="14" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalTextAlignment="Center"/>
+        </Border>
+
+    </Grid>
+</ContentPage>

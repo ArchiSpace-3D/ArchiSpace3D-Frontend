@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.DesignPage"
+             BackgroundColor="#DCD7C9"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <!-- Header Superior Fijo Apple -->
+        <Border VerticalOptions="Start" HeightRequest="130" BackgroundColor="#2C3639" StrokeThickness="0" Margin="0,-20,0,0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0,0,32,32" />
+            </Border.StrokeShape>
+            <Grid Padding="24,40,24,10" ColumnDefinitions="*,Auto" VerticalOptions="End">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Diseño y Espacios 3D" FontSize="24" FontAttributes="Bold" TextColor="#DCD7C9" />
+                    <Label x:Name="ProjectHeaderLabel" Text="Cargando proyecto..." FontSize="13" TextColor="#A27B5B" />
+                </VerticalStackLayout>
+                <Border Grid.Column="1" StrokeThickness="0" BackgroundColor="#3F4E4F" WidthRequest="40" HeightRequest="40" VerticalOptions="Center">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <Image Source="ic_refresh.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRefreshClicked"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Contenido Desplazable -->
+        <ScrollView Margin="0,120,0,0" Padding="16,10,16,30">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- 1. SECCION: ESPACIO FISICO DEL PROYECTO -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.08" /></Border.Shadow>
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Espacio Físico" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                                <Label Text="Dimensiones y orientación general" FontSize="12" TextColor="#7A8485"/>
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Text="Configurar" HeightRequest="34" CornerRadius="17" Padding="14,0"
+                                    BackgroundColor="#A27B5B" TextColor="#FFFFFF" FontSize="12" FontAttributes="Bold"
+                                    Clicked="OnOpenEditEspacioSheetClicked"/>
+                        </Grid>
+
+                        <!-- Metricas en Grid 3 columnas -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <!-- Ancho x Largo -->
+                            <Border BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="10">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                    <Label Text="Planta" FontSize="11" TextColor="#7A8485" HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="LblPlanta" Text="-- x -- m" FontSize="14" FontAttributes="Bold" TextColor="#2C3639" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <!-- Altura -->
+                            <Border Grid.Column="1" BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="10">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                    <Label Text="Altura" FontSize="11" TextColor="#7A8485" HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="LblAlto" Text="-- m" FontSize="14" FontAttributes="Bold" TextColor="#2C3639" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <!-- Superficie Area -->
+                            <Border Grid.Column="2" BackgroundColor="#F5F3EF" Stroke="#DCD7C9" StrokeThickness="1" Padding="10">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                    <Label Text="Área / Vol." FontSize="11" TextColor="#7A8485" HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="LblAreaVol" Text="-- m²" FontSize="13" FontAttributes="Bold" TextColor="#A27B5B" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Label x:Name="LblAzimut" Text="Orientación Azimut: --°" FontSize="12" TextColor="#3F4E4F" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2. SECCION: VERSIONES DE DISENO -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.08" /></Border.Shadow>
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Versiones de Diseño" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                                <Label Text="Historial de iteraciones del proyecto" FontSize="12" TextColor="#7A8485"/>
+                            </VerticalStackLayout>
+                            <Button x:Name="BtnCrearVersion" Grid.Column="1" Text="+ Versión" HeightRequest="34" CornerRadius="17" Padding="14,0"
+                                    BackgroundColor="#2C3639" TextColor="#DCD7C9" FontSize="12" FontAttributes="Bold"
+                                    Clicked="OnCrearVersionClicked"/>
+                        </Grid>
+
+                        <CollectionView x:Name="VersionesCollectionView" SelectionMode="Single" SelectionChanged="OnVersionSelected">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BackgroundColor="{Binding Esactual, Converter={x:Null}}" StrokeThickness="1" Padding="16,12" WidthRequest="160">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Esactual}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="#2C3639"/>
+                                                <Setter Property="Stroke" Value="#A27B5B"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Esactual}" Value="False">
+                                                <Setter Property="BackgroundColor" Value="#F5F3EF"/>
+                                                <Setter Property="Stroke" Value="#DCD7C9"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding TituloVersion}" FontSize="15" FontAttributes="Bold" TextColor="{Binding Esactual, Converter={x:Null}}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Esactual}" Value="True">
+                                                        <Setter Property="TextColor" Value="#DCD7C9"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Esactual}" Value="False">
+                                                        <Setter Property="TextColor" Value="#2C3639"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            <Label Text="{Binding FechaFormateada}" FontSize="11" TextColor="#7A8485"/>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.EmptyView>
+                                <Label Text="No hay versiones creadas aún." FontSize="13" TextColor="#7A8485" HorizontalOptions="Center" Margin="0,10"/>
+                            </CollectionView.EmptyView>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 3. SECCION: ELEMENTOS ESTRUCTURALES DE LA VERSION -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.08" /></Border.Shadow>
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Elementos Estructurales" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                                <Label x:Name="SubtituloElementosLabel" Text="Componentes de la versión activa" FontSize="12" TextColor="#7A8485"/>
+                            </VerticalStackLayout>
+                            <Button x:Name="BtnAgregarElemento" Grid.Column="1" Text="+ Elemento" HeightRequest="34" CornerRadius="17" Padding="14,0"
+                                    BackgroundColor="#A27B5B" TextColor="#FFFFFF" FontSize="12" FontAttributes="Bold"
+                                    Clicked="OnOpenAgregarElementoSheetClicked"/>
+                        </Grid>
+
+                        <VerticalStackLayout x:Name="ElementosStackLayout" Spacing="8">
+                            <!-- Los elementos estructurales se renderizan de forma dinámica -->
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 4. SECCION: MODELOS 3D IMPORTADOS -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.08" /></Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Modelos 3D Registrados" FontSize="18" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <VerticalStackLayout x:Name="ModelosStackLayout" Spacing="8">
+                            <!-- Los modelos 3D se renderizan de forma dinámica -->
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ==================== APPLE BOTTOM SHEET: CONFIGURAR ESPACIO FISICO ==================== -->
+        <Grid x:Name="EspacioSheetModal" IsVisible="False" InputTransparent="False">
+            <!-- Backdrop Oscuro -->
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="EspacioBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseEspacioSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <!-- Tarjeta Inferior Deslizante -->
+            <Border x:Name="EspacioSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Configurar Espacio Físico" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseEspacioSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <Entry x:Name="EntryDescripcionEspacio" Placeholder="Descripción (ej. Sala Principal)" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry x:Name="EntryAnchoEspacio" Placeholder="Ancho (m)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                        <Entry Grid.Column="1" x:Name="EntryLargoEspacio" Placeholder="Largo (m)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry x:Name="EntryAltoEspacio" Placeholder="Alto (m)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                        <Entry Grid.Column="1" x:Name="EntryAzimutEspacio" Placeholder="Azimut (°)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    </Grid>
+
+                    <Button Text="Guardar Dimensiones" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnGuardarEspacioClicked"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE BOTTOM SHEET: AGREGAR ELEMENTO ESTRUCTURAL ==================== -->
+        <Grid x:Name="ElementoSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="ElementoBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseElementoSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="ElementoSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Nuevo Elemento Estructural" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseElementoSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <Picker x:Name="PickerTipoElemento" Title="Tipo de Elemento" BackgroundColor="#F5F3EF" TextColor="#2C3639">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Muro</x:String>
+                                <x:String>Columna</x:String>
+                                <x:String>Viga</x:String>
+                                <x:String>Puerta</x:String>
+                                <x:String>Ventana</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <Entry x:Name="EntryMaterialElemento" Placeholder="Material (ej. Concreto, Acero, Madera)" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+
+                    <Label Text="Dimensiones (m)" FontSize="12" FontAttributes="Bold" TextColor="#7A8485"/>
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <Entry x:Name="EntryAnchoElem" Placeholder="Ancho" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="44"/>
+                        <Entry Grid.Column="1" x:Name="EntryAltoElem" Placeholder="Alto" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="44"/>
+                        <Entry Grid.Column="2" x:Name="EntryProfElem" Placeholder="Prof." Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="44"/>
+                    </Grid>
+
+                    <Button Text="Agregar Elemento" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnGuardarElementoClicked"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ==================== APPLE TOAST / NOTIFICACION FLOTANTE ==================== -->
+        <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
+                BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
+            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+            <Border.Shadow><Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.2"/></Border.Shadow>
+            <Label x:Name="AppleToastMessage" Text="" FontSize="14" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalTextAlignment="Center"/>
+        </Border>
+
+    </Grid>
+</ContentPage>
