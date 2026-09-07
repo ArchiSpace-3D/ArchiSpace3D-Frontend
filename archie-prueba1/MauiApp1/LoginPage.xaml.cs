@@ -9,9 +9,6 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
 
-        // Si es emulador usa 10.0.2.2, si es teléfono físico o Windows usa la IP local del PC por Wi-Fi (192.168.101.75)
-        string defaultIp = DeviceInfo.DeviceType == DeviceType.Virtual ? "10.0.2.2" : "192.168.101.75";
-        IpEntry.Text = Preferences.Get("saved_ip", defaultIp);
         EmailEntry.Text = Preferences.Get("saved_email", string.Empty);
     }
 
@@ -33,35 +30,18 @@ public partial class LoginPage : ContentPage
         await LoginCard.TranslateToAsync(0, 0, 500, Easing.CubicOut);
     }
 
-    private async void OnUseMyPcIpClicked(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 60).ContinueWith(_ => btn.ScaleToAsync(1.0, 60)); }
-        IpEntry.Text = "192.168.101.75";
-    }
-
-    private async void OnUseEmulatorIpClicked(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 60).ContinueWith(_ => btn.ScaleToAsync(1.0, 60)); }
-        IpEntry.Text = "10.0.2.2";
-    }
-
-    private async void OnUseLocalhostClicked(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 60).ContinueWith(_ => btn.ScaleToAsync(1.0, 60)); }
-        IpEntry.Text = "localhost";
-    }
-
     private async void OnLoginClicked(object? sender, EventArgs e)
     {
         await LoginButton.ScaleToAsync(0.96, 70);
         await LoginButton.ScaleToAsync(1.0, 80);
-        string hostOrIp = IpEntry.Text?.Trim() ?? string.Empty;
+        
+        string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
         string email = EmailEntry.Text?.Trim() ?? string.Empty;
         string password = PasswordEntry.Text?.Trim() ?? string.Empty;
 
-        if (string.IsNullOrEmpty(hostOrIp) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            await ShowToastAsync("Ingresa la IP, correo y contraseña.");
+            await ShowToastAsync("Ingresa correo y contraseña.");
             return;
         }
 
@@ -74,7 +54,6 @@ public partial class LoginPage : ContentPage
 
             if (success && response != null)
             {
-                Preferences.Set("saved_ip", hostOrIp);
                 Preferences.Set("saved_email", email);
 
                 await ShowToastAsync($"¡Bienvenido {response.Nombre}!");
@@ -119,12 +98,7 @@ public partial class LoginPage : ContentPage
     {
         if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
 
-        string hostOrIp = IpEntry.Text?.Trim() ?? string.Empty;
-        if (string.IsNullOrEmpty(hostOrIp))
-        {
-            await ShowToastAsync("Ingresa la IP o Host primero.");
-            return;
-        }
+        string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
 
         string nombre = RegNombreEntry.Text?.Trim() ?? "";
         string apellido = RegApellidoEntry.Text?.Trim() ?? "";

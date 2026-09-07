@@ -21,7 +21,7 @@ namespace MauiApp1.Services
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                return "http://192.168.101.75:5000";
+                return "https://archispace3d-backend-production.up.railway.app";
             }
 
             string trimmed = input.Trim().TrimEnd('/');
@@ -34,6 +34,12 @@ namespace MauiApp1.Services
 
             if (Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
             {
+                // Si es HTTPS (como en Railway), NO forzamos el puerto 5000
+                if (uri.Scheme == Uri.UriSchemeHttps)
+                {
+                    return uri.ToString().TrimEnd('/');
+                }
+
                 if (uri.IsDefaultPort || uri.Port == 80)
                 {
                     if (!trimmed.Contains(":80") && !trimmed.Contains(":443"))

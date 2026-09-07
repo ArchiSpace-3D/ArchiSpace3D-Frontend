@@ -10,7 +10,7 @@ namespace MauiApp1.Services
         public static string Apellido { get; set; } = string.Empty;
         public static string Email { get; set; } = string.Empty;
         public static string Rol { get; set; } = "Arquitecto";
-        public static string BaseUrl { get; set; } = "http://10.0.2.2:5000";
+        public static string BaseUrl { get; set; } = "https://archispace3d-backend-production.up.railway.app";
 
         public static ProyectoDto? ActiveProject { get; set; }
 
