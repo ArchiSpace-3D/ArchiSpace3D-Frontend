@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using MauiApp1.Models;
 using MauiApp1.Services;
 
@@ -35,6 +35,7 @@ public partial class DesignPage : ContentPage
         bool esArquitecto = UserSession.Rol == "Arquitecto";
         BtnCrearVersion.IsVisible = esArquitecto;
         BtnAgregarElemento.IsVisible = esArquitecto;
+        BtnGuardarDimensiones.IsVisible = esArquitecto;
 
         await Task.WhenAll(
             CargarEspacioFisicoAsync(),
@@ -388,12 +389,38 @@ public partial class DesignPage : ContentPage
             stack.Children.Add(new Label { Text = mod.Nombrearchivo, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#2C3639") });
             stack.Children.Add(new Label { Text = $"Formato: {mod.Formato.ToUpper()} • Almacenamiento: {mod.Rutastorage}", FontSize = 11, TextColor = Color.FromArgb("#7A8485") });
 
+                        var tap = new TapGestureRecognizer();
+            tap.Tapped += async (s, e) =>
+            {
+                if (card is VisualElement v) { _ = v.ScaleToAsync(0.95, 60).ContinueWith(_ => v.ScaleToAsync(1.0, 60)); }
+                ViewerModal.IsVisible = true;
+                ViewerTitleLabel.Text = mod.Nombrearchivo;
+                
+                string htmlPath = System.IO.Path.Combine(FileSystem.CacheDirectory, "ar_viewer.html");
+                if (!System.IO.File.Exists(htmlPath))
+                {
+                    using var stream = await FileSystem.OpenAppPackageFileAsync("ar_viewer.html");
+                    using var reader = new System.IO.StreamReader(stream);
+                    string html = await reader.ReadToEndAsync();
+                    System.IO.File.WriteAllText(htmlPath, html);
+                }
+                ModelWebView.Source = htmlPath;
+            };
+            card.GestureRecognizers.Add(tap);
+
             card.Content = stack;
             ModelosStackLayout.Children.Add(card);
         }
     }
 
     // ==================== APPLE TOAST ====================
+
+        private async void OnCloseViewerClicked(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
+        ModelWebView.Source = null; // stop processing
+        ViewerModal.IsVisible = false;
+    }
 
     private async Task ShowToastAsync(string message)
     {
@@ -407,3 +434,5 @@ public partial class DesignPage : ContentPage
         AppleToast.IsVisible = false;
     }
 }
+
+

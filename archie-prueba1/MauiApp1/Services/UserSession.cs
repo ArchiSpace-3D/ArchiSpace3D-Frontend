@@ -20,7 +20,7 @@ namespace MauiApp1.Services
             ? Nombre 
             : $"{Nombre} {Apellido}";
 
-        public static void SetSession(LoginResponse loginResponse, string baseUrl)
+        public static async Task SetSessionAsync(LoginResponse loginResponse, string baseUrl)
         {
             Token = loginResponse.Token;
             Idusuario = loginResponse.Idusuario;
@@ -29,6 +29,34 @@ namespace MauiApp1.Services
             Email = loginResponse.Email;
             Rol = loginResponse.Rol;
             BaseUrl = baseUrl;
+
+            // Guardar en almacenamiento seguro
+            await SecureStorage.SetAsync("auth_token", Token ?? "");
+            await SecureStorage.SetAsync("user_id", Idusuario.ToString());
+            await SecureStorage.SetAsync("user_nombre", Nombre ?? "");
+            await SecureStorage.SetAsync("user_apellido", Apellido ?? "");
+            await SecureStorage.SetAsync("user_email", Email ?? "");
+            await SecureStorage.SetAsync("user_rol", Rol ?? "");
+        }
+
+        public static async Task<bool> LoadSessionAsync()
+        {
+            var token = await SecureStorage.GetAsync("auth_token");
+            if (string.IsNullOrEmpty(token))
+                return false;
+
+            Token = token;
+            
+            var idStr = await SecureStorage.GetAsync("user_id");
+            if (int.TryParse(idStr, out int id))
+                Idusuario = id;
+
+            Nombre = await SecureStorage.GetAsync("user_nombre") ?? "Invitado";
+            Apellido = await SecureStorage.GetAsync("user_apellido") ?? "";
+            Email = await SecureStorage.GetAsync("user_email") ?? "";
+            Rol = await SecureStorage.GetAsync("user_rol") ?? "Arquitecto";
+
+            return true;
         }
 
         public static void ClearSession()
@@ -39,6 +67,8 @@ namespace MauiApp1.Services
             Apellido = string.Empty;
             Email = string.Empty;
             Rol = "Arquitecto";
+            
+            SecureStorage.RemoveAll();
         }
     }
 }

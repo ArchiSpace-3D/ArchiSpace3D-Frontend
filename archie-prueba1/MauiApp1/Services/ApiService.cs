@@ -93,7 +93,7 @@ namespace MauiApp1.Services
 
                     if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.Token))
                     {
-                        UserSession.SetSession(loginResponse, baseUrl);
+                        await UserSession.SetSessionAsync(loginResponse, baseUrl);
                         return (true, "Inicio de sesión exitoso.", loginResponse);
                     }
 

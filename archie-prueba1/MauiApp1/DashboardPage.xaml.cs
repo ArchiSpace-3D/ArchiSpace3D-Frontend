@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using MauiApp1.Models;
 using MauiApp1.Services;
 
@@ -43,17 +43,20 @@ public partial class DashboardPage : ContentPage
     private void UpdateUserInfo()
     {
         string nombre = string.IsNullOrWhiteSpace(UserSession.Nombre) ? "Arquitecto" : UserSession.Nombre;
-        WelcomeLabel.Text = $"¡Hola, {nombre}!";
+        WelcomeLabel.Text = $"Hola, {nombre}!";
         SubWelcomeLabel.Text = UserSession.IsAuthenticated
-            ? $"Rol: {UserSession.Rol} • {UserSession.Email}"
+            ? $"Rol: {UserSession.Rol}   {UserSession.Email}"
             : "Modo sin conexión (Invitado)";
 
         string inicial = !string.IsNullOrEmpty(nombre) ? nombre.Substring(0, 1).ToUpper() : "A";
         HeaderAvatarInitials.Text = inicial;
 
-        bool esArquitecto = UserSession.Rol == "Arquitecto";
-        BtnNuevoProyecto.IsVisible = esArquitecto;
-        BtnUnirseCodigo.IsVisible = !esArquitecto;
+        bool isArquitecto = UserSession.Rol == "Arquitecto";
+        BtnNuevoProyecto.IsVisible = isArquitecto;
+        BtnSheetEditarProyecto.IsVisible = isArquitecto;
+        BtnSheetGenerarInvitacion.IsVisible = isArquitecto;
+        BtnSheetEliminarProyecto.IsVisible = isArquitecto;
+        BtnUnirseCodigo.IsVisible = !isArquitecto;
     }
 
     private async Task LoadProjectsAsync()
@@ -516,4 +519,69 @@ public partial class DashboardPage : ContentPage
         await AppleToast.TranslateToAsync(0, 0, 200, Easing.CubicIn);
         AppleToast.IsVisible = false;
     }
+
+    private async void OnEditarProyectoFromDetailsClicked(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
+        if (_selectedProjectForSheet == null) return;
+        
+        OnCloseDetailsSheetClicked(null, EventArgs.Empty);
+
+        EditNombreProyecto.Text = _selectedProjectForSheet.Nombre;
+        EditDescripcionProyecto.Text = _selectedProjectForSheet.Descripcion;
+        EditUbicacionProyecto.Text = _selectedProjectForSheet.Ubicacion;
+        EditPresupuestoProyecto.Text = _selectedProjectForSheet.Presupuesto?.ToString();
+
+        EditProjectSheetModal.IsVisible = true;
+        EditProjectBackdrop.Opacity = 0;
+        EditProjectSheetCard.TranslationY = 400;
+
+        _ = EditProjectBackdrop.FadeToAsync(1, 200);
+        await EditProjectSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+    }
+
+    private async void OnCloseEditProjectSheetClicked(object? sender, EventArgs e)
+    {
+        _ = EditProjectBackdrop.FadeToAsync(0, 150);
+        await EditProjectSheetCard.TranslateToAsync(0, 400, 200, Easing.CubicIn);
+        EditProjectSheetModal.IsVisible = false;
+    }
+
+    private async void OnSubmitEditarProyectoClicked(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
+        if (_selectedProjectForSheet == null) return;
+
+        string nombre = EditNombreProyecto.Text?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            await ShowToastAsync("Ingresa un nombre para el proyecto.");
+            return;
+        }
+
+        decimal.TryParse(EditPresupuestoProyecto.Text, out decimal presupuesto);
+
+        var req = new ActualizarProyectoRequest
+        {
+            Nombre = nombre,
+            Descripcion = EditDescripcionProyecto.Text?.Trim(),
+            Ubicacion = EditUbicacionProyecto.Text?.Trim(),
+            Presupuesto = presupuesto > 0 ? presupuesto : null,
+            Estado = _selectedProjectForSheet.Estado
+        };
+
+        var (success, message) = await ApiService.ActualizarProyectoAsync(_selectedProjectForSheet.Idproyecto, req);
+        OnCloseEditProjectSheetClicked(null, EventArgs.Empty);
+
+        if (success)
+        {
+            await ShowToastAsync("Proyecto actualizado correctamente.");
+            await LoadProjectsAsync();
+        }
+        else
+        {
+            await ShowToastAsync(message);
+        }
+    }
 }
+

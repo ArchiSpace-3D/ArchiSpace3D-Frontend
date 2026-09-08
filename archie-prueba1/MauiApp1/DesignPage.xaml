@@ -202,7 +202,7 @@
                         <Entry Grid.Column="1" x:Name="EntryAzimutEspacio" Placeholder="Azimut (°)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
                     </Grid>
 
-                    <Button Text="Guardar Dimensiones" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnGuardarEspacioClicked"/>
+                    <Button x:Name="BtnGuardarDimensiones" Text="Guardar Dimensiones" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnGuardarEspacioClicked"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
@@ -264,3 +264,4 @@
 
     </Grid>
 </ContentPage>
+

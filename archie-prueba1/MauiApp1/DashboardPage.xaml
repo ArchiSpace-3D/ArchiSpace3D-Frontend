@@ -228,6 +228,8 @@
                         <Button Text="Fijar como Proyecto Activo" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnSetProjectAsActiveClicked"/>
                         <Button Text="Abrir en Realidad Aumentada (AR)" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnOpenArFromDetailsClicked"/>
                         
+                        <!-- Actions only for Architect -->
+                        <Button x:Name="BtnSheetEditarProyecto" Text="Editar Proyecto" BackgroundColor="#2C3639" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnEditarProyectoFromDetailsClicked"/>
                         <Button x:Name="BtnSheetGenerarInvitacion" Text="Generar CÃ³digo de InvitaciÃ³n" BackgroundColor="#3F4E4F" TextColor="#DCD7C9" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnGenerarInvitacionFromDetailsClicked"/>
                         <Button x:Name="BtnSheetEliminarProyecto" Text="Eliminar Proyecto" BackgroundColor="#B84A39" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="48" FontAttributes="Bold" Clicked="OnEliminarProyectoFromDetailsClicked"/>
                     </VerticalStackLayout>
@@ -265,6 +267,40 @@
                     <Entry x:Name="EntryPresupuestoProyecto" Placeholder="Presupuesto Estimado ($)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
 
                     <Button Text="Crear Proyecto" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnSubmitCrearProyectoClicked" Margin="0,6,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+                <!-- ==================== APPLE BOTTOM SHEET: EDITAR PROYECTO ==================== -->
+        <Grid x:Name="EditProjectSheetModal" IsVisible="False" InputTransparent="False">
+            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="EditProjectBackdrop">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseEditProjectSheetClicked" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border x:Name="EditProjectSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
+                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Editar Proyecto" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
+                            <Label Text="Actualiza los datos del proyecto" FontSize="12" TextColor="#7A8485"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseEditProjectSheetClicked"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+
+                    <Entry x:Name="EditNombreProyecto" Placeholder="Nombre del Proyecto" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EditDescripcionProyecto" Placeholder="Descripción breve" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EditUbicacionProyecto" Placeholder="Ubicación o Ciudad" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                    <Entry x:Name="EditPresupuestoProyecto" Placeholder="Presupuesto Estimado ($)" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+
+                    <Button Text="Guardar Cambios" BackgroundColor="#3F4E4F" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnSubmitEditarProyectoClicked" Margin="0,6,0,0"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>
@@ -308,3 +344,4 @@
 
     </Grid>
 </ContentPage>
+

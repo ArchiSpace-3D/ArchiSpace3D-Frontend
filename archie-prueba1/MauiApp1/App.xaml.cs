@@ -1,3 +1,5 @@
+using MauiApp1.Services;
+
 namespace MauiApp1
 {
     public partial class App : Application
@@ -9,7 +11,22 @@ namespace MauiApp1
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new NavigationPage(new LoginPage()));
+            var window = new Window(new NavigationPage(new LoginPage()));
+            
+            // Auto Login logic
+            Task.Run(async () =>
+            {
+                bool hasSession = await UserSession.LoadSessionAsync();
+                if (hasSession)
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        window.Page = new AppShell();
+                    });
+                }
+            });
+
+            return window;
         }
 
         public static void SetRootPage(Page page)
