@@ -254,6 +254,29 @@
             </Border>
         </Grid>
 
+        <!-- ==================== VISOR 3D WEBVIEW ==================== -->
+        <Grid x:Name="ViewerModal" IsVisible="False" InputTransparent="False" BackgroundColor="#2C3639">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Grid Padding="15,40,15,15" BackgroundColor="#2C3639">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCloseViewerClicked"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label x:Name="ViewerTitleLabel" Grid.Column="1" Text="Visor 3D" TextColor="#FFFFFF" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" Margin="-24,0,0,0"/>
+            </Grid>
+
+            <WebView x:Name="ModelWebView" Grid.Row="1" HorizontalOptions="Fill" VerticalOptions="Fill" />
+        </Grid>
+
         <!-- ==================== APPLE TOAST / NOTIFICACION FLOTANTE ==================== -->
         <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
                 BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
