@@ -76,16 +76,16 @@ namespace MauiApp1
             {
                 var card = new Border
                 {
-                    BackgroundColor = Color.FromArgb("#F5F3EF"),
-                    Stroke = Color.FromArgb("#DCD7C9"),
+                    BackgroundColor = Color.FromArgb("#E8F1F8"),
+                    Stroke = Color.FromArgb("#BDD8E9"),
                     StrokeThickness = 1,
                     Padding = new Thickness(16, 12),
                     StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(14) }
                 };
 
                 var stack = new VerticalStackLayout { Spacing = 2 };
-                stack.Children.Add(new Label { Text = p.Nombre, FontSize = 15, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#2C3639") });
-                stack.Children.Add(new Label { Text = $"Estado: {p.EstadoNormalizado} • {p.PresupuestoFormateado}", FontSize = 12, TextColor = Color.FromArgb("#7A8485") });
+                stack.Children.Add(new Label { Text = p.Nombre, FontSize = 15, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
+                stack.Children.Add(new Label { Text = $"Estado: {p.EstadoNormalizado} • {p.PresupuestoFormateado}", FontSize = 12, TextColor = Color.FromArgb("#6EA2B3") });
 
                 var tap = new TapGestureRecognizer();
                 var projObj = p;
@@ -127,7 +127,6 @@ namespace MauiApp1
             try { Battery.Default.BatteryInfoChanged -= Battery_BatteryInfoChanged; } catch {}
         }
 
-        // --- Acelerómetro ---
         private void OnToggleAccelClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 50).ContinueWith(_ => btn.ScaleToAsync(1.0, 50)); }
@@ -138,14 +137,14 @@ namespace MauiApp1
                     Accelerometer.Default.ReadingChanged += Accelerometer_ReadingChanged;
                     Accelerometer.Default.Start(SensorSpeed.UI);
                     BtnToggleAccel.Text = "Desactivar";
-                    BtnToggleAccel.BackgroundColor = Color.FromArgb("#3F4E4F"); // Lunar Eclipse activo
+                    BtnToggleAccel.BackgroundColor = Color.FromArgb("#0A4174"); // Lunar Eclipse activo
                 }
                 else
                 {
                     Accelerometer.Default.Stop();
                     Accelerometer.Default.ReadingChanged -= Accelerometer_ReadingChanged;
                     BtnToggleAccel.Text = "Activar";
-                    BtnToggleAccel.BackgroundColor = Color.FromArgb("#A27B5B"); // Creme Brulee inactivo
+                    BtnToggleAccel.BackgroundColor = Color.FromArgb("#49769F"); // Creme Brulee inactivo
                     AccelLabel.Text = "Detenido";
                 }
             }
@@ -170,7 +169,6 @@ namespace MauiApp1
             AccelLabel.Text = $"X: {data.Acceleration.X:F2}\nY: {data.Acceleration.Y:F2}\nZ: {data.Acceleration.Z:F2}";
         }
 
-        // --- Giroscopio ---
         private void OnToggleGyroClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 50).ContinueWith(_ => btn.ScaleToAsync(1.0, 50)); }
@@ -181,14 +179,14 @@ namespace MauiApp1
                     Gyroscope.Default.ReadingChanged += Gyroscope_ReadingChanged;
                     Gyroscope.Default.Start(SensorSpeed.UI);
                     BtnToggleGyro.Text = "Desactivar";
-                    BtnToggleGyro.BackgroundColor = Color.FromArgb("#3F4E4F"); // Lunar Eclipse activo
+                    BtnToggleGyro.BackgroundColor = Color.FromArgb("#0A4174"); // Lunar Eclipse activo
                 }
                 else
                 {
                     Gyroscope.Default.Stop();
                     Gyroscope.Default.ReadingChanged -= Gyroscope_ReadingChanged;
                     BtnToggleGyro.Text = "Activar";
-                    BtnToggleGyro.BackgroundColor = Color.FromArgb("#A27B5B"); // Creme Brulee inactivo
+                    BtnToggleGyro.BackgroundColor = Color.FromArgb("#49769F"); // Creme Brulee inactivo
                     GyroLabel.Text = "Detenido";
                 }
             }
@@ -204,7 +202,6 @@ namespace MauiApp1
             GyroLabel.Text = $"X: {data.AngularVelocity.X:F2}\nY: {data.AngularVelocity.Y:F2}\nZ: {data.AngularVelocity.Z:F2}";
         }
 
-        // --- Brújula ---
         private void OnToggleCompassClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 50).ContinueWith(_ => btn.ScaleToAsync(1.0, 50)); }
@@ -215,14 +212,14 @@ namespace MauiApp1
                     Compass.Default.ReadingChanged += Compass_ReadingChanged;
                     Compass.Default.Start(SensorSpeed.UI);
                     BtnToggleCompass.Text = "Desactivar";
-                    BtnToggleCompass.BackgroundColor = Color.FromArgb("#3F4E4F"); // Lunar Eclipse activo
+                    BtnToggleCompass.BackgroundColor = Color.FromArgb("#0A4174"); // Lunar Eclipse activo
                 }
                 else
                 {
                     Compass.Default.Stop();
                     Compass.Default.ReadingChanged -= Compass_ReadingChanged;
                     BtnToggleCompass.Text = "Activar";
-                    BtnToggleCompass.BackgroundColor = Color.FromArgb("#A27B5B"); // Creme Brulee inactivo
+                    BtnToggleCompass.BackgroundColor = Color.FromArgb("#49769F"); // Creme Brulee inactivo
                     CompassLabel.Text = "Detenido";
                 }
             }
@@ -237,7 +234,6 @@ namespace MauiApp1
             CompassLabel.Text = $"Rumbo: {e.Reading.HeadingMagneticNorth:F2}º";
         }
 
-        // --- Telémetro Trigonométrico ---
         private async void OnMarkBaseClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 50).ContinueWith(_ => btn.ScaleToAsync(1.0, 50)); }
@@ -247,7 +243,6 @@ namespace MauiApp1
                 return;
             }
 
-            // Calcular ángulo de inclinación respecto a la vertical
             _angleBase = Math.Atan2(_currentAccelZ, -_currentAccelY); 
             TrigResultLabel.Text = $"Base fijada ({_angleBase * 180 / Math.PI:F1}º). Ahora marca el Tope.";
             _ = TrigResultLabel.ScaleToAsync(1.05, 80).ContinueWith(_ => TrigResultLabel.ScaleToAsync(1.0, 80));
@@ -276,7 +271,6 @@ namespace MauiApp1
 
             _angleTop = Math.Atan2(_currentAccelZ, -_currentAccelY);
 
-            // Cálculos Trigonométricos
             _calculatedDistance = userHeight * Math.Abs(Math.Tan(_angleBase));
             double objectHeight = userHeight + (_calculatedDistance * Math.Tan(_angleTop));
 
@@ -287,11 +281,9 @@ namespace MauiApp1
             TrigResultLabel.Text = $"Distancia: {_calculatedDistance:F2} m\nAltura del objeto: {objectHeight:F2} m";
             _ = TrigResultLabel.ScaleToAsync(1.05, 80).ContinueWith(_ => TrigResultLabel.ScaleToAsync(1.0, 80));
             
-            // Reset for next measurement
             _angleBase = double.NaN;
         }
 
-        // --- Medición por Satélite (GPS) ---
         private Location? _gpsPointA;
 
         private async void OnGpsPointAClicked(object? sender, EventArgs e)
@@ -343,7 +335,6 @@ namespace MauiApp1
                     double accuracyB = pointB.Accuracy ?? 0;
                     double totalError = accuracyA + accuracyB;
 
-                    // CalculateDistance returns Kilometers
                     double distanceKm = Location.CalculateDistance(_gpsPointA, pointB, DistanceUnits.Kilometers);
                     double distanceMeters = distanceKm * 1000;
                     
@@ -359,7 +350,6 @@ namespace MauiApp1
             catch (Exception ex) { await ShowToastAsync($"Error GPS: {ex.Message}"); }
         }
 
-        // --- Barómetro ---
         private void OnToggleBarometerClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement btn) { _ = btn.ScaleToAsync(0.92, 50).ContinueWith(_ => btn.ScaleToAsync(1.0, 50)); }
@@ -370,14 +360,14 @@ namespace MauiApp1
                     Barometer.Default.ReadingChanged += Barometer_ReadingChanged;
                     Barometer.Default.Start(SensorSpeed.UI);
                     BtnToggleBarometer.Text = "Desactivar";
-                    BtnToggleBarometer.BackgroundColor = Color.FromArgb("#3F4E4F"); // Lunar Eclipse activo
+                    BtnToggleBarometer.BackgroundColor = Color.FromArgb("#0A4174"); // Lunar Eclipse activo
                 }
                 else
                 {
                     Barometer.Default.Stop();
                     Barometer.Default.ReadingChanged -= Barometer_ReadingChanged;
                     BtnToggleBarometer.Text = "Activar";
-                    BtnToggleBarometer.BackgroundColor = Color.FromArgb("#A27B5B"); // Creme Brulee inactivo
+                    BtnToggleBarometer.BackgroundColor = Color.FromArgb("#49769F"); // Creme Brulee inactivo
                     BarometerLabel.Text = "Detenido";
                 }
             }
@@ -436,7 +426,6 @@ namespace MauiApp1
             CheckBattery();
         }
 
-        // --- Foto-Medición por Referencia ---
         private Point? _ref1, _ref2, _obj1, _obj2;
         private int _photoMeasureState = 0; // 0=None, 1=WaitRef1, 2=WaitRef2, 3=WaitObj1, 4=WaitObj2, 5=Done
         private double _referenceRealSizeCm = 8.56; // Tarjeta de crédito (largo)
@@ -459,7 +448,6 @@ namespace MauiApp1
                         CapturedImage.Source = ImageSource.FromStream(() => stream);
                         ImageContainer.IsVisible = true;
                         
-                        // Iniciar máquina de estados
                         _photoMeasureState = 1;
                         PhotoMeasureInstructionLabel.Text = "Paso 1: Toca una esquina de la Tarjeta (Azul)";
                         PhotoMeasureResultLabel.Text = "";
@@ -484,7 +472,7 @@ namespace MauiApp1
             Point? position = e.GetPosition((View?)sender);
             if (position == null) return;
 
-            Color dotColor = (_photoMeasureState == 1 || _photoMeasureState == 2) ? Color.FromArgb("#3F4E4F") : Color.FromArgb("#A27B5B");
+            Color dotColor = (_photoMeasureState == 1 || _photoMeasureState == 2) ? Color.FromArgb("#0A4174") : Color.FromArgb("#49769F");
 
             string dotId = "";
             if (_photoMeasureState == 1) dotId = "ref1";
@@ -524,7 +512,7 @@ namespace MauiApp1
                 {
                     X1 = _ref1!.Value.X, Y1 = _ref1.Value.Y,
                     X2 = _ref2.Value.X, Y2 = _ref2.Value.Y,
-                    Stroke = Color.FromArgb("#3F4E4F"), StrokeThickness = 3, Opacity = 0.7
+                    Stroke = Color.FromArgb("#0A4174"), StrokeThickness = 3, Opacity = 0.7
                 };
                 DotsLayout.Children.Insert(0, _lineRef);
 
@@ -545,7 +533,7 @@ namespace MauiApp1
                 {
                     X1 = _obj1!.Value.X, Y1 = _obj1.Value.Y,
                     X2 = _obj2.Value.X, Y2 = _obj2.Value.Y,
-                    Stroke = Color.FromArgb("#A27B5B"), StrokeThickness = 3, Opacity = 0.7
+                    Stroke = Color.FromArgb("#49769F"), StrokeThickness = 3, Opacity = 0.7
                 };
                 DotsLayout.Children.Insert(0, _lineObj);
 
@@ -674,7 +662,6 @@ namespace MauiApp1
             BtnSavePhotoMeasure.IsVisible = false;
         }
 
-        // ==================== GUARDADO DE MEDICIONES EN EL BACKEND ====================
 
         private async Task<bool> EnsureActiveProjectAsync()
         {
@@ -772,7 +759,6 @@ namespace MauiApp1
             }
         }
 
-        // ==================== HISTORIAL DE MEDICIONES ====================
 
         private async void OnRefreshMedicionesClicked(object? sender, EventArgs e)
         {
@@ -791,7 +777,7 @@ namespace MauiApp1
                 {
                     Text = "Selecciona un proyecto e inicia sesión para ver mediciones.",
                     FontSize = 12,
-                    TextColor = Color.FromArgb("#7A8485"),
+                    TextColor = Color.FromArgb("#6EA2B3"),
                     HorizontalOptions = LayoutOptions.Center,
                     Margin = new Thickness(0, 4)
                 });
@@ -808,7 +794,7 @@ namespace MauiApp1
                     {
                         Text = "No hay mediciones guardadas en este proyecto.",
                         FontSize = 12,
-                        TextColor = Color.FromArgb("#7A8485"),
+                        TextColor = Color.FromArgb("#6EA2B3"),
                         HorizontalOptions = LayoutOptions.Center,
                         Margin = new Thickness(0, 4)
                     });
@@ -819,8 +805,8 @@ namespace MauiApp1
                 {
                     var card = new Border
                     {
-                        BackgroundColor = Color.FromArgb("#F5F3EF"),
-                        Stroke = Color.FromArgb("#DCD7C9"),
+                        BackgroundColor = Color.FromArgb("#E8F1F8"),
+                        Stroke = Color.FromArgb("#BDD8E9"),
                         StrokeThickness = 1,
                         Padding = new Thickness(14, 10),
                         StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(14) }
@@ -836,8 +822,8 @@ namespace MauiApp1
                     };
 
                     var stack = new VerticalStackLayout { Spacing = 2 };
-                    stack.Children.Add(new Label { Text = $"Distancia / Altura: {m.DistanciaFormateada}", FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#2C3639") });
-                    stack.Children.Add(new Label { Text = $"Registrada: {m.FechaFormateada}", FontSize = 11, TextColor = Color.FromArgb("#7A8485") });
+                    stack.Children.Add(new Label { Text = $"Distancia / Altura: {m.DistanciaFormateada}", FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
+                    stack.Children.Add(new Label { Text = $"Registrada: {m.FechaFormateada}", FontSize = 11, TextColor = Color.FromArgb("#6EA2B3") });
 
                     grid.Children.Add(stack);
 
@@ -870,7 +856,6 @@ namespace MauiApp1
             catch {}
         }
 
-        // ==================== APPLE TOAST ====================
 
         private async Task ShowToastAsync(string message)
         {

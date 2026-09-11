@@ -376,7 +376,6 @@
         </Setter>
     </Style>
   
-    <!--
     <Style TargetType="TitleBar">
         <Setter Property="MinimumHeightRequest" Value="32"/>
         <Setter Property="VisualStateManager.VisualStateGroups">

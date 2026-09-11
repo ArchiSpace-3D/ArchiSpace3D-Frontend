@@ -1,5 +1,6 @@
 using MauiApp1.Models;
 using MauiApp1.Services;
+using System.Text.Json;
 
 namespace MauiApp1;
 
@@ -8,26 +9,16 @@ public partial class LoginPage : ContentPage
     public LoginPage()
     {
         InitializeComponent();
-
-        EmailEntry.Text = Preferences.Get("saved_email", string.Empty);
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        // Estado inicial para la animación de entrada
-        HeaderBlock.Opacity = 0;
-        HeaderBlock.TranslationY = -30;
-        LoginCard.Opacity = 0;
-        LoginCard.TranslationY = 60;
-
-        // Animación suave de entrada coordinada
-        _ = HeaderBlock.FadeToAsync(1, 400, Easing.CubicOut);
-        _ = HeaderBlock.TranslateToAsync(0, 0, 450, Easing.CubicOut);
-        await Task.Delay(100);
-        _ = LoginCard.FadeToAsync(1, 500, Easing.CubicOut);
-        await LoginCard.TranslateToAsync(0, 0, 500, Easing.CubicOut);
+        string? savedEmail = Preferences.Get("saved_email", null);
+        if (!string.IsNullOrEmpty(savedEmail))
+        {
+            EmailEntry.Text = savedEmail;
+        }
     }
 
     private async void OnLoginClicked(object? sender, EventArgs e)
@@ -46,7 +37,7 @@ public partial class LoginPage : ContentPage
         }
 
         LoginButton.IsEnabled = false;
-        LoginButton.Text = "Conectando con Backend...";
+        LoadingOverlay.IsVisible = true;
 
         try
         {
@@ -55,11 +46,93 @@ public partial class LoginPage : ContentPage
             if (success && response != null)
             {
                 Preferences.Set("saved_email", email);
+                LoadingOverlay.IsVisible = false;
+                Application.Current!.Windows[0].Page = new AppShell();
+            }
+            else
+            {
+                LoadingOverlay.IsVisible = false;
+                await ShowToastAsync(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            LoadingOverlay.IsVisible = false;
+            await ShowToastAsync($"Error: {ex.Message}");
+        }
+        finally
+        {
+            LoginButton.IsEnabled = true;
+        }
+    }
 
-                await ShowToastAsync($"¡Bienvenido {response.Nombre}!");
-                await Task.Delay(400);
+    private async void OnOpenRegisterSheetClicked(object? sender, EventArgs e)
+    {
+        RegisterBackdrop.IsVisible = true;
+        await RegisterBackdrop.FadeTo(1, 200);
+        await RegisterSheetCard.TranslateTo(0, 0, 350, Easing.CubicOut);
+    }
 
-                App.SetRootPage(new AppShell());
+    private async void OnCloseRegisterSheetClicked(object? sender, EventArgs e)
+    {
+        await CloseRegisterSheet();
+    }
+
+    private async Task CloseRegisterSheet()
+    {
+        await RegisterSheetCard.TranslateTo(0, 1200, 250, Easing.CubicIn);
+        await RegisterBackdrop.FadeTo(0, 200);
+        RegisterBackdrop.IsVisible = false;
+    }
+
+    private async void OnSubmitRegisterClicked(object? sender, EventArgs e)
+    {
+        await BtnSubmitRegister.ScaleToAsync(0.95, 70);
+        await BtnSubmitRegister.ScaleToAsync(1.0, 70);
+
+        string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
+        string email = RegEmailEntry.Text?.Trim() ?? string.Empty;
+        string pass = RegPasswordEntry.Text?.Trim() ?? string.Empty;
+        string nom = RegNombreEntry.Text?.Trim() ?? string.Empty;
+        string ape = RegApellidoEntry.Text?.Trim() ?? string.Empty;
+        string rol = RegRolPicker.SelectedItem?.ToString() ?? "Cliente";
+        
+        
+        
+        
+
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass) || string.IsNullOrEmpty(nom))
+        {
+            await ShowToastAsync("Llena todos los campos.");
+            return;
+        }
+
+        BtnSubmitRegister.IsEnabled = false;
+        LoadingOverlay.IsVisible = true;
+
+        try
+        {
+            var usuario = new UsuarioRegistroRequest
+            {
+                Email = email,
+                Contrasena = pass,
+                Nombre = nom,
+                Apellido = ape,
+                Rol = rol,
+                
+                
+                
+                
+            };
+
+            var (success, message) = await ApiService.RegistrarUsuarioAsync(hostOrIp, usuario);
+            LoadingOverlay.IsVisible = false;
+
+            if (success)
+            {
+                EmailEntry.Text = email;
+                await CloseRegisterSheet();
+                await ShowToastAsync("Cuenta creada! Inicia sesión.");
             }
             else
             {
@@ -68,89 +141,22 @@ public partial class LoginPage : ContentPage
         }
         catch (Exception ex)
         {
+            LoadingOverlay.IsVisible = false;
             await ShowToastAsync($"Error: {ex.Message}");
         }
         finally
         {
-            LoginButton.IsEnabled = true;
-            LoginButton.Text = "Iniciar Sesión";
+            BtnSubmitRegister.IsEnabled = true;
         }
-    }
-
-    private async void OnRegisterClicked(object? sender, EventArgs e)
-    {
-        RegisterSheetModal.IsVisible = true;
-        RegisterBackdrop.Opacity = 0;
-        RegisterSheetCard.TranslationY = 450;
-
-        _ = RegisterBackdrop.FadeToAsync(1.0, 250);
-        await RegisterSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut);
-    }
-
-    private async void OnCloseRegisterSheetClicked(object? sender, EventArgs e)
-    {
-        _ = RegisterBackdrop.FadeToAsync(0, 200);
-        await RegisterSheetCard.TranslateToAsync(0, 450, 250, Easing.CubicIn);
-        RegisterSheetModal.IsVisible = false;
-    }
-
-    private async void OnSubmitRegisterClicked(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
-
-        string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
-
-        string nombre = RegNombreEntry.Text?.Trim() ?? "";
-        string apellido = RegApellidoEntry.Text?.Trim() ?? "";
-        string email = RegEmailEntry.Text?.Trim() ?? "";
-        string contrasena = RegPasswordEntry.Text?.Trim() ?? "";
-        string rol = RegRolPicker.SelectedItem?.ToString() ?? "Arquitecto";
-
-        if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(contrasena))
-        {
-            await ShowToastAsync("Por favor completa los campos requeridos.");
-            return;
-        }
-
-        var nuevoUsuario = new UsuarioRegistroRequest
-        {
-            Nombre = nombre,
-            Apellido = apellido,
-            Email = email,
-            Contrasena = contrasena,
-            Rol = rol
-        };
-
-        var (success, message) = await ApiService.RegistrarUsuarioAsync(hostOrIp, nuevoUsuario);
-
-        if (success)
-        {
-            OnCloseRegisterSheetClicked(null, EventArgs.Empty);
-            EmailEntry.Text = nuevoUsuario.Email;
-            PasswordEntry.Text = nuevoUsuario.Contrasena;
-            await ShowToastAsync("¡Registro exitoso! Ya puedes iniciar sesión.");
-        }
-        else
-        {
-            await ShowToastAsync(message);
-        }
-    }
-
-    private void OnSkipClicked(object? sender, EventArgs e)
-    {
-        UserSession.ClearSession();
-        App.SetRootPage(new AppShell());
     }
 
     private async Task ShowToastAsync(string message)
     {
         AppleToastMessage.Text = message;
         AppleToast.IsVisible = true;
-        _ = AppleToast.FadeToAsync(1.0, 200);
-        await AppleToast.TranslateToAsync(0, 10, 200, Easing.CubicOut);
-        await Task.Delay(2500);
-        _ = AppleToast.FadeToAsync(0, 200);
-        await AppleToast.TranslateToAsync(0, 0, 200, Easing.CubicIn);
+        await AppleToast.FadeTo(1, 300);
+        await Task.Delay(3000);
+        await AppleToast.FadeTo(0, 300);
         AppleToast.IsVisible = false;
     }
 }

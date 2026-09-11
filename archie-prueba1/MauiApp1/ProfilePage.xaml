@@ -1,143 +1,154 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.ProfilePage"
-             BackgroundColor="#DCD7C9"
-             NavigationPage.HasNavigationBar="False">
+             Title="Perfil"
+             BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#0A1929}">
 
     <Grid>
-        <!-- Header Superior Fijo Apple -->
-        <Border VerticalOptions="Start" HeightRequest="130" BackgroundColor="#2C3639" StrokeThickness="0" Margin="0,-20,0,0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="0,0,32,32" />
-            </Border.StrokeShape>
-            <Grid Padding="24,40,24,10" VerticalOptions="End">
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="Perfil de Usuario" FontSize="24" FontAttributes="Bold" TextColor="#DCD7C9" />
-                    <Label Text="Cuenta y preferencias del sistema" FontSize="13" TextColor="#A27B5B" />
-                </VerticalStackLayout>
-            </Grid>
-        </Border>
-
-        <!-- Contenido Desplazable -->
-        <ScrollView Margin="0,120,0,0" Padding="16,10,16,30">
-            <VerticalStackLayout Spacing="20">
-
-                <!-- Tarjeta de Identidad Apple -->
-                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="28" /></Border.StrokeShape>
-                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,6" Radius="16" Opacity="0.08" /></Border.Shadow>
-                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
-                        <!-- Avatar Iniciales -->
-                        <Border WidthRequest="80" HeightRequest="80" BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="2">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="40"/></Border.StrokeShape>
-                            <Label x:Name="AvatarInitialsLabel" Text="AS" FontSize="28" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalOptions="Center" VerticalOptions="Center"/>
+        <ScrollView>
+            <VerticalStackLayout Spacing="20" Padding="20,40,20,30">
+                
+                <!-- Avatar and Info -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Grid WidthRequest="110" HeightRequest="110" HorizontalOptions="Center">
+                        <Border BackgroundColor="#001D39" StrokeThickness="0" WidthRequest="100" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="50"/></Border.StrokeShape>
+                            <Label x:Name="AvatarInitialsLabel" Text="U" TextColor="#FFFFFF" FontSize="40" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
+                        <Border BackgroundColor="#FFFFFF" StrokeThickness="0" WidthRequest="32" HeightRequest="32" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,5,5">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                            <Border.Shadow><Shadow Brush="#001D39" Opacity="0.1" Offset="0,2" Radius="5"/></Border.Shadow>
+                            <Image Source="ic_camera.svg" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnUploadAvatarClicked"/></Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+                    
+                    <Label x:Name="NombreUsuarioLabel" Text="Usuario" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center"/>
+                    <Border BackgroundColor="{AppThemeBinding Light=#BDD8E9, Dark=#0A4174}" StrokeThickness="0" HorizontalOptions="Center" Padding="12,4">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <Label x:Name="RolUsuarioLabel" Text="Rol" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}"/>
+                    </Border>
+                </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                            <Label x:Name="NombreUsuarioLabel" Text="Usuario" FontSize="22" FontAttributes="Bold" TextColor="#2C3639" HorizontalTextAlignment="Center"/>
-                            <Label x:Name="EmailUsuarioLabel" Text="email@dominio.com" FontSize="14" TextColor="#7A8485" HorizontalTextAlignment="Center"/>
-                            <Border BackgroundColor="#3F4E4F" Padding="12,4" HorizontalOptions="Center" Margin="0,6,0,0">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                                <Label x:Name="RolUsuarioLabel" Text="Arquitecto" FontSize="12" FontAttributes="Bold" TextColor="#DCD7C9"/>
-                            </Border>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- Ficha de Datos Personales -->
-                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
-                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06" /></Border.Shadow>
-                    <VerticalStackLayout Spacing="14">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Datos Registrados" FontSize="17" FontAttributes="Bold" TextColor="#2C3639"/>
-                            <Button Grid.Column="1" Text="Editar" HeightRequest="32" CornerRadius="16" Padding="14,0"
-                                    BackgroundColor="#A27B5B" TextColor="#FFFFFF" FontSize="12" FontAttributes="Bold"
-                                    Clicked="OnOpenEditProfileSheetClicked"/>
+                <!-- Personal Info Settings -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,20,0,0">
+                    <Label Text="Información Personal" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#112940}" StrokeThickness="0" Padding="10,5">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape>
+                        <Label Text="Editar" TextColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" FontSize="12" FontAttributes="Bold"/>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnOpenEditProfileClicked"/></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+                
+                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#112940}" StrokeThickness="0" Padding="15">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#001D39" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
+                    
+                    <VerticalStackLayout Spacing="15">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Image Source="nav_user.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
+                                <Label Text="Correo electrónico" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                <Label x:Name="EmailUsuarioLabel" Text="--" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
                         </Grid>
+                        <BoxView Color="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" HeightRequest="1"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Image Source="nav_measure.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
+                                <Label Text="Teléfono" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                <Label x:Name="TelefonoUsuarioLabel" Text="--" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView Color="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" HeightRequest="1"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Image Source="nav_layers.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
+                                <Label Text="Dirección" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                <Label x:Name="DireccionUsuarioLabel" Text="--" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                        <BoxView Color="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" HeightRequest="1"/>
 
-                        <VerticalStackLayout Spacing="10">
-                            <Grid ColumnDefinitions="Auto,*">
-                                <Label Text="Teléfono:" FontSize="13" TextColor="#7A8485" WidthRequest="100"/>
-                                <Label Grid.Column="1" x:Name="TelefonoLabel" Text="No especificado" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
-                            </Grid>
-                            <BoxView HeightRequest="1" Color="#F0ECE1"/>
-
-                            <Grid ColumnDefinitions="Auto,*">
-                                <Label Text="Dirección:" FontSize="13" TextColor="#7A8485" WidthRequest="100"/>
-                                <Label Grid.Column="1" x:Name="DireccionLabel" Text="No especificada" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
-                            </Grid>
-                            <BoxView HeightRequest="1" Color="#F0ECE1"/>
-
-                            <Grid ColumnDefinitions="Auto,*">
-                                <Label Text="Documento:" FontSize="13" TextColor="#7A8485" WidthRequest="100"/>
-                                <Label Grid.Column="1" x:Name="DocumentoLabel" Text="No especificado" FontSize="13" FontAttributes="Bold" TextColor="#2C3639"/>
-                            </Grid>
-                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Image Source="ic_join.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0" VerticalOptions="Center">
+                                <Label Text="Documento" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                <Label x:Name="DocumentoUsuarioLabel" Text="--" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontAttributes="Bold"/>
+                            </VerticalStackLayout>
+                        </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Información del Servidor & Sesión -->
-                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
-                    <Border.Shadow><Shadow Brush="#2C3639" Offset="0,4" Radius="12" Opacity="0.06" /></Border.Shadow>
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Conexión y Servidor" FontSize="17" FontAttributes="Bold" TextColor="#2C3639"/>
-                        <Label x:Name="ServerUrlLabel" Text="http://..." FontSize="13" TextColor="#3F4E4F"/>
-                        <Label x:Name="SessionIdLabel" Text="ID de Usuario: --" FontSize="12" TextColor="#7A8485"/>
-                    </VerticalStackLayout>
+                <Label Text="Ajustes" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="0,10,0,0"/>
+                
+                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#112940}" StrokeThickness="0" Padding="15">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#001D39" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Image x:Name="ThemeIcon" Source="ic_moon.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Modo Oscuro" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontAttributes="Bold" Margin="15,0,0,0" VerticalOptions="Center"/>
+                        <Switch Grid.Column="2" x:Name="ThemeSwitch" Toggled="OnThemeSwitchToggled" OnColor="#7BBDE8" ThumbColor="#FFFFFF"/>
+                    </Grid>
                 </Border>
 
-                <!-- Botón Cerrar Sesión Apple -->
-                <Button Text="Cerrar Sesión" BackgroundColor="#B84A39" TextColor="#FFFFFF"
-                        HeightRequest="52" CornerRadius="18" FontSize="15" FontAttributes="Bold"
-                        Clicked="OnLogoutClicked" Margin="0,10,0,10"/>
-
+                <!-- Actions -->
+                <Button x:Name="BtnGestionarUsuarios" Text="Gestionar Usuarios" BackgroundColor="#001D39" TextColor="#FFFFFF" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnGestionarUsuariosClicked" Margin="0,20,0,0" IsVisible="False"/>
+                
+                <Button Text="Cerrar Sesión" BackgroundColor="#FFF0F0" TextColor="#D32F2F" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnLogoutClicked" Margin="0,0,0,20"/>
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- ==================== APPLE BOTTOM SHEET: EDITAR PERFIL ==================== -->
-        <Grid x:Name="EditProfileSheetModal" IsVisible="False" InputTransparent="False">
-            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="EditProfileBackdrop">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnCloseEditProfileSheetClicked" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
+        <!-- Edit Profile Sheet -->
+        <BoxView x:Name="EditProfileBackdrop" BackgroundColor="#99001D39" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseEditProfileClicked"/></BoxView.GestureRecognizers>
+        </BoxView>
+        
+        <Border x:Name="EditProfileSheetCard" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#112940}" StrokeThickness="0" VerticalOptions="End" TranslationY="800">
+            <Border.StrokeShape><RoundRectangle CornerRadius="30,30,0,0"/></Border.StrokeShape>
+            <VerticalStackLayout Spacing="15" Padding="30,20,30,40">
+                <BoxView WidthRequest="50" HeightRequest="6" CornerRadius="3" Color="#E8F1F8" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Editar Perfil" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                    <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseEditProfileClicked"/></Image.GestureRecognizers>
+                    </Image>
+                </Grid>
 
-            <Border x:Name="EditProfileSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
-                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
-                <VerticalStackLayout Spacing="14">
-                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="Editar Datos de Perfil" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
-                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
-                            <Image.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnCloseEditProfileSheetClicked"/>
-                            </Image.GestureRecognizers>
-                        </Image>
-                    </Grid>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                    <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" StrokeThickness="0" HeightRequest="50">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <Entry x:Name="EditNombreEntry" Placeholder="Nombre" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="#6EA2B3" Margin="15,0" VerticalOptions="Center"/>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" StrokeThickness="0" HeightRequest="50">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <Entry x:Name="EditApellidoEntry" Placeholder="Apellido" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="#6EA2B3" Margin="15,0" VerticalOptions="Center"/>
+                    </Border>
+                </Grid>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Entry x:Name="EditNombreEntry" Placeholder="Nombre" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                        <Entry Grid.Column="1" x:Name="EditApellidoEntry" Placeholder="Apellido" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                    </Grid>
+                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" StrokeThickness="0" HeightRequest="50">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                    <Entry x:Name="EditTelefonoEntry" Placeholder="Teléfono" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="#6EA2B3" Keyboard="Telephone" Margin="15,0" VerticalOptions="Center"/>
+                </Border>
+                
+                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" StrokeThickness="0" HeightRequest="50">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                    <Entry x:Name="EditDireccionEntry" Placeholder="Dirección" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="#6EA2B3" Margin="15,0" VerticalOptions="Center"/>
+                </Border>
+                
+                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1A3550}" StrokeThickness="0" HeightRequest="50">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                    <Entry x:Name="EditDocumentoEntry" Placeholder="Número de Documento" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="#6EA2B3" Margin="15,0" VerticalOptions="Center"/>
+                </Border>
 
-                    <Entry x:Name="EditTelefonoEntry" Placeholder="Teléfono" Keyboard="Telephone" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                    <Entry x:Name="EditDireccionEntry" Placeholder="Dirección" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                    <Entry x:Name="EditDocumentoEntry" Placeholder="Número de Documento" Keyboard="Numeric" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-
-                    <Button Text="Guardar Cambios" BackgroundColor="#A27B5B" TextColor="#FFFFFF" CornerRadius="16" HeightRequest="50" FontAttributes="Bold" Clicked="OnGuardarPerfilClicked"/>
-                </VerticalStackLayout>
-            </Border>
-        </Grid>
-
-        <!-- ==================== APPLE TOAST ==================== -->
-        <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
-                BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
-            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Border.Shadow><Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.2"/></Border.Shadow>
-            <Label x:Name="AppleToastMessage" Text="" FontSize="14" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalTextAlignment="Center"/>
+                <Button Text="GUARDAR CAMBIOS" BackgroundColor="#0A4174" TextColor="#FFFFFF" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnSubmitEditProfileClicked" Margin="0,10,0,0">
+                    <Button.Shadow><Shadow Brush="#0A4174" Opacity="0.4" Offset="0,4" Radius="10"/></Button.Shadow>
+                </Button>
+            </VerticalStackLayout>
         </Border>
     </Grid>
 </ContentPage>

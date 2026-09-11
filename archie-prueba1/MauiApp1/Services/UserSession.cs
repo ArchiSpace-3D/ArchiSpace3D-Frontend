@@ -1,4 +1,4 @@
-using MauiApp1.Models;
+﻿using MauiApp1.Models;
 
 namespace MauiApp1.Services
 {
@@ -11,6 +11,10 @@ namespace MauiApp1.Services
         public static string Email { get; set; } = string.Empty;
         public static string Rol { get; set; } = "Arquitecto";
         public static string BaseUrl { get; set; } = "https://archispace3d-backend-production.up.railway.app";
+        public static string? Telefono { get; set; }
+        public static string? Direccion { get; set; }
+        public static string? Tipodocumento { get; set; }
+        public static string? Numerodocumento { get; set; }
 
         public static ProyectoDto? ActiveProject { get; set; }
 
@@ -18,7 +22,7 @@ namespace MauiApp1.Services
 
         public static string NombreCompleto => string.IsNullOrWhiteSpace(Apellido) 
             ? Nombre 
-            : $"{Nombre} {Apellido}";
+            : "$Nombre $Apellido";
 
         public static async Task SetSessionAsync(LoginResponse loginResponse, string baseUrl)
         {
@@ -30,7 +34,6 @@ namespace MauiApp1.Services
             Rol = loginResponse.Rol;
             BaseUrl = baseUrl;
 
-            // Guardar en almacenamiento seguro
             await SecureStorage.SetAsync("auth_token", Token ?? "");
             await SecureStorage.SetAsync("user_id", Idusuario.ToString());
             await SecureStorage.SetAsync("user_nombre", Nombre ?? "");
@@ -55,6 +58,10 @@ namespace MauiApp1.Services
             Apellido = await SecureStorage.GetAsync("user_apellido") ?? "";
             Email = await SecureStorage.GetAsync("user_email") ?? "";
             Rol = await SecureStorage.GetAsync("user_rol") ?? "Arquitecto";
+            Telefono = await SecureStorage.GetAsync("user_telefono");
+            Direccion = await SecureStorage.GetAsync("user_direccion");
+            Tipodocumento = await SecureStorage.GetAsync("user_tipodocumento");
+            Numerodocumento = await SecureStorage.GetAsync("user_numerodocumento");
 
             return true;
         }
@@ -67,6 +74,10 @@ namespace MauiApp1.Services
             Apellido = string.Empty;
             Email = string.Empty;
             Rol = "Arquitecto";
+            Telefono = null;
+            Direccion = null;
+            Tipodocumento = null;
+            Numerodocumento = null;
             
             SecureStorage.RemoveAll();
         }

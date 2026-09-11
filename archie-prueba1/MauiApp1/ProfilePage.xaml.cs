@@ -1,135 +1,154 @@
-using MauiApp1.Models;
+﻿using MauiApp1.Models;
 using MauiApp1.Services;
 
 namespace MauiApp1;
 
 public partial class ProfilePage : ContentPage
 {
-    private UsuarioDto? _usuarioDto;
+    private UsuarioDto? _usuarioActual;
 
     public ProfilePage()
     {
         InitializeComponent();
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await CargarDatosUsuarioAsync();
+        CargarDatosUsuarioAsync();
+        
+        ThemeSwitch.IsToggled = Application.Current!.UserAppTheme == AppTheme.Dark;
+        ThemeIcon.Source = ThemeSwitch.IsToggled ? "ic_moon.svg" : "ic_sun.svg";
     }
 
-    private async Task CargarDatosUsuarioAsync()
+    private void OnThemeSwitchToggled(object sender, ToggledEventArgs e)
     {
-        NombreUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Nombre) ? "Usuario" : UserSession.Nombre;
-        EmailUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Email) ? "Sin correo" : UserSession.Email;
-        RolUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Rol) ? "Invitado" : UserSession.Rol;
-        ServerUrlLabel.Text = UserSession.BaseUrl;
-        SessionIdLabel.Text = $"ID de Usuario: {UserSession.Idusuario}";
+        if (e.Value)
+        {
+            Application.Current!.UserAppTheme = AppTheme.Dark;
+            ThemeIcon.Source = "ic_moon.svg";
+        }
+        else
+        {
+            Application.Current!.UserAppTheme = AppTheme.Light;
+            ThemeIcon.Source = "ic_sun.svg";
+        }
+    }
 
-        // Iniciales para el avatar
+    private async void CargarDatosUsuarioAsync()
+    {
+        // Set basic data first from session
+        NombreUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Nombre) ? "Usuario" : UserSession.Nombre;
+        EmailUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Email) ? "--" : UserSession.Email;
+        RolUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Rol) ? "Invitado" : UserSession.Rol;
+        BtnGestionarUsuarios.IsVisible = (UserSession.Rol == "Arquitecto");
+
         string inicial = !string.IsNullOrEmpty(UserSession.Nombre) ? UserSession.Nombre.Substring(0, 1).ToUpper() : "A";
         AvatarInitialsLabel.Text = inicial;
 
-        if (UserSession.IsAuthenticated)
+        // Fetch full data from DB
+        var user = await ApiService.GetUsuarioByIdAsync(UserSession.Idusuario);
+        if (user != null)
         {
-            _usuarioDto = await ApiService.GetUsuarioByIdAsync(UserSession.Idusuario);
-            if (_usuarioDto != null)
-            {
-                NombreUsuarioLabel.Text = _usuarioDto.NombreCompleto;
-                TelefonoLabel.Text = string.IsNullOrWhiteSpace(_usuarioDto.Telefono) ? "No especificado" : _usuarioDto.Telefono;
-                DireccionLabel.Text = string.IsNullOrWhiteSpace(_usuarioDto.Direccion) ? "No especificada" : _usuarioDto.Direccion;
-                DocumentoLabel.Text = string.IsNullOrWhiteSpace(_usuarioDto.Numerodocumento) ? "No especificado" : $"{_usuarioDto.Tipodocumento ?? "CC"}: {_usuarioDto.Numerodocumento}";
-            }
+            _usuarioActual = user;
+            NombreUsuarioLabel.Text = $"{user.Nombre} {user.Apellido}";
+            EmailUsuarioLabel.Text = user.Email;
+            RolUsuarioLabel.Text = user.Rol;
+            
+            TelefonoUsuarioLabel.Text = string.IsNullOrWhiteSpace(user.Telefono) ? "--" : user.Telefono;
+            DireccionUsuarioLabel.Text = string.IsNullOrWhiteSpace(user.Direccion) ? "--" : user.Direccion;
+            DocumentoUsuarioLabel.Text = string.IsNullOrWhiteSpace(user.Numerodocumento) ? "--" : user.Numerodocumento;
+            
+            // Sync Session
+            UserSession.Nombre = user.Nombre;
+            UserSession.Apellido = user.Apellido;
+            UserSession.Telefono = user.Telefono;
+            UserSession.Direccion = user.Direccion;
+            UserSession.Numerodocumento = user.Numerodocumento;
+            UserSession.Tipodocumento = user.Tipodocumento;
         }
     }
 
-    private async void OnOpenEditProfileSheetClicked(object? sender, EventArgs e)
+    private async void OnUploadAvatarClicked(object sender, EventArgs e)
     {
-        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.94, 60); await btn.ScaleToAsync(1.0, 60); }
-        if (!UserSession.IsAuthenticated)
-        {
-            await ShowToastAsync("Inicia sesión para editar tu perfil.");
-            return;
-        }
-
-        if (_usuarioDto != null)
-        {
-            EditNombreEntry.Text = _usuarioDto.Nombre;
-            EditApellidoEntry.Text = _usuarioDto.Apellido;
-            EditTelefonoEntry.Text = _usuarioDto.Telefono;
-            EditDireccionEntry.Text = _usuarioDto.Direccion;
-            EditDocumentoEntry.Text = _usuarioDto.Numerodocumento;
-        }
-        else
-        {
-            EditNombreEntry.Text = UserSession.Nombre;
-        }
-
-        EditProfileSheetModal.IsVisible = true;
-        EditProfileBackdrop.Opacity = 0;
-        EditProfileSheetCard.TranslationY = 400;
-
-        _ = EditProfileBackdrop.FadeToAsync(1.0, 250);
-        await EditProfileSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        await ShowAlertAsync("Próximamente", "La carga de imágenes de perfil estará disponible en la próxima actualización, usando Supabase Storage.", "Entendido");
     }
 
-    private async void OnCloseEditProfileSheetClicked(object? sender, EventArgs e)
+    private async void OnOpenEditProfileClicked(object sender, EventArgs e)
     {
-        _ = EditProfileBackdrop.FadeToAsync(0, 200);
-        await EditProfileSheetCard.TranslateToAsync(0, 400, 250, Easing.CubicIn);
-        EditProfileSheetModal.IsVisible = false;
+        if (_usuarioActual != null)
+        {
+            EditNombreEntry.Text = _usuarioActual.Nombre;
+            EditApellidoEntry.Text = _usuarioActual.Apellido;
+            EditTelefonoEntry.Text = _usuarioActual.Telefono;
+            EditDireccionEntry.Text = _usuarioActual.Direccion;
+            EditDocumentoEntry.Text = _usuarioActual.Numerodocumento;
+        }
+
+        EditProfileBackdrop.IsVisible = true;
+        await EditProfileBackdrop.FadeTo(1, 200);
+        await EditProfileSheetCard.TranslateTo(0, 0, 350, Easing.CubicOut);
     }
 
-    private async void OnGuardarPerfilClicked(object? sender, EventArgs e)
+    private async void OnCloseEditProfileClicked(object sender, EventArgs e)
     {
-        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
-        if (!UserSession.IsAuthenticated) return;
+        await CloseEditProfileSheet();
+    }
 
-        var request = new ActualizarUsuarioRequest
+    private async Task CloseEditProfileSheet()
+    {
+        await EditProfileSheetCard.TranslateTo(0, 800, 250, Easing.CubicIn);
+        await EditProfileBackdrop.FadeTo(0, 200);
+        EditProfileBackdrop.IsVisible = false;
+    }
+
+    private async void OnSubmitEditProfileClicked(object sender, EventArgs e)
+    {
+        if (_usuarioActual == null) return;
+        
+        var req = new ActualizarUsuarioRequest
         {
-            Idusuario = UserSession.Idusuario,
-            Nombre = EditNombreEntry.Text?.Trim() ?? UserSession.Nombre,
-            Apellido = EditApellidoEntry.Text?.Trim() ?? "",
-            Email = UserSession.Email,
-            Rol = UserSession.Rol,
-            Telefono = EditTelefonoEntry.Text?.Trim(),
-            Direccion = EditDireccionEntry.Text?.Trim(),
-            Tipodocumento = "CC",
-            Numerodocumento = EditDocumentoEntry.Text?.Trim()
+            Nombre = EditNombreEntry.Text ?? _usuarioActual.Nombre,
+            Apellido = EditApellidoEntry.Text ?? _usuarioActual.Apellido,
+            Telefono = EditTelefonoEntry.Text,
+            Direccion = EditDireccionEntry.Text,
+            Numerodocumento = EditDocumentoEntry.Text,
+            Tipodocumento = _usuarioActual.Tipodocumento,
+            Rol = _usuarioActual.Rol
         };
 
-        var (success, message) = await ApiService.ActualizarUsuarioAsync(UserSession.Idusuario, request);
-        OnCloseEditProfileSheetClicked(null, EventArgs.Empty);
-
+        var (success, msg) = await ApiService.ActualizarUsuarioAsync(_usuarioActual.Idusuario, req);
         if (success)
         {
-            UserSession.Nombre = request.Nombre;
-            await CargarDatosUsuarioAsync();
-            await ShowToastAsync("Perfil actualizado correctamente.");
+            await CloseEditProfileSheet();
+            CargarDatosUsuarioAsync();
+            await ShowAlertAsync("Éxito", "Perfil actualizado correctamente.", "OK");
         }
         else
         {
-            await ShowToastAsync(message);
+            await ShowAlertAsync("Error", msg, "OK");
         }
     }
 
-    private async void OnLogoutClicked(object? sender, EventArgs e)
+    private async void OnGestionarUsuariosClicked(object sender, EventArgs e)
+    {
+        if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
+        await Navigation.PushModalAsync(new AdminUsersPage());
+    }
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
     {
         if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
 
+        bool confirm = await Application.Current!.Windows[0].Page!.DisplayAlert("Cerrar Sesión", "¿Estás seguro que deseas salir?", "Sí, Salir", "Cancelar");
+        if (!confirm) return;
+
         UserSession.ClearSession();
-        App.SetRootPage(new NavigationPage(new LoginPage()));
+        Application.Current!.Windows[0].Page = new LoginPage();
     }
 
-    private async Task ShowToastAsync(string message)
+    private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        AppleToastMessage.Text = message;
-        AppleToast.IsVisible = true;
-        _ = AppleToast.FadeToAsync(1.0, 200);
-        await AppleToast.TranslateToAsync(0, 10, 200, Easing.CubicOut);
-        await Task.Delay(2000);
-        _ = AppleToast.FadeToAsync(0, 200);
-        await AppleToast.TranslateToAsync(0, 0, 200, Easing.CubicIn);
-        AppleToast.IsVisible = false;
+        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, cancel);
     }
 }

@@ -7,13 +7,14 @@ namespace MauiApp1
         public App()
         {
             InitializeComponent();
+            bool isDark = Preferences.Get("dark_mode", false);
+            UserAppTheme = isDark ? AppTheme.Dark : AppTheme.Light;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
             var window = new Window(new NavigationPage(new LoginPage()));
             
-            // Auto Login logic
             Task.Run(async () =>
             {
                 bool hasSession = await UserSession.LoadSessionAsync();

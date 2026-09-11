@@ -1,189 +1,155 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.LoginPage"
-             BackgroundColor="#DCD7C9"
-             NavigationPage.HasNavigationBar="False">
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#FFFFFF">
 
     <Grid>
-        <!-- Fondo Superior con Gradiente de la paleta (Inkwell -> Lunar Eclipse) -->
-        <Border StrokeThickness="0" VerticalOptions="Start" HeightRequest="450" Margin="0,-50,0,0">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#2C3639" Offset="0.0" /> <!-- Inkwell -->
-                    <GradientStop Color="#3F4E4F" Offset="1.0" /> <!-- Lunar Eclipse -->
-                </LinearGradientBrush>
-            </Border.Background>
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="0,0,40,40" />
-            </Border.StrokeShape>
+        <!-- Custom Top Wave Header imitating the peach design but in blue -->
+        <Path Data="M 0,0 L 400,0 L 400,160 C 250,260 100,100 0,220 Z" 
+              Fill="#0A4174" Opacity="0.9" 
+              HorizontalOptions="Fill" VerticalOptions="Start" />
+        <Path Data="M 0,0 L 400,0 L 400,120 C 300,180 150,80 0,160 Z" 
+              Fill="#7BBDE8" Opacity="0.7" 
+              HorizontalOptions="Fill" VerticalOptions="Start" />
 
-            <VerticalStackLayout x:Name="HeaderBlock" Padding="30,120,30,0" Spacing="5">
-                <Label Text="ArchiSpace." 
-                       FontSize="42" 
-                       FontAttributes="Bold" 
-                       TextColor="#DCD7C9" /> <!-- Au Lait -->
-                <Label Text="Visualización 3D" 
-                       FontSize="34" 
-                       TextColor="#A27B5B" /> <!-- Creme Brulee -->
-            </VerticalStackLayout>
-        </Border>
+        <ScrollView Margin="0,200,0,0">
+            <VerticalStackLayout Spacing="0" Padding="30,20,30,30" HorizontalOptions="Center" MaximumWidthRequest="400">
+                
+                <!-- Sign In Header Area -->
+                <Label Text="Sign In" FontSize="28" FontAttributes="Bold" TextColor="#001D39"/>
+                <Label Text="Sign in to your Registered Account." FontSize="12" TextColor="#6EA2B3" Margin="0,2,0,0"/>
+                <BoxView Color="#49769F" HeightRequest="3" WidthRequest="25" HorizontalOptions="Start" Margin="0,8,0,40" CornerRadius="1.5"/>
 
-        <!-- Tarjeta Flotante -->
-        <ScrollView VerticalOptions="End" Margin="0,250,0,0">
-            <Border x:Name="LoginCard"
-                    BackgroundColor="#FFFFFF" 
-                    StrokeThickness="0"
-                    Margin="20,0,20,30"
-                    Padding="25,35,25,30">
-                <Border.Shadow>
-                    <Shadow Brush="#2C3639" Offset="0,15" Radius="30" Opacity="0.18" />
-                </Border.Shadow>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="25" />
-                </Border.StrokeShape>
-
-                <VerticalStackLayout Spacing="20">
+                <VerticalStackLayout Spacing="25">
                     
-                    <Label Text="¡Bienvenido! Inicia sesión para ver tus modelos"
-                           FontSize="14"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"
-                           TextColor="#2C3639"
-                           Margin="0,0,0,10"/>
+                    <!-- Email Input with bottom line -->
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Email Address" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                        <Entry x:Name="EmailEntry" Placeholder="tu@email.com" PlaceholderColor="#BDD8E9" TextColor="#001D39" Keyboard="Email" BackgroundColor="Transparent"/>
+                        <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
 
+                    <!-- Password Input with bottom line -->
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Password" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry x:Name="PasswordEntry" Placeholder="••••••••" PlaceholderColor="#BDD8E9" TextColor="#001D39" IsPassword="True" BackgroundColor="Transparent"/>
+                            <Image Grid.Column="1" Source="ic_eye.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center" Opacity="0.5"/>
+                        </Grid>
+                        <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
+                    
+                    <Label Text="Forgot Password?" TextColor="#49769F" FontSize="11" FontAttributes="Bold" HorizontalOptions="End" Margin="0,-10,0,30"/>
 
-
-                    <!-- Campo Correo -->
-                    <Border Stroke="#DCD7C9" StrokeThickness="1.5" BackgroundColor="#FFFFFF" Padding="15,5">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
-                        <Entry x:Name="EmailEntry" 
-                               Placeholder="Correo electrónico" 
-                               Keyboard="Email"
-                               BackgroundColor="Transparent"
-                               PlaceholderColor="#7A8485"
-                               TextColor="#2C3639" />
-                    </Border>
-
-                    <!-- Campo Contrasena -->
-                    <Border Stroke="#DCD7C9" StrokeThickness="1.5" BackgroundColor="#FFFFFF" Padding="15,5">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
-                        <Entry x:Name="PasswordEntry" 
-                               Placeholder="Contraseña" 
-                               IsPassword="True"
-                               BackgroundColor="Transparent"
-                               PlaceholderColor="#7A8485"
-                               TextColor="#2C3639" />
-                    </Border>
-
-                    <!-- Boton Principal -->
-                    <Button x:Name="LoginButton"
-                            Text="Iniciar Sesión"
-                            TextColor="#FFFFFF"
-                            CornerRadius="14"
-                            HeightRequest="54"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            Clicked="OnLoginClicked" 
-                            Margin="0,10,0,5">
-                        <Button.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#A27B5B" Offset="0.0" />
-                                <GradientStop Color="#3F4E4F" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Button.Background>
-                    </Button>
-
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
-                        <Label Text="¿No tienes cuenta?" TextColor="#3F4E4F" FontSize="13" VerticalOptions="Center" />
-                        <Label Text="Regístrate" 
-                               TextColor="#A27B5B" 
-                               FontSize="13" 
-                               FontAttributes="Bold" 
-                               TextDecorations="Underline" 
-                               VerticalOptions="Center">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnRegisterClicked" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </HorizontalStackLayout>
-
-                    <Label Text="Entrar sin cuenta (Modo Offline)"
-                           TextColor="#3F4E4F"
-                           FontSize="14"
-                           FontAttributes="Bold"
-                           TextDecorations="Underline"
-                           HorizontalOptions="Center"
-                           Margin="0,5,0,0">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnSkipClicked" />
-                        </Label.GestureRecognizers>
-                    </Label>
-
+                    <!-- Action Buttons -->
+                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="15" HorizontalOptions="Center">
+                        <Border BackgroundColor="#FFFFFF" Stroke="#49769F" StrokeThickness="1" HeightRequest="40" WidthRequest="100">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                            <Label Text="SIGN UP" TextColor="#49769F" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnOpenRegisterSheetClicked"/></Border.GestureRecognizers>
+                        </Border>
+                        
+                        <Border Grid.Column="1" BackgroundColor="#49769F" StrokeThickness="0" HeightRequest="40" WidthRequest="100">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                            <Border.Shadow><Shadow Brush="#49769F" Opacity="0.5" Offset="0,4" Radius="8"/></Border.Shadow>
+                            <Label Text="SIGN IN" TextColor="#FFFFFF" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnLoginClicked"/></Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
                 </VerticalStackLayout>
-            </Border>
+            </VerticalStackLayout>
         </ScrollView>
 
-        <!-- ==================== APPLE BOTTOM SHEET: REGISTRO ELEGANTE ==================== -->
-        <Grid x:Name="RegisterSheetModal" IsVisible="False" InputTransparent="False">
-            <BoxView BackgroundColor="#99000000" Opacity="0" x:Name="RegisterBackdrop">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
+        <!-- Register Sheet (Sign Up) -->
+        <BoxView x:Name="RegisterBackdrop" BackgroundColor="#CCFFFFFF" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked"/></BoxView.GestureRecognizers>
+        </BoxView>
 
-            <Border x:Name="RegisterSheetCard" VerticalOptions="End" BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="24,14,24,30">
-                <Border.StrokeShape><RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
-                <VerticalStackLayout Spacing="14">
-                    <BoxView WidthRequest="36" HeightRequest="5" CornerRadius="2.5" Color="#DCD7C9" HorizontalOptions="Center"/>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Spacing="2">
-                            <Label Text="Crear Cuenta" FontSize="20" FontAttributes="Bold" TextColor="#2C3639"/>
-                            <Label Text="Únete a la plataforma arquitectónica" FontSize="12" TextColor="#7A8485"/>
+        <Grid x:Name="RegisterSheetCard" BackgroundColor="#FFFFFF" VerticalOptions="End" TranslationY="1200">
+            <!-- Simulated Wave inside the modal -->
+            <Path Data="M 0,0 L 400,0 L 400,80 C 250,150 100,50 0,100 Z" Fill="#0A4174" Opacity="0.9" HorizontalOptions="Fill" VerticalOptions="Start" />
+            <Path Data="M 0,0 L 400,0 L 400,50 C 300,100 150,20 0,80 Z" Fill="#7BBDE8" Opacity="0.7" HorizontalOptions="Fill" VerticalOptions="Start" />
+
+            <ScrollView Margin="0,80,0,0">
+                <VerticalStackLayout Spacing="0" Padding="30,20,30,40">
+                    
+                    <Label Text="Sign Up" FontSize="28" FontAttributes="Bold" TextColor="#001D39"/>
+                    <Label Text="Register with your valid email address" FontSize="12" TextColor="#6EA2B3" Margin="0,2,0,0"/>
+                    <BoxView Color="#49769F" HeightRequest="3" WidthRequest="25" HorizontalOptions="Start" Margin="0,8,0,30" CornerRadius="1.5"/>
+
+                    <VerticalStackLayout Spacing="20">
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="First Name" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                            <Entry x:Name="RegNombreEntry" Placeholder="John" PlaceholderColor="#BDD8E9" TextColor="#001D39" BackgroundColor="Transparent"/>
+                            <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
                         </VerticalStackLayout>
-                        <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="22" HeightRequest="22">
-                            <Image.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked"/>
-                            </Image.GestureRecognizers>
-                        </Image>
-                    </Grid>
+                        
+                        <!-- Apellido -->
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Last Name" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                            <Entry x:Name="RegApellidoEntry" Placeholder="Doe" PlaceholderColor="#BDD8E9" TextColor="#001D39" BackgroundColor="Transparent"/>
+                            <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                        </VerticalStackLayout>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Entry x:Name="RegNombreEntry" Placeholder="Nombre" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                        <Entry Grid.Column="1" x:Name="RegApellidoEntry" Placeholder="Apellido" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                    </Grid>
+                        <!-- Email -->
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Email Address" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                            <Entry x:Name="RegEmailEntry" Placeholder="john@gmail.com" PlaceholderColor="#BDD8E9" TextColor="#001D39" Keyboard="Email" BackgroundColor="Transparent"/>
+                            <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                        </VerticalStackLayout>
 
-                    <Entry x:Name="RegEmailEntry" Placeholder="Correo Electrónico" Keyboard="Email" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
-                    <Entry x:Name="RegPasswordEntry" Placeholder="Contraseña" IsPassword="True" BackgroundColor="#F5F3EF" TextColor="#2C3639" HeightRequest="46"/>
+                        <!-- Password -->
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Password" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                            <Entry x:Name="RegPasswordEntry" Placeholder="••••••••" PlaceholderColor="#BDD8E9" TextColor="#001D39" IsPassword="True" BackgroundColor="Transparent"/>
+                            <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                        </VerticalStackLayout>
 
-                    <Label Text="Selecciona tu Rol:" FontSize="13" FontAttributes="Bold" TextColor="#2C3639" Margin="0,4,0,0"/>
-                    <Picker x:Name="RegRolPicker" BackgroundColor="#F5F3EF" TextColor="#2C3639" SelectedIndex="0">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Arquitecto</x:String>
-                                <x:String>Cliente</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
+                        <!-- Rol -->
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Role" FontSize="11" TextColor="#6EA2B3" FontAttributes="Bold" Margin="0,0,0,5"/>
+                            <Picker x:Name="RegRolPicker" Title="Select Role" TextColor="#001D39" TitleColor="#BDD8E9" BackgroundColor="Transparent">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Cliente</x:String>
+                                        <x:String>Arquitecto</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                            <BoxView Color="#E8F1F8" HeightRequest="2" Margin="0,5,0,0"/>
+                        </VerticalStackLayout>
 
-                    <Button Text="Registrar Cuenta" BackgroundColor="#A27B5B" TextColor="#FFFFFF"
-                            CornerRadius="16" HeightRequest="52" FontAttributes="Bold" FontSize="15"
-                            Clicked="OnSubmitRegisterClicked" Margin="0,10,0,0"/>
+                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="15" HorizontalOptions="Center" Margin="0,20,0,0">
+                            <Border x:Name="BtnSubmitRegister" BackgroundColor="#49769F" StrokeThickness="0" HeightRequest="40" WidthRequest="100">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                                <Border.Shadow><Shadow Brush="#49769F" Opacity="0.5" Offset="0,4" Radius="8"/></Border.Shadow>
+                                <Label Text="SIGN UP" TextColor="#FFFFFF" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnSubmitRegisterClicked"/></Border.GestureRecognizers>
+                            </Border>
+                            
+                            <Border Grid.Column="1" BackgroundColor="#FFFFFF" Stroke="#49769F" StrokeThickness="1" HeightRequest="40" WidthRequest="100">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                                <Label Text="SIGN IN" TextColor="#49769F" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked"/></Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
-            </Border>
+            </ScrollView>
         </Grid>
 
-        <!-- ==================== APPLE TOAST ==================== -->
-        <Border x:Name="AppleToast" VerticalOptions="Start" HorizontalOptions="Center" Margin="0,50,0,0"
-                BackgroundColor="#2C3639" Stroke="#A27B5B" StrokeThickness="1" Padding="20,12" IsVisible="False" Opacity="0">
+        <!-- Loading Overlay -->
+        <Grid x:Name="LoadingOverlay" BackgroundColor="#99FFFFFF" IsVisible="False">
+            <ActivityIndicator IsRunning="True" Color="#0A4174" WidthRequest="50" HeightRequest="50" HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+        
+        <!-- Toast -->
+        <Border x:Name="AppleToast" BackgroundColor="#001D39" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Start" Margin="0,40,0,0" Padding="20,12" Opacity="0" IsVisible="False">
             <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Border.Shadow><Shadow Brush="#000000" Offset="0,6" Radius="12" Opacity="0.2"/></Border.Shadow>
-            <Label x:Name="AppleToastMessage" Text="" FontSize="14" FontAttributes="Bold" TextColor="#DCD7C9" HorizontalTextAlignment="Center"/>
+            <Label x:Name="AppleToastMessage" TextColor="#FFFFFF" FontSize="14" FontAttributes="Bold"/>
         </Border>
-
     </Grid>
 </ContentPage>

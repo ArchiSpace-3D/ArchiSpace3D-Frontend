@@ -98,7 +98,6 @@ namespace MauiApp1.Models
         [JsonPropertyName("fechacreacion")]
         public DateTime? Fechacreacion { get; set; }
 
-        // Helpers de presentacion en UI
         public string FechaFormateada => Fechaactualizacion?.ToString("dd/MM/yyyy") ?? Fechacreacion?.ToString("dd/MM/yyyy") ?? "Reciente";
         public string EstadoNormalizado => string.IsNullOrWhiteSpace(Estado) ? "En progreso" : Estado;
         public string PresupuestoFormateado => Presupuesto.HasValue ? $"${Presupuesto.Value:N2}" : "$0.00";
@@ -161,7 +160,6 @@ namespace MauiApp1.Models
         public string? Codigosalaactiva { get; set; }
     }
 
-    // ==================== ESPACIO FISICO ====================
     public class EspacioFisicoDto
     {
         [JsonPropertyName("idespaciofisico")]
@@ -191,7 +189,6 @@ namespace MauiApp1.Models
         [JsonPropertyName("fechacaptura")]
         public DateTime? Fechacaptura { get; set; }
 
-        // Calculos arquitectonicos en UI
         public decimal AreaCalculada => (Anchoaproximado ?? 0) * (Largoaproximado ?? 0);
         public decimal VolumenCalculado => AreaCalculada * (Altoaproximado ?? 0);
     }
@@ -223,7 +220,6 @@ namespace MauiApp1.Models
         public DateTime? Fechacaptura { get; set; } = DateTime.UtcNow;
     }
 
-    // ==================== VERSIONES DE DISENO ====================
     public class VersionDisenoDto
     {
         [JsonPropertyName("idversiondiseno")]
@@ -266,7 +262,6 @@ namespace MauiApp1.Models
         public int IdProyecto { get; set; }
     }
 
-    // ==================== ELEMENTOS ESTRUCTURALES ====================
     public class ElementoEstructuralDto
     {
         [JsonPropertyName("idelementoestructural")]
@@ -332,7 +327,6 @@ namespace MauiApp1.Models
         public decimal? Dimensionprofundidad { get; set; }
     }
 
-    // ==================== MODELOS IMPORTADOS ====================
     public class ModeloImportadoDto
     {
         [JsonPropertyName("idmodeloimportado")]
@@ -381,7 +375,6 @@ namespace MauiApp1.Models
         public DateTime? Fechaimportacion { get; set; }
     }
 
-    // ==================== INVITACIONES ====================
     public class InvitacionDto
     {
         [JsonPropertyName("idinvitacion")]
@@ -430,7 +423,6 @@ namespace MauiApp1.Models
         public int IdClienteUsado { get; set; }
     }
 
-    // ==================== MEDICIONES ====================
     public class MedicionDto
     {
         [JsonPropertyName("idmedicion")]
@@ -473,7 +465,6 @@ namespace MauiApp1.Models
         public DateTime? Fechamedicion { get; set; }
     }
 
-    // ==================== NOTIFICACIONES ====================
     public class NotificacionDto
     {
         [JsonPropertyName("idnotificacion")]
@@ -501,7 +492,6 @@ namespace MauiApp1.Models
         public string TipoNormalizado => string.IsNullOrWhiteSpace(Tipo) ? "General" : Tipo;
     }
 
-    // ==================== USUARIOS ====================
     public class UsuarioDto
     {
         [JsonPropertyName("idusuario")]
@@ -565,5 +555,49 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("numerodocumento")]
         public string? Numerodocumento { get; set; }
+        public class CrearModeloImportadoRequest
+        {
+            [JsonPropertyName("idversiondiseno")]
+            public int Idversiondiseno { get; set; }
+
+            [JsonPropertyName("nombrearchivo")]
+            public string Nombrearchivo { get; set; } = string.Empty;
+
+            [JsonPropertyName("formato")]
+            public string Formato { get; set; } = string.Empty;
+
+            [JsonPropertyName("rutastorage")]
+            public string Rutastorage { get; set; } = string.Empty;
+
+            [JsonPropertyName("posicionx")]
+            public decimal? Posicionx { get; set; } = 0;
+
+            [JsonPropertyName("posiciony")]
+            public decimal? Posiciony { get; set; } = 0;
+
+            [JsonPropertyName("posicionz")]
+            public decimal? Posicionz { get; set; } = 0;
+
+            [JsonPropertyName("rotacionx")]
+            public decimal? Rotacionx { get; set; } = 0;
+
+            [JsonPropertyName("rotaciony")]
+            public decimal? Rotaciony { get; set; } = 0;
+
+            [JsonPropertyName("rotacionz")]
+            public decimal? Rotacionz { get; set; } = 0;
+
+            [JsonPropertyName("escalax")]
+            public decimal? Escalax { get; set; } = 1;
+
+            [JsonPropertyName("escalay")]
+            public decimal? Escalay { get; set; } = 1;
+
+            [JsonPropertyName("escalaz")]
+            public decimal? Escalaz { get; set; } = 1;
+
+            [JsonPropertyName("fechaimportacion")]
+            public DateTime? Fechaimportacion { get; set; } = DateTime.UtcNow;
+        }
     }
 }

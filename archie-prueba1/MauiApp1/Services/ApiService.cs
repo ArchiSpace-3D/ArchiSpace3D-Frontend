@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MauiApp1.Models;
+using static MauiApp1.Models.ActualizarUsuarioRequest;
 
 namespace MauiApp1.Services
 {
@@ -34,7 +35,6 @@ namespace MauiApp1.Services
 
             if (Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
             {
-                // Si es HTTPS (como en Railway), NO forzamos el puerto 5000
                 if (uri.Scheme == Uri.UriSchemeHttps)
                 {
                     return uri.ToString().TrimEnd('/');
@@ -64,14 +64,13 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== AUTH Y USUARIOS ====================
 
         public static async Task<(bool Success, string Message, LoginResponse? Data)> LoginAsync(string hostOrUrl, string email, string contrasena)
         {
             try
             {
                 string baseUrl = NormalizeBaseUrl(hostOrUrl);
-                string url = $"{baseUrl}/api/auth/login";
+                string url = $"{baseUrl}/api/usuario/login";
 
                 var loginData = new LoginRequest
                 {
@@ -212,7 +211,6 @@ namespace MauiApp1.Services
                 return (false, $"Error de red: {ex.Message}", null);
             }
         }
-
         public static async Task<(bool Success, string Message)> EliminarProyectoAsync(int idProyecto)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
@@ -234,7 +232,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== INVITACIONES ====================
 
         public static async Task<(bool Success, string Message, InvitacionDto? Data)> CrearInvitacionAsync(int idProyecto, string codigo)
         {
@@ -309,7 +306,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== MEDICIONES DE SENSORES ====================
 
         public static async Task<(bool Success, string Message)> GuardarMedicionAsync(CrearMedicionRequest medicion)
         {
@@ -344,7 +340,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== NOTIFICACIONES ====================
 
         public static async Task<List<NotificacionDto>> GetNotificacionesAsync()
         {
@@ -388,7 +383,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== ESPACIO FISICO ====================
 
         public static async Task<EspacioFisicoDto?> GetEspacioFisicoByProyectoAsync(int idProyecto)
         {
@@ -444,7 +438,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== VERSIONES DE DISENO ====================
 
         public static async Task<List<VersionDisenoDto>> GetVersionesByProyectoAsync(int idProyecto)
         {
@@ -549,7 +542,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== ELEMENTOS ESTRUCTURALES ====================
 
         public static async Task<List<ElementoEstructuralDto>> GetElementosByVersionAsync(int idVersion)
         {
@@ -626,7 +618,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== MODELOS IMPORTADOS ====================
 
         public static async Task<List<ModeloImportadoDto>> GetModelosByVersionAsync(int idVersion)
         {
@@ -650,7 +641,6 @@ namespace MauiApp1.Services
             return new List<ModeloImportadoDto>();
         }
 
-        // ==================== HISTORIAL DE MEDICIONES ====================
 
         public static async Task<List<MedicionDto>> GetMedicionesByProyectoAsync(int idProyecto)
         {
@@ -695,7 +685,6 @@ namespace MauiApp1.Services
             }
         }
 
-        // ==================== ACTUALIZACION DE PROYECTO & PERFIL ====================
 
         public static async Task<(bool Success, string Message)> ActualizarProyectoAsync(int idProyecto, ActualizarProyectoRequest proyecto)
         {
@@ -773,6 +762,487 @@ namespace MauiApp1.Services
             catch { }
 
             return null;
+        }
+        public static async Task<List<ModeloImportadoDto>> GetModelosImportadosAsync()
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<ModeloImportadoDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/modeloImportado";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<ModeloImportadoDto>>(json, _jsonOptions) ?? new List<ModeloImportadoDto>();
+                }
+            }
+            catch { }
+            return new List<ModeloImportadoDto>();
+        }
+
+        public static async Task<ModeloImportadoDto?> GetModeloImportadoByIdAsync(int idModelo)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/modeloImportado/{idModelo}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<ModeloImportadoDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<(bool Success, string Message, ModeloImportadoDto? Data)> CrearModeloImportadoAsync(CrearModeloImportadoRequest modelo)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.", null);
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/modeloImportado";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+                request.Content = new StringContent(JsonSerializer.Serialize(modelo), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    var creado = JsonSerializer.Deserialize<ModeloImportadoDto>(json, _jsonOptions);
+                    return (true, "Modelo importado agregado.", creado);
+                }
+                string err = await response.Content.ReadAsStringAsync();
+                return (false, $"Error: {err}", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}", null);
+            }
+        }
+
+        public static async Task<(bool Success, string Message)> ActualizarTransformModeloAsync(int idModelo, ModeloImportadoDto modelo)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/modeloImportado/{idModelo}/transform";
+                using var request = new HttpRequestMessage(HttpMethod.Put, url);
+                SetAuthHeader(request);
+                request.Content = new StringContent(JsonSerializer.Serialize(modelo), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Transformación actualizada.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarModeloImportadoAsync(int idModelo)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/modeloImportado/{idModelo}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Modelo eliminado.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<List<ElementoEstructuralDto>> GetElementosEstructuralesAsync()
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<ElementoEstructuralDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/elementoeEstructural";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<ElementoEstructuralDto>>(json, _jsonOptions) ?? new List<ElementoEstructuralDto>();
+                }
+            }
+            catch { }
+            return new List<ElementoEstructuralDto>();
+        }
+
+        public static async Task<ElementoEstructuralDto?> GetElementoEstructuralByIdAsync(int idElemento)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/elementoeEstructural/{idElemento}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<ElementoEstructuralDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<(bool Success, string Message)> ActualizarElementoEstructuralAsync(int idElemento, ElementoEstructuralDto elemento)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/elementoeEstructural/{idElemento}";
+                using var request = new HttpRequestMessage(HttpMethod.Put, url);
+                SetAuthHeader(request);
+                request.Content = new StringContent(JsonSerializer.Serialize(elemento), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Elemento estructural actualizado.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<List<EspacioFisicoDto>> GetEspaciosFisicosAsync()
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<EspacioFisicoDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/espacioFisico";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<EspacioFisicoDto>>(json, _jsonOptions) ?? new List<EspacioFisicoDto>();
+                }
+            }
+            catch { }
+            return new List<EspacioFisicoDto>();
+        }
+
+        public static async Task<EspacioFisicoDto?> GetEspacioFisicoByIdAsync(int idEspacio)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/espacioFisico/{idEspacio}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<EspacioFisicoDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<(bool Success, string Message)> ActualizarEspacioFisicoAsync(int idEspacio, EspacioFisicoDto espacio)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/espacioFisico/{idEspacio}";
+                using var request = new HttpRequestMessage(HttpMethod.Put, url);
+                SetAuthHeader(request);
+                request.Content = new StringContent(JsonSerializer.Serialize(espacio), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Espacio físico actualizado.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarEspacioFisicoAsync(int idEspacio)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/espacioFisico/{idEspacio}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Espacio físico eliminado.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarVersionDisenoAsync(int idVersion)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/versionDiseño/{idVersion}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Versión de diseño eliminada.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public static async Task<ProyectoDto?> GetProyectoByIdAsync(int idProyecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/proyecto/{idProyecto}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<ProyectoDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<List<ProyectoDto>> GetProyectosByArquitectoAsync(int idArquitecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<ProyectoDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/proyecto/arquitecto/{idArquitecto}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<ProyectoDto>>(json, _jsonOptions) ?? new List<ProyectoDto>();
+                }
+            }
+            catch { }
+            return new List<ProyectoDto>();
+        }
+
+        public static async Task<List<ProyectoDto>> GetProyectosByClienteAsync(int idCliente)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<ProyectoDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/proyecto/cliente/{idCliente}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<ProyectoDto>>(json, _jsonOptions) ?? new List<ProyectoDto>();
+                }
+            }
+            catch { }
+            return new List<ProyectoDto>();
+        }
+
+        public static async Task<List<InvitacionDto>> GetInvitacionesAsync()
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<InvitacionDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<InvitacionDto>>(json, _jsonOptions) ?? new List<InvitacionDto>();
+                }
+            }
+            catch { }
+            return new List<InvitacionDto>();
+        }
+
+        public static async Task<InvitacionDto?> GetInvitacionByIdAsync(int idInvitacion)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion/{idInvitacion}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<InvitacionDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<InvitacionDto?> GetInvitacionByCodigoAsync(string codigo)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return null;
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion/codigo/{codigo}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<InvitacionDto>(json, _jsonOptions);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        public static async Task<List<InvitacionDto>> GetInvitacionesByProyectoAsync(int idProyecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<InvitacionDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion/proyecto/{idProyecto}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<InvitacionDto>>(json, _jsonOptions) ?? new List<InvitacionDto>();
+                }
+            }
+            catch { }
+            return new List<InvitacionDto>();
+        }
+
+        public static async Task<List<InvitacionDto>> GetInvitacionesByArquitectoAsync(int idArquitecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<InvitacionDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion/arquitecto/{idArquitecto}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<InvitacionDto>>(json, _jsonOptions) ?? new List<InvitacionDto>();
+                }
+            }
+            catch { }
+            return new List<InvitacionDto>();
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarInvitacionAsync(int idInvitacion)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/invitacion/{idInvitacion}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Invitación eliminada.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        // =======================
+        // METODOS FALTANTES DEL BACKEND
+        // =======================
+
+
+
+
+        public static async Task<List<UsuarioDto>> GetUsuariosAsync()
+        {
+            try
+            {
+                var url = $"{UserSession.BaseUrl}/api/usuario";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<UsuarioDto>>(json, _jsonOptions) ?? new();
+                }
+            }
+            catch { }
+            return new List<UsuarioDto>();
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarUsuarioAsync(int idUsuario)
+        {
+            try
+            {
+                var url = $"{UserSession.BaseUrl}/api/usuario/{idUsuario}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Usuario eliminado.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex) { return (false, $"Error: {ex.Message}"); }
+        }
+
+        public static async Task<List<NotificacionDto>> GetNotificacionesByUsuarioAsync(int idUsuario)
+        {
+            try
+            {
+                var url = $"{UserSession.BaseUrl}/api/notificacion/usuario/{idUsuario}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<NotificacionDto>>(json, _jsonOptions) ?? new();
+                }
+            }
+            catch { }
+            return new List<NotificacionDto>();
+        }
+
+        public static async Task<(bool Success, string Message)> EliminarNotificacionAsync(int idNotificacion)
+        {
+            try
+            {
+                var url = $"{UserSession.BaseUrl}/api/notificacion/{idNotificacion}";
+                using var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode ? (true, "Notificación eliminada.") : (false, $"Error: {response.StatusCode}");
+            }
+            catch (Exception ex) { return (false, $"Error: {ex.Message}"); }
         }
     }
 }
