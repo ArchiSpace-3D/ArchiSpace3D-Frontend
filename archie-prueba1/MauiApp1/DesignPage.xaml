@@ -108,8 +108,8 @@
                                     <Grid RowDefinitions="*,Auto" Padding="10">
                                         <Image Source="nav_layers.svg" WidthRequest="40" HeightRequest="40" HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.5"/>
                                         <VerticalStackLayout Grid.Row="1" Spacing="2">
-                                            <Label Text="{Binding Nombre}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" MaxLines="1" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
-                                            <Label Text="{Binding Categoria}" FontSize="10" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding Nombrearchivo}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" MaxLines="1" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding Formato}" FontSize="10" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" HorizontalTextAlignment="Center"/>
                                             <Button Text="Añadir" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#7BBDE8}" HeightRequest="28" CornerRadius="14" FontSize="10" FontAttributes="Bold" Margin="0,5,0,0" CommandParameter="{Binding .}" Clicked="OnAddModeloToDesignClicked"/>
                                         </VerticalStackLayout>
                                     </Grid>
@@ -195,8 +195,8 @@
                                 <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <VerticalStackLayout>
-                                        <Label Text="{Binding Idversiondiseno, StringFormat='Versión #{0}'}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                                        <Label Text="{Binding Fechaversion, StringFormat='{0:dd MMM yyyy, HH:mm}'}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                        <Label Text="{Binding TituloVersion}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding FechaFormateada}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                                     </VerticalStackLayout>
                                     <Button Grid.Column="1" Text="Cargar" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#7BBDE8}" HeightRequest="36" CornerRadius="18" FontSize="12" FontAttributes="Bold" CommandParameter="{Binding .}" Clicked="OnCargarVersionClicked" VerticalOptions="Center"/>
                                 </Grid>

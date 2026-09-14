@@ -312,7 +312,8 @@ public partial class DashboardPage : ContentPage
     {
         if (UserSession.ActiveProject == null) return;
         
-        var (success, msg, data) = await ApiService.CrearInvitacionAsync(UserSession.ActiveProject.Idproyecto, "");
+        string codigoGenerado = $"ARQ-{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
+        var (success, msg, data) = await ApiService.CrearInvitacionAsync(UserSession.ActiveProject.Idproyecto, codigoGenerado);
         if (success && data != null)
         {
             await ShowAlertAsync("Código Generado", $"Comparte este código con tu cliente para que se una al proyecto:\n\n{data.Codigo}", "Copiar");
@@ -320,7 +321,7 @@ public partial class DashboardPage : ContentPage
         }
         else
         {
-            await ShowAlertAsync("Error", "No se pudo generar la invitación. Inténtalo de nuevo.", "OK");
+            await ShowAlertAsync("Error", $"No se pudo generar la invitación: {msg}", "OK");
         }
     }
 
