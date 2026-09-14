@@ -104,6 +104,38 @@ namespace MauiApp1
             StopSensors();
             await Navigation.PopModalAsync();
         }
+        private async void OnGuardarMedidaClicked(object? sender, EventArgs e)
+        {
+            if (UserSession.ActiveProject == null)
+            {
+                await DisplayAlert("Aviso", "No hay un proyecto activo para guardar la medida.", "OK");
+                return;
+            }
+
+            string result = await DisplayPromptAsync("Guardar Medida", "Ingresa la distancia medida en metros (ej. 2.45):", "Guardar", "Cancelar", keyboard: Keyboard.Numeric);
+            
+            if (!string.IsNullOrWhiteSpace(result) && decimal.TryParse(result, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal distancia))
+            {
+                var req = new MauiApp1.Models.CrearMedicionRequest
+                {
+                    Idproyecto = UserSession.ActiveProject.Idproyecto,
+                    Distancia = distancia,
+                    Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
+                    Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
+                    Fechamedicion = DateTime.UtcNow
+                };
+
+                var (success, msg) = await ApiService.GuardarMedicionAsync(req);
+                if (success)
+                {
+                    await DisplayAlert("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
+                }
+                else
+                {
+                    await DisplayAlert("Error", $"No se guardó la medida: {msg}", "OK");
+                }
+            }
+        }
     }
 
 #if ANDROID
