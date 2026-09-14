@@ -130,9 +130,9 @@ public partial class DashboardPage : ContentPage
         SheetProjectCode.Text = $"Presupuesto: ";
         
         DetailsBackdrop.IsVisible = true;
-        await DetailsBackdrop.FadeTo(1, 200);
+        await DetailsBackdrop.FadeToAsync(1, 200);
         ProjectDetailsSheetModal.IsVisible = true;
-        await ProjectDetailsSheetModal.TranslateTo(0, 0, 300, Easing.CubicOut);
+        await ProjectDetailsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
     }
 
     private async void OnCloseDetailsSheetClicked(object sender, EventArgs e)
@@ -142,8 +142,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseDetailsSheet()
     {
-        await ProjectDetailsSheetModal.TranslateTo(0, 600, 250, Easing.CubicIn);
-        await DetailsBackdrop.FadeTo(0, 200);
+        await ProjectDetailsSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await DetailsBackdrop.FadeToAsync(0, 200);
         DetailsBackdrop.IsVisible = false;
         ProjectDetailsSheetModal.IsVisible = false;
     }
@@ -170,9 +170,9 @@ public partial class DashboardPage : ContentPage
         EditPresupuestoProyecto.Text = UserSession.ActiveProject.Presupuesto.ToString();
 
         EditProjectBackdrop.IsVisible = true;
-        await EditProjectBackdrop.FadeTo(1, 200);
+        await EditProjectBackdrop.FadeToAsync(1, 200);
         EditProjectSheetModal.IsVisible = true;
-        await EditProjectSheetModal.TranslateTo(0, 0, 300, Easing.CubicOut);
+        await EditProjectSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
     }
 
     private async void OnCloseEditProjectSheetClicked(object sender, EventArgs e)
@@ -182,8 +182,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseEditProjectSheet()
     {
-        await EditProjectSheetModal.TranslateTo(0, 600, 250, Easing.CubicIn);
-        await EditProjectBackdrop.FadeTo(0, 200);
+        await EditProjectSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await EditProjectBackdrop.FadeToAsync(0, 200);
         EditProjectBackdrop.IsVisible = false;
         EditProjectSheetModal.IsVisible = false;
     }
@@ -234,8 +234,8 @@ public partial class DashboardPage : ContentPage
     private async void OnOpenNewProjectSheetClicked(object sender, EventArgs e)
     {
         NewProjectBackdrop.IsVisible = true;
-        await NewProjectBackdrop.FadeTo(1, 200);
-        await NewProjectSheetCard.TranslateTo(0, 0, 300, Easing.CubicOut);
+        await NewProjectBackdrop.FadeToAsync(1, 200);
+        await NewProjectSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut);
     }
 
     private async void OnCloseNewProjectSheetClicked(object sender, EventArgs e)
@@ -245,8 +245,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseNewProjectSheet()
     {
-        await NewProjectSheetCard.TranslateTo(0, 600, 250, Easing.CubicIn);
-        await NewProjectBackdrop.FadeTo(0, 200);
+        await NewProjectSheetCard.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await NewProjectBackdrop.FadeToAsync(0, 200);
         NewProjectBackdrop.IsVisible = false;
     }
 
@@ -272,9 +272,9 @@ public partial class DashboardPage : ContentPage
     private async void OnOpenJoinCodeSheetClicked(object sender, EventArgs e)
     {
         JoinCodeBackdrop.IsVisible = true;
-        await JoinCodeBackdrop.FadeTo(1, 200);
+        await JoinCodeBackdrop.FadeToAsync(1, 200);
         JoinCodeSheetModal.IsVisible = true;
-        await JoinCodeSheetModal.TranslateTo(0, 0, 300, Easing.CubicOut);
+        await JoinCodeSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
     }
 
     private async void OnCloseJoinCodeSheetClicked(object sender, EventArgs e)
@@ -284,8 +284,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseJoinCodeSheet()
     {
-        await JoinCodeSheetModal.TranslateTo(0, 600, 250, Easing.CubicIn);
-        await JoinCodeBackdrop.FadeTo(0, 200);
+        await JoinCodeSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await JoinCodeBackdrop.FadeToAsync(0, 200);
         JoinCodeBackdrop.IsVisible = false;
         JoinCodeSheetModal.IsVisible = false;
     }
@@ -317,19 +317,20 @@ public partial class DashboardPage : ContentPage
     {
         AppleToastMessage.Text = message;
         AppleToast.IsVisible = true;
-        await AppleToast.FadeTo(1, 300);
+        await AppleToast.FadeToAsync(1, 300);
         await Task.Delay(3000);
-        await AppleToast.FadeTo(0, 300);
+        await AppleToast.FadeToAsync(0, 300);
         AppleToast.IsVisible = false;
     }
 
     private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, cancel);
+        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
     }
 
     private Task<bool> ShowAlertConfirmAsync(string title, string message, string accept, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, accept, cancel);
+        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, accept, cancel);
     }
 }
+

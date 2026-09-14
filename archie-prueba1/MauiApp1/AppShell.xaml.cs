@@ -1,4 +1,4 @@
-namespace MauiApp1
+﻿namespace MauiApp1
 {
     public partial class AppShell : Shell
     {
@@ -8,3 +8,4 @@ namespace MauiApp1
         }
     }
 }
+

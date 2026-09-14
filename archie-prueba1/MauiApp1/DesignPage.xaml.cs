@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Text.Json;
 using System.Globalization;
@@ -178,15 +178,31 @@ public partial class DesignPage : ContentPage
 
     private async void OnAddElementoClicked(object sender, EventArgs e)
     {
+        if (_espacioActual == null || (_espacioActual.Anchoaproximado == 0 && _espacioActual.Largoaproximado == 0))
+        {
+            await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de agregar estructuras.", "OK");
+            return;
+        }
+
         if (_idVersionDisenoActiva == 0)
         {
             await ShowAlertAsync("Aviso", "Asegúrate de que haya una versión de diseño activa.", "OK");
             return;
         }
         ElementBackdrop.IsVisible = true;
-        await ElementBackdrop.FadeTo(1, 200);
-        await ElementSheetModal.TranslateTo(0, 0, 350, Easing.CubicOut);
+        await ElementBackdrop.FadeToAsync(1, 200);
+        await ElementSheetModal.TranslateToAsync(0, 0, 350, Easing.CubicOut);
         ElementSheetModal.IsVisible = true;
+    }
+
+    private async void OnImportModelClicked(object sender, EventArgs e)
+    {
+        if (_espacioActual == null || (_espacioActual.Anchoaproximado == 0 && _espacioActual.Largoaproximado == 0))
+        {
+            await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de importar mobiliario.", "OK");
+            return;
+        }
+        await ShowAlertAsync("Importar 3D", "Aquí se abrirá el explorador de archivos para importar modelos (.glb, .obj).", "OK");
     }
 
     private async void OnCloseElementSheetClicked(object sender, EventArgs e)
@@ -196,8 +212,8 @@ public partial class DesignPage : ContentPage
 
     private async Task CloseElementSheet()
     {
-        await ElementSheetModal.TranslateTo(0, 600, 250, Easing.CubicIn);
-        await ElementBackdrop.FadeTo(0, 200);
+        await ElementSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await ElementBackdrop.FadeToAsync(0, 200);
         ElementBackdrop.IsVisible = false;
         ElementSheetModal.IsVisible = false;
     }
@@ -223,6 +239,7 @@ public partial class DesignPage : ContentPage
 
     private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, cancel);
+        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
     }
 }
+

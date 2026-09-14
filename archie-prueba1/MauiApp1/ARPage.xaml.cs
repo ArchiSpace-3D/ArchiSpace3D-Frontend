@@ -31,7 +31,7 @@ namespace MauiApp1
                 status = await Permissions.RequestAsync<Permissions.Camera>();
                 if (status != PermissionStatus.Granted)
                 {
-                    await DisplayAlert("Error", "Se requiere cámara", "OK");
+                    await DisplayAlertAsync("Error", "Se requiere cámara", "OK");
                     return;
                 }
             }
@@ -120,3 +120,4 @@ namespace MauiApp1
     }
 #endif
 }
+

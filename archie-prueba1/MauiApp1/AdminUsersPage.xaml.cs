@@ -85,11 +85,12 @@ public partial class AdminUsersPage : ContentPage
 
     private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, cancel);
+        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
     }
 
     private Task<bool> ShowAlertConfirmAsync(string title, string message, string accept, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlert(title, message, accept, cancel);
+        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, accept, cancel);
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 
 namespace MauiApp1.Services
 {
@@ -15,6 +15,7 @@ namespace MauiApp1.Services
         public static string? Direccion { get; set; }
         public static string? Tipodocumento { get; set; }
         public static string? Numerodocumento { get; set; }
+        public static string? Avatarurl { get; set; }
 
         public static ProyectoDto? ActiveProject { get; set; }
 
@@ -22,7 +23,7 @@ namespace MauiApp1.Services
 
         public static string NombreCompleto => string.IsNullOrWhiteSpace(Apellido) 
             ? Nombre 
-            : "$Nombre $Apellido";
+            : $"{Nombre} {Apellido}";
 
         public static async Task SetSessionAsync(LoginResponse loginResponse, string baseUrl)
         {
@@ -32,6 +33,11 @@ namespace MauiApp1.Services
             Apellido = loginResponse.Apellido;
             Email = loginResponse.Email;
             Rol = loginResponse.Rol;
+            Telefono = loginResponse.Telefono;
+            Direccion = loginResponse.Direccion;
+            Tipodocumento = loginResponse.Tipodocumento;
+            Numerodocumento = loginResponse.Numerodocumento;
+            Avatarurl = loginResponse.Avatarurl;
             BaseUrl = baseUrl;
 
             await SecureStorage.SetAsync("auth_token", Token ?? "");
@@ -40,6 +46,11 @@ namespace MauiApp1.Services
             await SecureStorage.SetAsync("user_apellido", Apellido ?? "");
             await SecureStorage.SetAsync("user_email", Email ?? "");
             await SecureStorage.SetAsync("user_rol", Rol ?? "");
+            await SecureStorage.SetAsync("user_telefono", Telefono ?? "");
+            await SecureStorage.SetAsync("user_direccion", Direccion ?? "");
+            await SecureStorage.SetAsync("user_tipodocumento", Tipodocumento ?? "");
+            await SecureStorage.SetAsync("user_numerodocumento", Numerodocumento ?? "");
+            await SecureStorage.SetAsync("user_avatarurl", Avatarurl ?? "");
         }
 
         public static async Task<bool> LoadSessionAsync()
@@ -62,6 +73,7 @@ namespace MauiApp1.Services
             Direccion = await SecureStorage.GetAsync("user_direccion");
             Tipodocumento = await SecureStorage.GetAsync("user_tipodocumento");
             Numerodocumento = await SecureStorage.GetAsync("user_numerodocumento");
+            Avatarurl = await SecureStorage.GetAsync("user_avatarurl");
 
             return true;
         }
@@ -78,6 +90,7 @@ namespace MauiApp1.Services
             Direccion = null;
             Tipodocumento = null;
             Numerodocumento = null;
+            Avatarurl = null;
             
             SecureStorage.RemoveAll();
         }

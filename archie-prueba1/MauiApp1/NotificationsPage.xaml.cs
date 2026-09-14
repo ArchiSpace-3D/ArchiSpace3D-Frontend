@@ -1,4 +1,4 @@
-using MauiApp1.Models;
+﻿using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -73,3 +73,4 @@ public partial class NotificationsPage : ContentPage
         }
     }
 }
+

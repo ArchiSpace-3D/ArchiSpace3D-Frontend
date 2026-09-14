@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 using ZXing.Net.Maui.Controls;
 
 namespace MauiApp1

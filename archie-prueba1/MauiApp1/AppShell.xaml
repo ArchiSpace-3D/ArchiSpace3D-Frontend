@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="MauiApp1.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -10,13 +10,13 @@
         <ResourceDictionary>
             <Color x:Key="Primary">#001D39</Color>
             <Style TargetType="TabBar">
-                <Setter Property="Shell.BackgroundColor" Value="#FFFFFF" />
-                <Setter Property="Shell.ForegroundColor" Value="#001D39" />
-                <Setter Property="Shell.TitleColor" Value="#001D39" />
-                <Setter Property="Shell.UnselectedColor" Value="#6EA2B3" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="#FFFFFF" />
-                <Setter Property="Shell.TabBarTitleColor" Value="#001D39" />
-                <Setter Property="Shell.TabBarUnselectedColor" Value="#6EA2B3" />
+                <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" />
+                <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" />
+                <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" />
+                <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light=#6EA2B3, Dark=#555555}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" />
+                <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" />
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light=#6EA2B3, Dark=#555555}" />
             </Style>
         </ResourceDictionary>
     </Shell.Resources>

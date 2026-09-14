@@ -11,6 +11,18 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
     }
 
+    private void OnTogglePasswordVisibility(object? sender, EventArgs e)
+    {
+        PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
+        PasswordToggleIcon.Source = PasswordEntry.IsPassword ? "ic_eye_off.svg" : "ic_eye_on.svg";
+    }
+
+    private void OnToggleRegPasswordVisibility(object? sender, EventArgs e)
+    {
+        RegPasswordEntry.IsPassword = !RegPasswordEntry.IsPassword;
+        RegPasswordToggleIcon.Source = RegPasswordEntry.IsPassword ? "ic_eye_off.svg" : "ic_eye_on.svg";
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -69,8 +81,8 @@ public partial class LoginPage : ContentPage
     private async void OnOpenRegisterSheetClicked(object? sender, EventArgs e)
     {
         RegisterBackdrop.IsVisible = true;
-        await RegisterBackdrop.FadeTo(1, 200);
-        await RegisterSheetCard.TranslateTo(0, 0, 350, Easing.CubicOut);
+        await RegisterBackdrop.FadeToAsync(1, 200);
+        await RegisterSheetCard.TranslateToAsync(0, 0, 350, Easing.CubicOut);
     }
 
     private async void OnCloseRegisterSheetClicked(object? sender, EventArgs e)
@@ -80,8 +92,8 @@ public partial class LoginPage : ContentPage
 
     private async Task CloseRegisterSheet()
     {
-        await RegisterSheetCard.TranslateTo(0, 1200, 250, Easing.CubicIn);
-        await RegisterBackdrop.FadeTo(0, 200);
+        await RegisterSheetCard.TranslateToAsync(0, 1200, 250, Easing.CubicIn);
+        await RegisterBackdrop.FadeToAsync(0, 200);
         RegisterBackdrop.IsVisible = false;
     }
 
@@ -154,9 +166,10 @@ public partial class LoginPage : ContentPage
     {
         AppleToastMessage.Text = message;
         AppleToast.IsVisible = true;
-        await AppleToast.FadeTo(1, 300);
+        await AppleToast.FadeToAsync(1, 300);
         await Task.Delay(3000);
-        await AppleToast.FadeTo(0, 300);
+        await AppleToast.FadeToAsync(0, 300);
         AppleToast.IsVisible = false;
     }
 }
+
