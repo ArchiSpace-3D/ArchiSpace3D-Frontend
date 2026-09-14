@@ -152,10 +152,10 @@
             </VerticalStackLayout>
         </Border>
 
-        <Grid x:Name="LoadingOverlay" BackgroundColor="#CCFFFFFF" IsVisible="False">
+        <Grid x:Name="LoadingOverlay" BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC000000}" IsVisible="False">
             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
                 <ActivityIndicator IsRunning="True" Color="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" WidthRequest="50" HeightRequest="50"/>
-                <Label Text="Conectando..." TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Label x:Name="LoadingLabel" Text="Conectando..." TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="20,0"/>
             </VerticalStackLayout>
         </Grid>
         

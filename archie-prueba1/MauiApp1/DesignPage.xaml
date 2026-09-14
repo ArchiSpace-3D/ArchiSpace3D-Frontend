@@ -35,6 +35,13 @@
                     </Grid>
                 </Border>
 
+                <!-- Visor 3D -->
+                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" HeightRequest="300" Margin="0,0,0,10">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#000000" Opacity="0.1" Offset="0,4" Radius="10"/></Border.Shadow>
+                    <WebView x:Name="Viewer3D" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+                </Border>
+
                 <!-- PASO 1: PLANTA -->
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Paso 1: Definir Planta / Habitación" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>

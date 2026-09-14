@@ -14,6 +14,13 @@ public partial class DesignPage : ContentPage
     public DesignPage()
     {
         InitializeComponent();
+#if ANDROID
+        Viewer3D.Source = new UrlWebViewSource { Url = "file:///android_asset/viewer3d.html" };
+#elif IOS
+        Viewer3D.Source = new UrlWebViewSource { Url = Foundation.NSBundle.MainBundle.BundlePath + "/viewer3d.html" };
+#else
+        Viewer3D.Source = new UrlWebViewSource { Url = "viewer3d.html" };
+#endif
     }
 
     protected override void OnAppearing()
@@ -42,6 +49,14 @@ public partial class DesignPage : ContentPage
             AltoEntry.Text = _espacioActual.Altoaproximado?.ToString(CultureInfo.InvariantCulture) ?? "0";
             AnchoEntry.Text = _espacioActual.Anchoaproximado?.ToString(CultureInfo.InvariantCulture) ?? "0";
             LargoEntry.Text = _espacioActual.Largoaproximado?.ToString(CultureInfo.InvariantCulture) ?? "0";
+
+            if (_espacioActual.Anchoaproximado > 0 && _espacioActual.Largoaproximado > 0)
+            {
+                string anchoStr = _espacioActual.Anchoaproximado.Value.ToString(CultureInfo.InvariantCulture);
+                string largoStr = _espacioActual.Largoaproximado.Value.ToString(CultureInfo.InvariantCulture);
+                string altoStr = (_espacioActual.Altoaproximado ?? 2.5m).ToString(CultureInfo.InvariantCulture);
+                await Viewer3D.EvaluateJavaScriptAsync($"createRoom({anchoStr}, {largoStr}, {altoStr});");
+            }
         }
         else
         {
@@ -89,6 +104,12 @@ public partial class DesignPage : ContentPage
         ElementosList.Children.Clear();
         var elementos = await ApiService.GetElementosByVersionAsync(idVersion);
         if (elementos == null || elementos.Count == 0) return;
+
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var cardBg = isDark ? Color.FromArgb("#000000") : Color.FromArgb("#FFFFFF");
+        var textColor = isDark ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#001D39");
+        var subTextColor = isDark ? Color.FromArgb("#7BBDE8") : Color.FromArgb("#6EA2B3");
+        var deleteBg = isDark ? Color.FromArgb("#3D1616") : Color.FromArgb("#FFF0F0");
 
         foreach (var elem in elementos)
         {
@@ -147,6 +168,11 @@ public partial class DesignPage : ContentPage
 
     private async void OnGuardarFisicoClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente")
+        {
+            await ShowAlertAsync("Solo Lectura", "Los clientes no pueden modificar el diseño.", "OK");
+            return;
+        }
         if (_proyectoActual == null)
         {
             await ShowAlertAsync("Aviso", "Selecciona un proyecto primero en Inicio.", "OK");
@@ -182,6 +208,11 @@ public partial class DesignPage : ContentPage
 
     private async void OnAddElementoClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente")
+        {
+            await ShowAlertAsync("Solo Lectura", "Los clientes no pueden modificar el diseño.", "OK");
+            return;
+        }
         if (_espacioActual == null || (_espacioActual.Anchoaproximado == 0 && _espacioActual.Largoaproximado == 0))
         {
             await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de agregar estructuras.", "OK");
@@ -220,6 +251,11 @@ public partial class DesignPage : ContentPage
 
     private async void OnAddModeloToDesignClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente")
+        {
+            await ShowAlertAsync("Solo Lectura", "Los clientes no pueden modificar el diseño.", "OK");
+            return;
+        }
         if (_espacioActual == null || (_espacioActual.Anchoaproximado == 0 && _espacioActual.Largoaproximado == 0))
         {
             await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de agregar mobiliario.", "OK");
@@ -234,8 +270,14 @@ public partial class DesignPage : ContentPage
 
         if (sender is Button btn && btn.CommandParameter is MauiApp1.Models.ModeloImportadoDto modelo)
         {
+            // Inject in 3D viewer
+            if (!string.IsNullOrEmpty(modelo.Rutastorage))
+            {
+                await Viewer3D.EvaluateJavaScriptAsync($"loadModel('{modelo.Rutastorage}');");
+            }
+            
             // En un flujo real, aquí actualizaríamos transformaciones (posición, rotación)
-            await ShowAlertAsync("Añadido", $"El modelo '{modelo.Nombre}' se ha añadido al diseño actual.", "OK");
+            await ShowAlertAsync("Añadido", $"El modelo '{modelo.Nombrearchivo}' se ha añadido al diseño actual.", "OK");
             // Aquí iría un llamado a ApiService.CrearModeloImportadoAsync o ActualizarTransformModeloAsync
         }
     }
@@ -255,6 +297,7 @@ public partial class DesignPage : ContentPage
 
     private async void OnSubmitElementoClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente") return;
         if (_idVersionDisenoActiva == 0) return;
         var req = new CrearElementoEstructuralRequest
         {
@@ -318,10 +361,15 @@ public partial class DesignPage : ContentPage
 
     private async void OnGuardarNuevaVersionClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente")
+        {
+            await ShowAlertAsync("Solo Lectura", "Los clientes no pueden modificar el diseño.", "OK");
+            return;
+        }
         if (UserSession.ActiveProject == null) return;
         
         var versiones = (List<MauiApp1.Models.VersionDisenoDto>)(VersionsCollectionView.ItemsSource ?? new List<MauiApp1.Models.VersionDisenoDto>());
-        int nextVersion = versiones.Count > 0 ? versiones.Max(v => v.Numeroversion ?? 0) + 1 : 1;
+        int nextVersion = versiones.Count > 0 ? versiones.Max(v => v.Numeroversion) + 1 : 1;
 
         var req = new MauiApp1.Models.CrearVersionDisenoRequest
         {
@@ -344,6 +392,11 @@ public partial class DesignPage : ContentPage
 
     private async void OnCargarVersionClicked(object sender, EventArgs e)
     {
+        if (UserSession.Rol == "Cliente")
+        {
+            await ShowAlertAsync("Solo Lectura", "Los clientes no pueden modificar el diseño.", "OK");
+            return;
+        }
         if (sender is Button btn && btn.CommandParameter is MauiApp1.Models.VersionDisenoDto version && UserSession.ActiveProject != null)
         {
             var (success, msg) = await ApiService.MarcarVersionComoActualAsync(version.Idversiondiseno, UserSession.ActiveProject.Idproyecto);

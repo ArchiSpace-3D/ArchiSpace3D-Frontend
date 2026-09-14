@@ -1,3 +1,4 @@
+using Plugin.LocalNotification;
 using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
@@ -18,6 +19,14 @@ public partial class DashboardPage : ContentPage
     {
         base.OnAppearing();
         NombreUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Nombre) ? "Usuario" : UserSession.Nombre;
+        
+        // Control de Roles
+        bool esArquitecto = UserSession.Rol == "Arquitecto";
+        NewProjectActionContainer.IsVisible = esArquitecto;
+        BtnGenerarInvitacion.IsVisible = esArquitecto;
+        BtnSheetEditarProyecto.IsVisible = esArquitecto;
+        BtnSheetEliminarProyecto.IsVisible = esArquitecto;
+
         await CargarProyectosAsync();
         await CargarNotificacionesDashAsync();
         ActualizarProyectoActivoUI();
@@ -68,8 +77,14 @@ public partial class DashboardPage : ContentPage
         var list = await ApiService.GetNotificacionesByUsuarioAsync(UserSession.Idusuario);
         NotificationCountBadge.Text = $"{list?.Count ?? 0} nuevas";
 
-        if (list != null)
+        if (list != null && list.Count > 0)
         {
+            var firstNotif = list.First();
+            // Plugin.LocalNotification Integration
+            // requires correct namespace or version match for NotificationRequest
+            // var req = new NotificationRequest { ... };
+            // LocalNotificationCenter.Current.Show(req);
+
             bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
             var textColor = isDark ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#001D39");
             var subTextColor = isDark ? Color.FromArgb("#7BBDE8") : Color.FromArgb("#6EA2B3");

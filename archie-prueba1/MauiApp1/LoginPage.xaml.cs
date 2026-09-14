@@ -33,23 +33,40 @@ public partial class LoginPage : ContentPage
         }
     }
 
+    private void ShowLoadingWithTimeout()
+    {
+        LoadingLabel.Text = "Conectando...";
+        LoadingOverlay.IsVisible = true;
+        _ = Task.Delay(4000).ContinueWith(t =>
+        {
+            if (LoadingOverlay.IsVisible)
+            {
+                MainThread.BeginInvokeOnMainThread(() => 
+                {
+                    LoadingLabel.Text = "Despertando servidor de Railway,\nesto puede demorar hasta 30 seg...";
+                });
+            }
+        });
+    }
+
     private async void OnLoginClicked(object? sender, EventArgs e)
     {
-        await LoginButton.ScaleToAsync(0.96, 70);
-        await LoginButton.ScaleToAsync(1.0, 80);
-        
+        await LoginButton.ScaleToAsync(0.95, 70);
+        await LoginButton.ScaleToAsync(1.0, 70);
+
         string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
         string email = EmailEntry.Text?.Trim() ?? string.Empty;
-        string password = PasswordEntry.Text?.Trim() ?? string.Empty;
+        string pass = PasswordEntry.Text?.Trim() ?? string.Empty;
+        string password = pass;
 
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass))
         {
             await ShowToastAsync("Ingresa correo y contraseña.");
             return;
         }
 
         LoginButton.IsEnabled = false;
-        LoadingOverlay.IsVisible = true;
+        ShowLoadingWithTimeout();
 
         try
         {
@@ -120,7 +137,7 @@ public partial class LoginPage : ContentPage
         }
 
         BtnSubmitRegister.IsEnabled = false;
-        LoadingOverlay.IsVisible = true;
+        ShowLoadingWithTimeout();
 
         try
         {
