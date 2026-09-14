@@ -123,57 +123,45 @@ public partial class ProfilePage : ContentPage
                 // UI temporal mientras sube
                 AvatarInitialsLabel.IsVisible = false;
                 ProfileImage.IsVisible = true;
-                var localStream = await photo.OpenReadAsync();
-                ProfileImage.Source = ImageSource.FromStream(() => localStream);
-
-                string url = "https://ejxfilcbchzhmbblrvve.supabase.co";
-                // ADVERTENCIA: Se debe usar la clave anónima (publishable) y configurar RLS en Supabase 
-                // para permitir la subida a 'avatars', ya que GitHub bloquea el commit de claves secretas.
-                string key = "sb_publishable_-QBl6SvetxzzlVM88lpF_A_kXG8Lhc3"; 
                 
-                var options = new Supabase.SupabaseOptions { AutoConnectRealtime = false };
-                var supabase = new Supabase.Client(url, key, options);
-                await supabase.InitializeAsync();
+                using var streamForUi = await photo.OpenReadAsync();
+                var memoryStreamUi = new MemoryStream();
+                await streamForUi.CopyToAsync(memoryStreamUi);
+                memoryStreamUi.Position = 0;
+                ProfileImage.Source = ImageSource.FromStream(() => memoryStreamUi);
 
-                // Convert file to byte array
+                // Convert file to byte array for upload
                 using var memoryStream = new MemoryStream();
                 using var stream = await photo.OpenReadAsync();
                 await stream.CopyToAsync(memoryStream);
                 var imageBytes = memoryStream.ToArray();
 
-                string fileName = $"avatar_{UserSession.Idusuario}_{DateTime.Now.Ticks}.jpg";
+                // Send the image to the C# Backend to handle everything!
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", UserSession.Token);
                 
-                // Upload to Supabase Storage
-                await supabase.Storage.From("avatars").Upload(imageBytes, fileName, new Supabase.Storage.FileOptions { CacheControl = "3600", Upsert = true });
-                
-                // Get public URL
-                string publicUrl = supabase.Storage.From("avatars").GetPublicUrl(fileName);
+                using var content = new MultipartFormDataContent();
+                var fileContent = new ByteArrayContent(imageBytes);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                content.Add(fileContent, "file", photo.FileName);
 
-                // Usar ApiService para actualizar el perfil mediante el backend
-                var updateReq = new MauiApp1.Models.ActualizarUsuarioRequest
-                {
-                    Idusuario = UserSession.Idusuario,
-                    Nombre = UserSession.Nombre,
-                    Apellido = UserSession.Apellido,
-                    Email = UserSession.Email,
-                    Telefono = UserSession.Telefono,
-                    Direccion = UserSession.Direccion,
-                    Tipodocumento = UserSession.Tipodocumento,
-                    Numerodocumento = UserSession.Numerodocumento,
-                    Avatarurl = publicUrl
-                };
+                string backendUrl = $"{UserSession.BaseUrl}/api/usuario/{UserSession.Idusuario}/avatar";
+                var response = await httpClient.PostAsync(backendUrl, content);
 
-                var response = await ApiService.ActualizarUsuarioAsync(UserSession.Idusuario, updateReq);
-                
-                if (response.Success)
+                if (response.IsSuccessStatusCode)
                 {
+                    var resultJson = await response.Content.ReadAsStringAsync();
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(resultJson);
+                    string publicUrl = jsonDoc.RootElement.GetProperty("url").GetString()!;
+
                     UserSession.Avatarurl = publicUrl;
                     await SecureStorage.SetAsync("user_avatarurl", publicUrl);
-                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Éxito", "Foto de perfil actualizada correctamente en el servidor.", "OK");
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Éxito", "Foto de perfil actualizada correctamente a través del servidor.", "OK");
                 }
                 else
                 {
-                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Advertencia", $"La foto se subió, pero hubo un error al guardarla en el servidor.\nDetalle: {response.Message}", "OK");
+                    string error = await response.Content.ReadAsStringAsync();
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error", $"No se pudo guardar en el servidor.\nDetalle: {error}", "OK");
                 }
             }
         }
