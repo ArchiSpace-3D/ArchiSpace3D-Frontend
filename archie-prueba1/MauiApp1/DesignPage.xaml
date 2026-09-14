@@ -10,10 +10,18 @@
             <VerticalStackLayout Spacing="25" Padding="20,20,20,40">
                 
                 <!-- Header -->
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="Configuración de Espacio" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    <Label Text="Define la estructura paso a paso." FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                </VerticalStackLayout>
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Configuración de Espacio" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                        <Label Text="Define la estructura paso a paso." FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                    </VerticalStackLayout>
+                    
+                    <Border Grid.Column="1" WidthRequest="44" HeightRequest="44" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#162231}" StrokeThickness="0" VerticalOptions="Center">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="22"/></Border.StrokeShape>
+                        <Image Source="{AppThemeBinding Light=ic_refresh.svg, Dark=ic_refresh_white.svg}" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnVerVersionesClicked"/></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
 
                 <!-- Active Project Banner -->
                 <Border BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E1E1E}" StrokeThickness="0" Padding="15">
@@ -81,11 +89,37 @@
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout>
                             <Label Text="Paso 3: Decoración y Mobiliario" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                            <Label Text="Importa modelos 3D al espacio." FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Label Text="Catálogo de modelos 3D disponibles." FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                         </VerticalStackLayout>
-                        <Button Grid.Column="1" Text="+ Modelo 3D" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E1E1E}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" CornerRadius="15" HeightRequest="35" Padding="15,0" FontAttributes="Bold" VerticalOptions="Center" Clicked="OnImportModelClicked"/>
+                        <Button Grid.Column="1" Text="Refrescar" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E1E1E}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" CornerRadius="15" HeightRequest="35" Padding="15,0" FontAttributes="Bold" VerticalOptions="Center" Clicked="OnRefreshCatalogClicked"/>
                     </Grid>
-                    <VerticalStackLayout x:Name="ModelosList" Spacing="10" Margin="0,10,0,0"/>
+                    
+                    <ActivityIndicator x:Name="LoadingCatalogIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,10"/>
+                    
+                    <CollectionView x:Name="CatalogCollectionView" HeightRequest="140" Margin="0,10,0,0">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" WidthRequest="120">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                                    <Border.Shadow><Shadow Brush="#000000" Opacity="0.1" Offset="0,2" Radius="5"/></Border.Shadow>
+                                    <Grid RowDefinitions="*,Auto" Padding="10">
+                                        <Image Source="nav_layers.svg" WidthRequest="40" HeightRequest="40" HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.5"/>
+                                        <VerticalStackLayout Grid.Row="1" Spacing="2">
+                                            <Label Text="{Binding Nombre}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" MaxLines="1" LineBreakMode="TailTruncation" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding Categoria}" FontSize="10" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" HorizontalTextAlignment="Center"/>
+                                            <Button Text="Añadir" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#7BBDE8}" HeightRequest="28" CornerRadius="14" FontSize="10" FontAttributes="Bold" Margin="0,5,0,0" CommandParameter="{Binding .}" Clicked="OnAddModeloToDesignClicked"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <Label Text="No hay modelos disponibles en el catálogo." TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="12" HorizontalTextAlignment="Center" Margin="0,20"/>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </VerticalStackLayout>
                 
             </VerticalStackLayout>
@@ -95,12 +129,12 @@
         <BoxView x:Name="ElementBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseElementSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="ElementSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False">
+        <Border x:Name="ElementSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
             <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
             <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
                 <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
                 <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="Nueva Estructura" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                    <Label Text="Agregar Estructura" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseElementSheetClicked"/></Image.GestureRecognizers>
                     </Image>
@@ -132,5 +166,51 @@
                 <Button Text="Guardar Elemento" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontSize="16" FontAttributes="Bold" Clicked="OnSubmitElementoClicked" Margin="0,10,0,0"/>
             </VerticalStackLayout>
         </Border>
+
+        <!-- Bottom Sheet Versiones -->
+        <BoxView x:Name="VersionsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseVersionsSheetClicked"/></BoxView.GestureRecognizers>
+        </BoxView>
+        <Border x:Name="VersionsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+            <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
+                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout>
+                        <Label Text="Historial de Versiones" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                        <Label Text="Gestiona las iteraciones del diseño" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                    </VerticalStackLayout>
+                    <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseVersionsSheetClicked"/></Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+                
+                <ActivityIndicator x:Name="LoadingVersionsIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,10"/>
+                
+                <CollectionView x:Name="VersionsCollectionView" HeightRequest="200">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" Margin="0,0,0,10" Padding="15">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Idversiondiseno, StringFormat='Versión #{0}'}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding Fechaversion, StringFormat='{0:dd MMM yyyy, HH:mm}'}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1" Text="Cargar" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#7BBDE8}" HeightRequest="36" CornerRadius="18" FontSize="12" FontAttributes="Bold" CommandParameter="{Binding .}" Clicked="OnCargarVersionClicked" VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="No hay versiones guardadas." TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="14" HorizontalTextAlignment="Center" Margin="0,20"/>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <Button Text="Guardar Nueva Versión" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontSize="16" FontAttributes="Bold" Clicked="OnGuardarNuevaVersionClicked" Margin="0,10,0,0"/>
+            </VerticalStackLayout>
+        </Border>
+
     </Grid>
 </ContentPage>

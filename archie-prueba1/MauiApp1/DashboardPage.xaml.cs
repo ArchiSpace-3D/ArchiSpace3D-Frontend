@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -292,7 +292,7 @@ public partial class DashboardPage : ContentPage
 
     private async void OnSubmitJoinCodeClicked(object sender, EventArgs e)
     {
-        var codigo = EntryJoinCode.Text?.Trim() ?? "";
+        var codigo = JoinCodeEntry.Text?.Trim() ?? "";
         if (string.IsNullOrEmpty(codigo)) return;
         
         var (success, msg) = await ApiService.UsarInvitacionAsync(codigo);
@@ -306,6 +306,56 @@ public partial class DashboardPage : ContentPage
         {
             await ShowAlertAsync("Error", msg, "OK");
         }
+    }
+
+    private async void OnGenerarInvitacionClicked(object sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+        
+        var (success, msg, data) = await ApiService.CrearInvitacionAsync(UserSession.ActiveProject.Idproyecto, "");
+        if (success && data != null)
+        {
+            await ShowAlertAsync("Código Generado", $"Comparte este código con tu cliente para que se una al proyecto:\n\n{data.Codigo}", "Copiar");
+            await Clipboard.Default.SetTextAsync(data.Codigo);
+        }
+        else
+        {
+            await ShowAlertAsync("Error", "No se pudo generar la invitación. Inténtalo de nuevo.", "OK");
+        }
+    }
+
+    private async void OnVerMedicionesClicked(object sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+
+        // Close details sheet first
+        await CloseDetailsSheet();
+
+        // Show measurements sheet
+        MeasurementsBackdrop.IsVisible = true;
+        await MeasurementsBackdrop.FadeToAsync(1, 200);
+        MeasurementsSheetModal.IsVisible = true;
+        await MeasurementsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+
+        // Load data
+        LoadingMeasurementsIndicator.IsVisible = true;
+        LoadingMeasurementsIndicator.IsRunning = true;
+        MeasurementsCollectionView.ItemsSource = null;
+
+        var mediciones = await ApiService.GetMedicionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+        
+        LoadingMeasurementsIndicator.IsRunning = false;
+        LoadingMeasurementsIndicator.IsVisible = false;
+        
+        MeasurementsCollectionView.ItemsSource = mediciones;
+    }
+
+    private async void OnCloseMeasurementsSheetClicked(object sender, EventArgs e)
+    {
+        await MeasurementsSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await MeasurementsBackdrop.FadeToAsync(0, 200);
+        MeasurementsBackdrop.IsVisible = false;
+        MeasurementsSheetModal.IsVisible = false;
     }
 
     private async void OnReglaARClicked(object sender, EventArgs e)

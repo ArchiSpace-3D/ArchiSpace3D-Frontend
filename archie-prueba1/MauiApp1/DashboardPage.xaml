@@ -167,8 +167,14 @@
                     <Button Text="Activar" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnSetAsActiveProjectClicked"/>
                     <Button Grid.Column="1" Text="Diseño 3D" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnEnterDesignClicked"/>
                 </Grid>
+                
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Text="Ver Mediciones" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" HeightRequest="44" CornerRadius="22" FontAttributes="Bold" Clicked="OnVerMedicionesClicked"/>
+                    <Button Grid.Column="1" Text="Invitar Cliente" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" HeightRequest="44" CornerRadius="22" FontAttributes="Bold" Clicked="OnGenerarInvitacionClicked"/>
+                </Grid>
+
                 <Button x:Name="BtnSheetEditarProyecto" Text="Editar Proyecto" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" HeightRequest="48" FontAttributes="Bold" Clicked="OnEditarProyectoFromDetailsClicked"/>
-                <Button x:Name="BtnSheetEliminarProyecto" Text="Eliminar Proyecto" BackgroundColor="#FFF0F0" TextColor="#D32F2F" CornerRadius="24" HeightRequest="48" FontAttributes="Bold" Clicked="OnEliminarProyectoFromDetailsClicked"/>
+                <Button x:Name="BtnSheetEliminarProyecto" Text="Eliminar Proyecto" BackgroundColor="Transparent" TextColor="#D32F2F" HeightRequest="48" FontAttributes="Bold" Clicked="OnEliminarProyectoFromDetailsClicked"/>
             </VerticalStackLayout>
         </Border>
 
@@ -233,22 +239,64 @@
         <BoxView x:Name="JoinCodeBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="JoinCodeSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False">
+        <Border x:Name="JoinCodeSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
             <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
-            <VerticalStackLayout x:Name="JoinCodeSheetCard" Spacing="15" Padding="24,20,24,40">
+            <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
                 <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
                 <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="Unirse con Código" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                    <Label Text="Unirse a Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked"/></Image.GestureRecognizers>
                     </Image>
                 </Grid>
-                <Label Text="Ingresa el código proporcionado por el arquitecto para tener acceso al proyecto." FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                <Label Text="Ingresa el código proporcionado por tu arquitecto:" FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EntryJoinCode" Placeholder="EJ: ARCHI-A1B2C3" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextTransform="Uppercase" Margin="15,0" VerticalOptions="Center"/>
+                    <Entry x:Name="JoinCodeEntry" Placeholder="Ej. ARQ-1234" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
-                <Button Text="Vincular Proyecto" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" HeightRequest="50" CornerRadius="25" FontSize="16" FontAttributes="Bold" Clicked="OnSubmitJoinCodeClicked" Margin="0,10,0,0"/>
+                <Button Text="Vincular Proyecto" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontSize="16" FontAttributes="Bold" Clicked="OnSubmitJoinCodeClicked" Margin="0,10,0,0"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Measurements Sheet -->
+        <BoxView x:Name="MeasurementsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseMeasurementsSheetClicked"/></BoxView.GestureRecognizers>
+        </BoxView>
+        <Border x:Name="MeasurementsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+            <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
+                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Mediciones AR" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                    <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseMeasurementsSheetClicked"/></Image.GestureRecognizers>
+                    </Image>
+                </Grid>
+                
+                <ActivityIndicator x:Name="LoadingMeasurementsIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,10"/>
+                
+                <CollectionView x:Name="MeasurementsCollectionView" HeightRequest="250">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" Margin="0,0,0,10" Padding="15">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Tipo}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding Unidad}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Valor, StringFormat='{0:F2}'}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="5" Padding="20">
+                            <Label Text="No hay mediciones" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            <Label Text="Usa la Regla AR para guardar medidas" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="12" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
             </VerticalStackLayout>
         </Border>
 

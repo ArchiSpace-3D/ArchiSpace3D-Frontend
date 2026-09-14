@@ -28,6 +28,7 @@ public partial class DesignPage : ContentPage
 
         LblProyectoDesign.Text = _proyectoActual.Nombre;
         CargarDatosEspacio();
+        _ = CargarCatalogoAsync();
     }
 
     private async void CargarDatosEspacio()
@@ -195,14 +196,45 @@ public partial class DesignPage : ContentPage
         ElementSheetModal.IsVisible = true;
     }
 
-    private async void OnImportModelClicked(object sender, EventArgs e)
+    private async Task CargarCatalogoAsync()
+    {
+        LoadingCatalogIndicator.IsVisible = true;
+        LoadingCatalogIndicator.IsRunning = true;
+        CatalogCollectionView.ItemsSource = null;
+
+        var catalog = await ApiService.GetModelosImportadosAsync();
+        
+        LoadingCatalogIndicator.IsRunning = false;
+        LoadingCatalogIndicator.IsVisible = false;
+        
+        CatalogCollectionView.ItemsSource = catalog;
+    }
+
+    private async void OnRefreshCatalogClicked(object sender, EventArgs e)
+    {
+        await CargarCatalogoAsync();
+    }
+
+    private async void OnAddModeloToDesignClicked(object sender, EventArgs e)
     {
         if (_espacioActual == null || (_espacioActual.Anchoaproximado == 0 && _espacioActual.Largoaproximado == 0))
         {
-            await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de importar mobiliario.", "OK");
+            await ShowAlertAsync("Aviso", "Debes guardar el perímetro de la planta (Paso 1) antes de agregar mobiliario.", "OK");
             return;
         }
-        await ShowAlertAsync("Importar 3D", "Aquí se abrirá el explorador de archivos para importar modelos (.glb, .obj).", "OK");
+
+        if (_idVersionDisenoActiva == 0)
+        {
+            await ShowAlertAsync("Aviso", "No hay una versión de diseño activa para guardar el modelo.", "OK");
+            return;
+        }
+
+        if (sender is Button btn && btn.CommandParameter is MauiApp1.Models.ModeloImportadoDto modelo)
+        {
+            // En un flujo real, aquí actualizaríamos transformaciones (posición, rotación)
+            await ShowAlertAsync("Añadido", $"El modelo '{modelo.Nombre}' se ha añadido al diseño actual.", "OK");
+            // Aquí iría un llamado a ApiService.CrearModeloImportadoAsync o ActualizarTransformModeloAsync
+        }
     }
 
     private async void OnCloseElementSheetClicked(object sender, EventArgs e)
@@ -237,9 +269,91 @@ public partial class DesignPage : ContentPage
         }
     }
 
-    private Task ShowAlertAsync(string title, string message, string cancel)
+    private async Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
+        if (Application.Current?.Windows.Count > 0)
+        {
+            await Application.Current.Windows[0].Page!.DisplayAlert(title, message, cancel);
+        }
+    }
+
+    private async void OnVerVersionesClicked(object sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+
+        VersionsBackdrop.IsVisible = true;
+        await VersionsBackdrop.FadeToAsync(1, 200);
+        VersionsSheetModal.IsVisible = true;
+        await VersionsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+
+        await CargarVersionesAsync();
+    }
+
+    private async Task CargarVersionesAsync()
+    {
+        if (UserSession.ActiveProject == null) return;
+        
+        LoadingVersionsIndicator.IsVisible = true;
+        LoadingVersionsIndicator.IsRunning = true;
+        VersionsCollectionView.ItemsSource = null;
+
+        var versiones = await ApiService.GetVersionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+        
+        LoadingVersionsIndicator.IsRunning = false;
+        LoadingVersionsIndicator.IsVisible = false;
+        
+        VersionsCollectionView.ItemsSource = versiones;
+    }
+
+    private async void OnCloseVersionsSheetClicked(object sender, EventArgs e)
+    {
+        await VersionsSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await VersionsBackdrop.FadeToAsync(0, 200);
+        VersionsBackdrop.IsVisible = false;
+        VersionsSheetModal.IsVisible = false;
+    }
+
+    private async void OnGuardarNuevaVersionClicked(object sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+        
+        var versiones = (List<MauiApp1.Models.VersionDisenoDto>)(VersionsCollectionView.ItemsSource ?? new List<MauiApp1.Models.VersionDisenoDto>());
+        int nextVersion = versiones.Count > 0 ? versiones.Max(v => v.Numeroversion ?? 0) + 1 : 1;
+
+        var req = new MauiApp1.Models.CrearVersionDisenoRequest
+        {
+            Idproyecto = UserSession.ActiveProject.Idproyecto,
+            Numeroversion = nextVersion,
+            Esactual = true
+        };
+
+        var (success, msg, data) = await ApiService.CrearVersionDisenoAsync(req);
+        if (success)
+        {
+            await ShowAlertAsync("Éxito", "Nueva versión guardada correctamente.", "OK");
+            await CargarVersionesAsync();
+        }
+        else
+        {
+            await ShowAlertAsync("Error", $"No se pudo guardar la versión: {msg}", "OK");
+        }
+    }
+
+    private async void OnCargarVersionClicked(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is MauiApp1.Models.VersionDisenoDto version && UserSession.ActiveProject != null)
+        {
+            var (success, msg) = await ApiService.MarcarVersionComoActualAsync(version.Idversiondiseno, UserSession.ActiveProject.Idproyecto);
+            if (success)
+            {
+                await ShowAlertAsync("Cargado", $"Se ha cargado la versión #{version.Numeroversion}", "OK");
+                OnCloseVersionsSheetClicked(this, EventArgs.Empty);
+                // Here we would reload the canvas items for this version
+            }
+            else
+            {
+                await ShowAlertAsync("Error", $"Error al cargar versión: {msg}", "OK");
+            }
+        }
     }
 }
-
