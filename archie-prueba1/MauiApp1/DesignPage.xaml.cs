@@ -94,7 +94,7 @@ public partial class DesignPage : ContentPage
         {
             var btnDelete = new Border
             {
-                BackgroundColor = Color.FromArgb("#FFF0F0"),
+                BackgroundColor = deleteBg,
                 StrokeThickness = 0,
                 WidthRequest = 32,
                 HeightRequest = 32,
@@ -106,14 +106,18 @@ public partial class DesignPage : ContentPage
             var tapDelete = new TapGestureRecognizer { CommandParameter = elem.Idelementoestructural };
             tapDelete.Tapped += async (s, e) =>
             {
-                var success = await ApiService.EliminarElementoEstructuralAsync(elem.Idelementoestructural);
-                if (success.Success) await CargarElementosEstructurales(idVersion);
+                var confirm = await Application.Current!.Windows[0].Page!.DisplayAlert("Borrar", $"¿Eliminar {elem.Tipo}?", "Sí", "No");
+                if (confirm)
+                {
+                    await ApiService.EliminarElementoEstructuralAsync(elem.Idelementoestructural);
+                    await CargarElementosEstructurales(_idVersionDisenoActiva);
+                }
             };
             btnDelete.GestureRecognizers.Add(tapDelete);
 
             var infoStack = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center };
-            infoStack.Children.Add(new Label { Text = elem.Tipo, FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
-            infoStack.Children.Add(new Label { Text = $"Alto: {elem.Dimensionalto} - Ancho: {elem.Dimensionancho}", FontSize = 12, TextColor = Color.FromArgb("#6EA2B3") });
+            infoStack.Children.Add(new Label { Text = elem.Tipo, FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = textColor });
+            infoStack.Children.Add(new Label { Text = $"Alto: {elem.Dimensionalto} - Ancho: {elem.Dimensionancho}", FontSize = 12, TextColor = subTextColor });
 
             var row = new Grid { ColumnDefinitions = new ColumnDefinitionCollection { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } }, Padding = new Thickness(15), ColumnSpacing = 10 };
             row.Children.Add(infoStack);
@@ -122,14 +126,13 @@ public partial class DesignPage : ContentPage
 
             var card = new Border
             {
-                BackgroundColor = Color.FromArgb("#FFFFFF"),
+                BackgroundColor = cardBg,
                 StrokeThickness = 0,
-                Margin = new Thickness(0,0,0,10),
-                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(12) }
+                Margin = new Thickness(0, 0, 0, 10),
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(12) },
+                Content = row
             };
             card.Shadow = new Shadow { Brush = Brush.Black, Opacity = 0.05f, Offset = new Point(0,2), Radius = 5 };
-            card.Content = row;
-
             ElementosList.Children.Add(card);
         }
     }

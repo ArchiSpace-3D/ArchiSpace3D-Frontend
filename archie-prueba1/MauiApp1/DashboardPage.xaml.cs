@@ -70,18 +70,23 @@ public partial class DashboardPage : ContentPage
 
         if (list != null)
         {
+            bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+            var textColor = isDark ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#001D39");
+            var subTextColor = isDark ? Color.FromArgb("#7BBDE8") : Color.FromArgb("#6EA2B3");
+            var cardBg = isDark ? Color.FromArgb("#000000") : Color.FromArgb("#FFFFFF");
+
             foreach(var n in list.Take(3))
             {
                 var textStack = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center };
-                textStack.Children.Add(new Label { Text = n.Mensaje, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
-                textStack.Children.Add(new Label { Text = n.FechaFormateada, FontSize = 11, TextColor = Color.FromArgb("#6EA2B3") });
+                textStack.Children.Add(new Label { Text = n.Mensaje, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = textColor });
+                textStack.Children.Add(new Label { Text = n.FechaFormateada, FontSize = 11, TextColor = subTextColor });
                 
                 var row = new Grid { ColumnDefinitions = new ColumnDefinitionCollection { new ColumnDefinition { Width = GridLength.Star } }, Padding = new Thickness(15) };
                 row.Children.Add(textStack);
 
                 var card = new Border
                 {
-                    BackgroundColor = Color.FromArgb("#FFFFFF"),
+                    BackgroundColor = cardBg,
                     StrokeThickness = 0,
                     Margin = new Thickness(0,0,0,10),
                     StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(12) },
