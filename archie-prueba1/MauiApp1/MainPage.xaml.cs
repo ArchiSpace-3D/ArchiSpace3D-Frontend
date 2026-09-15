@@ -19,14 +19,14 @@ namespace MauiApp1
             base.OnAppearing();
             ActualizarProyectoActivoUI();
             await CargarProyectosAsync();
-            await CargarMedicionesGuardadasAsync();
+            await CargarMediciónesGuardadasAsync();
         }
 
         private void ActualizarProyectoActivoUI()
         {
             if (UserSession.ActiveProject == null)
             {
-                LblLinkedProject.Text = "Ninguno (Mediciones no se guardarán)";
+                LblLinkedProject.Text = "Ninguno (Mediciónes no se guardarán)";
             }
             else
             {
@@ -78,7 +78,7 @@ namespace MauiApp1
                     {
                         UserSession.ActiveProject = p;
                         ActualizarProyectoActivoUI();
-                        await CargarMedicionesGuardadasAsync();
+                        await CargarMediciónesGuardadasAsync();
                         await CloseSelectProjectSheet();
                         await ShowToastAsync($"Proyecto activo: {p.Nombre}");
                     };
@@ -103,20 +103,20 @@ namespace MauiApp1
             SelectProjectSheetModal.IsVisible = false;
         }
 
-        private async void OnRefreshMedicionesClicked(object? sender, EventArgs e)
+        private async void OnRefreshMediciónesClicked(object? sender, EventArgs e)
         {
             if (sender is VisualElement img) { await img.ScaleToAsync(0.8, 50); await img.ScaleToAsync(1.0, 50); }
-            await CargarMedicionesGuardadasAsync();
-            await ShowToastAsync("Mediciones actualizadas");
+            await CargarMediciónesGuardadasAsync();
+            await ShowToastAsync("Mediciónes actualizadas");
         }
 
-        private async Task CargarMedicionesGuardadasAsync()
+        private async Task CargarMediciónesGuardadasAsync()
         {
-            MedicionesGuardadasStack.Children.Clear();
+            MediciónesGuardadasStack.Children.Clear();
 
             if (UserSession.ActiveProject == null || !UserSession.IsAuthenticated)
             {
-                MedicionesGuardadasStack.Children.Add(new Label
+                MediciónesGuardadasStack.Children.Add(new Label
                 {
                     Text = "Selecciona un proyecto e inicia sesión para ver mediciones.",
                     FontSize = 12,
@@ -129,11 +129,11 @@ namespace MauiApp1
 
             try
             {
-                var mediciones = await ApiService.GetMedicionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+                var mediciones = await ApiService.GetMediciónesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
 
                 if (mediciones == null || mediciones.Count == 0)
                 {
-                    MedicionesGuardadasStack.Children.Add(new Label
+                    MediciónesGuardadasStack.Children.Add(new Label
                     {
                         Text = "No hay mediciones guardadas en este proyecto.",
                         FontSize = 12,
@@ -183,8 +183,8 @@ namespace MauiApp1
                         var tap = new TapGestureRecognizer();
                         tap.Tapped += async (s, ev) =>
                         {
-                            await ApiService.EliminarMedicionAsync(idMed);
-                            await CargarMedicionesGuardadasAsync();
+                            await ApiService.EliminarMediciónAsync(idMed);
+                            await CargarMediciónesGuardadasAsync();
                             await ShowToastAsync("Medición eliminada del proyecto");
                         };
                         delBtn.GestureRecognizers.Add(tap);
@@ -193,7 +193,7 @@ namespace MauiApp1
                     }
 
                     card.Content = grid;
-                    MedicionesGuardadasStack.Children.Add(card);
+                    MediciónesGuardadasStack.Children.Add(card);
                 }
             }
             catch {}

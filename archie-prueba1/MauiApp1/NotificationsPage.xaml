@@ -19,7 +19,7 @@
 
         <!-- Contenido -->
         <RefreshView x:Name="NotifRefresh" Grid.Row="1" Refreshing="OnRefresh" RefreshColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}">
-            <ScrollView>
+            <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
                 <VerticalStackLayout Padding="20" Spacing="15">
                     
                     <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center" Margin="0,20"/>

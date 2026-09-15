@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.DesignPage"
@@ -6,7 +6,7 @@
              BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}">
 
     <Grid>
-        <ScrollView>
+        <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
             <VerticalStackLayout Spacing="25" Padding="20,20,20,40">
                 
                 <!-- Header -->
@@ -186,7 +186,7 @@
                 <Grid ColumnDefinitions="*,Auto">
                     <VerticalStackLayout>
                         <Label Text="Historial de Versiones" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                        <Label Text="Gestiona las iteraciones del diseño" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                        <Label Text="Gestióna las iteraciones del diseño" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                     </VerticalStackLayout>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseVersionsSheetClicked"/></Image.GestureRecognizers>

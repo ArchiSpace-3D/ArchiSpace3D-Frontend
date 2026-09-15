@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.ProfilePage"
@@ -11,7 +11,7 @@
             <Image x:Name="ThemeIconImage" Source="ic_moon.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
             <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnToggleThemeClicked"/></Border.GestureRecognizers>
         </Border>
-        <ScrollView>
+        <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
             <VerticalStackLayout Spacing="20" Padding="20,40,20,30">
                 
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
@@ -84,7 +84,7 @@
                     </Grid>
                 </Border>
 
-                <Button x:Name="BtnGestionarUsuarios" Text="GESTIONAR USUARIOS" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnGestionarUsuariosClicked" Margin="0,20,0,0" IsVisible="False"/>
+                <Button x:Name="BtnGestiónarUsuarios" Text="GESTIONAR USUARIOS" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnGestiónarUsuariosClicked" Margin="0,20,0,0" IsVisible="False"/>
                 
                 <Button Text="CERRAR SESIÓN" BackgroundColor="#FFF0F0" TextColor="#D32F2F" HeightRequest="55" CornerRadius="27" FontSize="14" FontAttributes="Bold" Clicked="OnLogoutClicked" Margin="0,10,0,20"/>
             </VerticalStackLayout>

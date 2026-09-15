@@ -1,7 +1,8 @@
-using Microsoft.Maui.Devices.Sensors;
+﻿using Microsoft.Maui.Devices.Sensors;
 using System.Text.Json;
 using MauiApp1.Services;
 using MauiApp1.Models;
+using System.Globalization;
 
 namespace MauiApp1
 {
@@ -18,7 +19,7 @@ namespace MauiApp1
                 handler.PlatformView.Settings.AllowFileAccess = true;
                 handler.PlatformView.Settings.AllowFileAccessFromFileURLs = true;
                 handler.PlatformView.Settings.AllowUniversalAccessFromFileURLs = true;
-                handler.PlatformView.SetWebChromeClient(new MyWebChromeClient());
+                handler.PlatformView.SetWebChromeClient(new MyWebChromeClient(this));
             });
 #endif
         }
@@ -90,7 +91,7 @@ namespace MauiApp1
 
             try
             {
-                string script = $"if (typeof updateOrientationFromMaui === 'function') {{ updateOrientationFromMaui({x.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {y.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {z.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {w.ToString(System.Globalization.CultureInfo.InvariantCulture)}); }}";
+                string script = $"if (typeof updateOrientationFromMaui === 'function') {{ updateOrientationFromMaui({x.ToString(CultureInfo.InvariantCulture)}, {y.ToString(CultureInfo.InvariantCulture)}, {z.ToString(CultureInfo.InvariantCulture)}, {w.ToString(CultureInfo.InvariantCulture)}); }}";
                 await ArWebView.EvaluateJavaScriptAsync(script);
             }
             catch { }
@@ -106,43 +107,51 @@ namespace MauiApp1
             StopSensors();
             await Navigation.PopModalAsync();
         }
-        private async void OnGuardarMedidaClicked(object? sender, EventArgs e)
+
+        public async void GuardarMedidaAutomatica(string distanciaStr)
         {
-            if (UserSession.ActiveProject == null)
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await DisplayAlert("Aviso", "No hay un proyecto activo para guardar la medida.", "OK");
-                return;
-            }
-
-            string result = await DisplayPromptAsync("Guardar Medida", "Ingresa la distancia medida en metros (ej. 2.45):", "Guardar", "Cancelar", keyboard: Keyboard.Numeric);
-            
-            if (!string.IsNullOrWhiteSpace(result) && decimal.TryParse(result, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal distancia))
-            {
-                var req = new MauiApp1.Models.CrearMedicionRequest
+                if (UserSession.ActiveProject == null)
                 {
-                    Idproyecto = UserSession.ActiveProject.Idproyecto,
-                    Distancia = distancia,
-                    Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
-                    Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
-                    Fechamedicion = DateTime.UtcNow
-                };
-
-                var (success, msg) = await ApiService.GuardarMedicionAsync(req);
-                if (success)
-                {
-                    await DisplayAlert("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
+                    await DisplayAlert("Aviso", "No hay un proyecto activo para guardar la medida.", "OK");
+                    return;
                 }
-                else
+
+                if (decimal.TryParse(distanciaStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal distancia))
                 {
-                    await DisplayAlert("Error", $"No se guardó la medida: {msg}", "OK");
+                    var req = new CrearMediciónRequest
+                    {
+                        Idproyecto = UserSession.ActiveProject.Idproyecto,
+                        Distancia = distancia,
+                        Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
+                        Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
+                        Fechamedicion = DateTime.UtcNow
+                    };
+
+                    var (success, msg) = await ApiService.GuardarMediciónAsync(req);
+                    if (success)
+                    {
+                        await DisplayAlert("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", $"No se guardó la medida: {msg}", "OK");
+                    }
                 }
-            }
+            });
         }
     }
 
 #if ANDROID
     public class MyWebChromeClient : Android.Webkit.WebChromeClient
     {
+        private readonly ARPage _page;
+        public MyWebChromeClient(ARPage page)
+        {
+            _page = page;
+        }
+
         public override void OnPermissionRequest(Android.Webkit.PermissionRequest? request)
         {
             try
@@ -151,7 +160,18 @@ namespace MauiApp1
             }
             catch { }
         }
+
+        public override bool OnJsPrompt(Android.Webkit.WebView? view, string? url, string? message, string? defaultValue, Android.Webkit.JsPromptResult? result)
+        {
+            if (message != null && message.StartsWith("ARCHIE_MEDIDA:"))
+            {
+                string value = message.Substring("ARCHIE_MEDIDA:".Length);
+                _page.GuardarMedidaAutomatica(value);
+                result?.Confirm("OK");
+                return true;
+            }
+            return base.OnJsPrompt(view, url, message, defaultValue, result);
+        }
     }
 #endif
 }
-

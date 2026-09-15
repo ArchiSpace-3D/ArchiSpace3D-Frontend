@@ -18,14 +18,6 @@
             </Button.Shadow>
         </Button>
 
-        <Button Text="Guardar Medida" Clicked="OnGuardarMedidaClicked" 
-                HorizontalOptions="Center" VerticalOptions="End" 
-                Margin="0,0,0,40" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1A3A5C}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#7BBDE8}"
-                CornerRadius="25" FontAttributes="Bold" HeightRequest="50" Padding="25,0">
-            <Button.Shadow>
-                <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.3" />
-            </Button.Shadow>
-        </Button>
     </Grid>
 </ContentPage>
 

@@ -28,6 +28,13 @@ public partial class DashboardPage : ContentPage
         BtnSheetEliminarProyecto.IsVisible = esArquitecto;
 
         await CargarProyectosAsync();
+
+        // Apple-style entrance animation
+        await Task.WhenAll(
+            MainScroll.FadeTo(1, 600, Easing.CubicOut),
+            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+        );
+
         await CargarNotificacionesDashAsync();
         ActualizarProyectoActivoUI();
     }
@@ -363,7 +370,7 @@ public partial class DashboardPage : ContentPage
         LoadingMeasurementsIndicator.IsRunning = true;
         MeasurementsCollectionView.ItemsSource = null;
 
-        var mediciones = await ApiService.GetMedicionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+        var mediciones = await ApiService.GetMediciónesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
         
         LoadingMeasurementsIndicator.IsRunning = false;
         LoadingMeasurementsIndicator.IsVisible = false;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.DashboardPage"
@@ -9,7 +9,7 @@
         <!-- Blue Header Background -->
         <BoxView HeightRequest="280" VerticalOptions="Start" Color="{AppThemeBinding Light=#001D39, Dark=#0A0F14}"/>
 
-        <ScrollView>
+        <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
             <VerticalStackLayout Spacing="0" Padding="0,0,0,40">
 
                 <!-- Header Info -->
@@ -117,7 +117,7 @@
                         </CollectionView.ItemTemplate>
                         <CollectionView.EmptyView>
                             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Padding="20">
-                                <Label Text="Aún no tienes proyectos" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" FontSize="15" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                <Label Text="An no tienes proyectos" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" FontSize="15" FontAttributes="Bold" HorizontalOptions="Center"/>
                                 <Label Text="Toca 'Crear' o 'Unirse'" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="13" HorizontalTextAlignment="Center"/>
                             </VerticalStackLayout>
                         </CollectionView.EmptyView>
@@ -149,7 +149,7 @@
                 <Grid ColumnDefinitions="*,Auto">
                     <VerticalStackLayout>
                         <Label x:Name="SheetProjectName" Text="Nombre Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                        <Label x:Name="SheetProjectCode" Text="Código: --" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                        <Label x:Name="SheetProjectCode" Text="Cdigo: --" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                     </VerticalStackLayout>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseDetailsSheetClicked"/></Image.GestureRecognizers>
@@ -158,14 +158,14 @@
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" Padding="15">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
                     <VerticalStackLayout Spacing="8">
-                        <Label x:Name="SheetProjectDesc" Text="Sin descripción" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                        <Label x:Name="SheetProjectUbicacion" Text="Ubicación: --" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                        <Label x:Name="SheetProjectDesc" Text="Sin descripcin" FontSize="14" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                        <Label x:Name="SheetProjectUbicacion" Text="Ubicacin: --" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                         <Label x:Name="SheetProjectEstado" Text="Estado: --" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontAttributes="Bold"/>
                     </VerticalStackLayout>
                 </Border>
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Button Text="Activar" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnSetAsActiveProjectClicked"/>
-                    <Button Grid.Column="1" Text="Diseño 3D" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnEnterDesignClicked"/>
+                    <Button Grid.Column="1" Text="Diseo 3D" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnEnterDesignClicked"/>
                 </Grid>
                 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
@@ -197,7 +197,7 @@
                 </Border>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EntryUbicacionProyecto" Placeholder="Ubicación / Ciudad" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
+                    <Entry x:Name="EntryUbicacionProyecto" Placeholder="Ubicacin / Ciudad" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
                 <Button Text="Crear Proyecto" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontSize="16" FontAttributes="Bold" Clicked="OnSubmitCrearProyectoClicked" Margin="0,10,0,0"/>
             </VerticalStackLayout>
@@ -222,11 +222,11 @@
                 </Border>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EditDescripcionProyecto" Placeholder="Descripción" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
+                    <Entry x:Name="EditDescripcionProyecto" Placeholder="descripcin" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EditUbicacionProyecto" Placeholder="Ubicación" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
+                    <Entry x:Name="EditUbicacionProyecto" Placeholder="Ubicacin" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
@@ -249,7 +249,7 @@
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked"/></Image.GestureRecognizers>
                     </Image>
                 </Grid>
-                <Label Text="Ingresa el código proporcionado por tu arquitecto:" FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                <Label Text="Ingresa el Cdigo proporcionado por tu arquitecto:" FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
                     <Entry x:Name="JoinCodeEntry" Placeholder="Ej. ARQ-1234" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>

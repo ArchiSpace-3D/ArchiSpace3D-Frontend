@@ -18,6 +18,9 @@
                 <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" />
                 <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light=#6EA2B3, Dark=#555555}" />
             </Style>
+            <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+                <Setter Property="Shell.NavBarIsVisible" Value="False" />
+            </Style>
         </ResourceDictionary>
     </Shell.Resources>
 

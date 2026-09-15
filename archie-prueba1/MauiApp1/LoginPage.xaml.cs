@@ -31,6 +31,13 @@ public partial class LoginPage : ContentPage
         {
             EmailEntry.Text = savedEmail;
         }
+
+        // Apple-style entrance animation
+        await Task.Delay(100);
+        await Task.WhenAll(
+            MainLayout.FadeTo(1, 600, Easing.CubicOut),
+            MainLayout.TranslateTo(0, 0, 600, Easing.CubicOut)
+        );
     }
 
     private void ShowLoadingWithTimeout()
@@ -47,6 +54,18 @@ public partial class LoginPage : ContentPage
                 });
             }
         });
+    }
+
+    private async void OnGoogleLoginClicked(object? sender, EventArgs e)
+    {
+        await GoogleLoginButton.ScaleToAsync(0.95, 70);
+        await GoogleLoginButton.ScaleToAsync(1.0, 70);
+
+        await ShowToastAsync("Integraremos el SDK de Google pronto...");
+        // Futura integración real de Google Sign In SDK que retorna un accessToken:
+        // var accessToken = await GoogleSignIn.GetTokenAsync();
+        // var result = await ApiService.GoogleLoginAsync(hostOrIp, accessToken);
+        // ... misma lógica de sesión que en Login.
     }
 
     private async void OnLoginClicked(object? sender, EventArgs e)
