@@ -6,145 +6,70 @@
              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}">
 
     <Grid>
-        <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
-            <Path Fill="#001D39" Opacity="0.9" Aspect="Fill" VerticalOptions="Start" HeightRequest="250"
-                  Data="M0,0 L100,0 L100,60 C70,100 30,30 0,80 Z" />
-            <Path Fill="#0A4174" Opacity="0.6" Aspect="Fill" VerticalOptions="Start" HeightRequest="220"
-                  Data="M0,0 L100,0 L100,50 C80,20 20,90 0,60 Z" />
-                  
-            <Path Fill="#7BBDE8" Opacity="0.3" Aspect="Fill" VerticalOptions="End" HeightRequest="150"
-                  Data="M0,100 L100,100 L100,30 C70,80 30,10 0,40 Z" />
-        </Grid>
-
         <ScrollView>
-            <VerticalStackLayout Spacing="0" Padding="30,80,30,30" HorizontalOptions="Center" MaximumWidthRequest="400">
-                
-                <Image Source="splash.svg" WidthRequest="100" HeightRequest="100" HorizontalOptions="Center" Margin="0,0,0,10">
-                    <Image.Shadow>
-                        <Shadow Brush="#000000" Opacity="0.2" Offset="0,4" Radius="10"/>
-                    </Image.Shadow>
-                </Image>
-                
-                <Label Text="Archie" FontSize="36" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center"/>
-                <Label Text="Bienvenido a tu espacio" FontSize="16" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,0,0,50"/>
+            <VerticalStackLayout Spacing="0" Padding="30,70,30,30" HorizontalOptions="Center" MaximumWidthRequest="400">
 
-                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" Padding="25,35" Margin="0,0,0,30">
+                <Border WidthRequest="120" HeightRequest="120" StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}"
+                        HorizontalOptions="Center" Margin="0,0,0,20">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="24"/>
+                        <RoundRectangle CornerRadius="60"/>
                     </Border.StrokeShape>
                     <Border.Shadow>
-                        <Shadow Brush="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Opacity="0.1" Offset="0,10" Radius="20"/>
+                        <Shadow Brush="#000000" Opacity="0.08" Offset="0,6" Radius="14"/>
                     </Border.Shadow>
-                    
-                    <VerticalStackLayout x:Name="MainLayout" Spacing="20" Opacity="0" TranslationY="30">
-                        <Label Text="Iniciar Sesión" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="0,0,0,10"/>
-                        
-                        <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
-                            <Grid ColumnDefinitions="Auto,*" Padding="15,0">
-                                <Image Source="nav_user.svg" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" Opacity="0.5"/>
-                                <Entry Grid.Column="1" x:Name="EmailEntry" Placeholder="Correo electrónico" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Keyboard="Email" Margin="10,0,0,0" VerticalOptions="Center"/>
-                            </Grid>
-                        </Border>
-
-                        <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
-                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="15,0">
-                                <Image Source="ic_lock.svg" WidthRequest="20" HeightRequest="20" VerticalOptions="Center" Opacity="0.5"/>
-                                <Entry Grid.Column="1" x:Name="PasswordEntry" Placeholder="Contraseña" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" IsPassword="True" Margin="10,0,0,0" VerticalOptions="Center"/>
-                                <Image Grid.Column="2" x:Name="PasswordToggleIcon" Source="ic_eye_off.svg" WidthRequest="22" HeightRequest="22" VerticalOptions="Center" Opacity="0.5" Margin="5,0">
-                                    <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnTogglePasswordVisibility"/></Image.GestureRecognizers>
-                                </Image>
-                            </Grid>
-                        </Border>
-
-                        <Label Text="¿Olvidaste tu contraseña?" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" FontSize="13" FontAttributes="Bold" HorizontalOptions="End" Margin="0,-5,0,5"/>
-
-                        <Button x:Name="LoginButton" Text="ENTRAR" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" HeightRequest="55" CornerRadius="27" FontSize="16" FontAttributes="Bold" Clicked="OnLoginClicked">
-                            <Button.Shadow>
-                                <Shadow Brush="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" Opacity="0.3" Offset="0,5" Radius="10"/>
-                            </Button.Shadow>
-                        </Button>
-
-                        <Grid Margin="0,15,0,15" ColumnDefinitions="*,Auto,*" VerticalOptions="Center">
-                            <BoxView Grid.Column="0" HeightRequest="1" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="O continuar con" Margin="10,0" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="12" VerticalOptions="Center"/>
-                            <BoxView Grid.Column="2" HeightRequest="1" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" VerticalOptions="Center"/>
-                        </Grid>
-
-                        <Button x:Name="GoogleLoginButton" Text="Google" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" BorderColor="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" BorderWidth="1" HeightRequest="55" CornerRadius="27" FontSize="16" FontAttributes="Bold" Clicked="OnGoogleLoginClicked">
-                        </Button>
-                    </VerticalStackLayout>
-                </Border>
-
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
-                    <Label Text="¿No tienes cuenta?" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="15" VerticalOptions="Center" />
-                    <Label Text="Regístrate" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="15" FontAttributes="Bold" VerticalOptions="Center">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnOpenRegisterSheetClicked"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-        </ScrollView>
-
-        <BoxView x:Name="RegisterBackdrop" BackgroundColor="#99001D39" Opacity="0" IsVisible="False">
-            <BoxView.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked"/>
-            </BoxView.GestureRecognizers>
-        </BoxView>
-
-        <Border x:Name="RegisterSheetCard" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" TranslationY="800">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="32,32,0,0"/>
-            </Border.StrokeShape>
-            <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="50" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#121212}" HorizontalOptions="Center" Margin="0,0,0,10"/>
-                
-                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
-                    <VerticalStackLayout>
-                        <Label Text="Crear Cuenta" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+<Label Text="Crear Cuenta" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                         <Label Text="Únete a ArchiSpace" FontSize="15" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                     </VerticalStackLayout>
-                    <Border Grid.Column="1" WidthRequest="36" HeightRequest="36" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" VerticalOptions="Start">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
-                        <Image Source="ic_close.svg" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Border Grid.Column="1" WidthRequest="34" HeightRequest="34" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" VerticalOptions="Start">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="17"/>
+                        </Border.StrokeShape>
+                        <Image Source="ic_close.svg" WidthRequest="15" HeightRequest="15" HorizontalOptions="Center" VerticalOptions="Center"/>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnCloseRegisterSheetClicked"/>
                         </Border.GestureRecognizers>
                     </Border>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                    <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="52">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14"/>
+                        </Border.StrokeShape>
                         <Entry x:Name="RegNombreEntry" Placeholder="Nombre" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" Margin="15,0" VerticalOptions="Center"/>
                     </Border>
-                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="52">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14"/>
+                        </Border.StrokeShape>
                         <Entry x:Name="RegApellidoEntry" Placeholder="Apellido" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" Margin="15,0" VerticalOptions="Center"/>
                     </Border>
                 </Grid>
 
-                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
+<Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
                     <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
                     <Entry x:Name="RegEmailEntry" Placeholder="Correo electrónico" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" Keyboard="Email" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
+                </Border>
 
-                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
-                    <Grid ColumnDefinitions="*,Auto" Padding="0">
+                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="52">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="14"/>
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto">
                         <Entry x:Name="RegPasswordEntry" Placeholder="Contraseña" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" IsPassword="True" Margin="15,0,0,0" VerticalOptions="Center"/>
                         <Image Grid.Column="1" x:Name="RegPasswordToggleIcon" Source="ic_eye_off.svg" WidthRequest="22" HeightRequest="22" VerticalOptions="Center" Opacity="0.5" Margin="5,0,15,0">
-                            <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnToggleRegPasswordVisibility"/></Image.GestureRecognizers>
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnToggleRegPasswordVisibility"/>
+                            </Image.GestureRecognizers>
                         </Image>
                     </Grid>
                 </Border>
 
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="55">
                     <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
-                    <Picker x:Name="RegRolPicker" Title="�¿Qué rol tienes?" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TitleColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" Margin="15,0" VerticalOptions="Center">
-                        <Picker.ItemsSource>
+                    <Picker x:Name="RegRolPicker" Title="�¿Qué rol tienes?" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TitleColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" Margin="15,0" VerticalOptions="Center">                        <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Cliente</x:String>
                                 <x:String>Arquitecto</x:String>
@@ -153,24 +78,29 @@
                     </Picker>
                 </Border>
 
-                <Button x:Name="BtnSubmitRegister" Text="CREAR CUENTA" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#FFFFFF}" HeightRequest="55" CornerRadius="27" FontSize="16" FontAttributes="Bold" Clicked="OnSubmitRegisterClicked" Margin="0,10,0,0">
+                <Button x:Name="BtnSubmitRegister" Text="Crear Cuenta"
+                        BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}"
+                        TextColor="#FFFFFF" HeightRequest="52" CornerRadius="16"
+                        FontSize="15" FontAttributes="Bold" Clicked="OnSubmitRegisterClicked" Margin="0,8,0,0">
                     <Button.Shadow>
-                        <Shadow Brush="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" Opacity="0.3" Offset="0,5" Radius="10"/>
+                        <Shadow Brush="#0A4174" Opacity="0.25" Offset="0,6" Radius="12"/>
                     </Button.Shadow>
                 </Button>
             </VerticalStackLayout>
         </Border>
 
-        <Grid x:Name="LoadingOverlay" BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC000000}" IsVisible="False">
+        <Grid x:Name="LoadingOverlay" BackgroundColor="#CCFFFFFF" IsVisible="False">
             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
-                <ActivityIndicator IsRunning="True" Color="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" WidthRequest="50" HeightRequest="50"/>
-                <Label x:Name="LoadingLabel" Text="Conectando..." TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" Margin="20,0"/>
+                <ActivityIndicator IsRunning="True" Color="#0A4174" WidthRequest="50" HeightRequest="50"/>
+                <Label x:Name="LoadingLabel" Text="Conectando..." TextColor="#001D39" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
         </Grid>
-        
-        <Border x:Name="AppleToast" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Start" Margin="0,50,0,0" Padding="20,12" Opacity="0" IsVisible="False">
-            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Label x:Name="AppleToastMessage" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" FontSize="14" FontAttributes="Bold"/>
+
+        <Border x:Name="AppleToast" BackgroundColor="#001D39" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Start" Margin="0,50,0,0" Padding="20,12" Opacity="0" IsVisible="False">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Label x:Name="AppleToastMessage" TextColor="#FFFFFF" FontSize="14" FontAttributes="Bold"/>
         </Border>
     </Grid>
 </ContentPage>

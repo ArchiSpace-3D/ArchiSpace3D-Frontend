@@ -9,17 +9,26 @@ namespace MauiApp1
             InitializeComponent();
             bool isDark = Preferences.Get("dark_mode", false);
             UserAppTheme = isDark ? AppTheme.Dark : AppTheme.Light;
+
+            _ = SupabaseService.InitializeAsync(); // fire-and-forget, no bloquea el arranque
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var window = new Window(new NavigationPage(new LoginPage()));
-            
+            var window = new Window(new LoginPage());
+
             Task.Run(async () =>
             {
                 bool hasSession = await UserSession.LoadSessionAsync();
                 if (hasSession)
                 {
+                    var usuario = await ApiService.GetUsuarioByIdAsync(UserSession.Idusuario);
+                    if (usuario is null)
+                    {
+                        await UserSession.ClearSession();
+                        return;
+                    }
+
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         window.Page = new AppShell();
@@ -39,4 +48,3 @@ namespace MauiApp1
         }
     }
 }
-
