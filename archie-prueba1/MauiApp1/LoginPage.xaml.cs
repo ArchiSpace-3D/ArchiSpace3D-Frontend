@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Text.Json;
 
@@ -64,7 +64,7 @@ public partial class LoginPage : ContentPage
         try
         {
             LoadingOverlay.IsVisible = true;
-            if (SignalRService.HubConnection != null) await SignalRService.DisconnectAsync();
+            await SignalRService.DisconnectAsync();
 
             var authState = await SupabaseService.Client.Auth.SignIn(
                 Supabase.Gotrue.Constants.Provider.Google,
