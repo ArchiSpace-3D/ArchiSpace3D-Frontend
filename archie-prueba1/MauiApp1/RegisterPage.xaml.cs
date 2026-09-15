@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls;
 using System;
 using MauiApp1.Services;
 using MauiApp1.Models;
@@ -27,7 +27,7 @@ namespace MauiApp1
         private async void OnSubmitRegisterClicked(object? sender, EventArgs e)
         {
             // Lógica pendiente de mover (Actualmente funciona en el bottom sheet de LoginPage)
-            await DisplayAlert("Aviso", "El registro ha sido migrado al panel principal por ahora.", "OK");
+            await this.DisplayAlertAsync("Aviso", "El registro ha sido migrado al panel principal por ahora.", "OK");
             await Navigation.PopModalAsync();
         }
     }
