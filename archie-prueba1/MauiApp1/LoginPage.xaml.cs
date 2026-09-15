@@ -188,5 +188,62 @@ public partial class LoginPage : ContentPage
         await AppleToast.FadeToAsync(0, 300);
         AppleToast.IsVisible = false;
     }
+
+    private async void OnGoogleLoginClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            LoadingOverlay.IsVisible = true;
+            await SignalRService.DisconnectAsync();
+
+            var authState = await SupabaseService.Client.Auth.SignIn(
+                Supabase.Gotrue.Constants.Provider.Google,
+                new Supabase.Gotrue.SignInOptions
+                {
+                    RedirectTo = "com.archispace.archie://login-callback"
+                });
+
+            var result = await WebAuthenticator.Default.AuthenticateAsync(
+                new WebAuthenticatorOptions
+                {
+                    Url = new Uri(authState.Uri.ToString()),
+                    CallbackUrl = new Uri("com.archispace.archie://login-callback")
+                });
+
+            if (result.Properties.TryGetValue("access_token", out var accessToken))
+            {
+                var (success, message, response) = await ApiService.GoogleLoginAsync(accessToken);
+                LoadingOverlay.IsVisible = false;
+
+                if (success)
+                {
+                    Application.Current!.Windows[0].Page = new AppShell();
+                }
+                else
+                {
+                    await ShowToastAsync(message);
+                }
+            }
+            else
+            {
+                LoadingOverlay.IsVisible = false;
+                await ShowToastAsync("No se pudo completar el inicio de sesión con Google.");
+            }
+        }
+        catch (Exception ex)
+        {
+            LoadingOverlay.IsVisible = false;
+            await ShowToastAsync($"Error con Google: {ex.Message}");
+        }
+    }
+    private async void OnAppleLoginClicked(object? sender, EventArgs e)
+    {
+        await ShowToastAsync("Inicio con Apple — próximamente disponible.");
+    }
+
+    private async void OnFacebookLoginClicked(object? sender, EventArgs e)
+    {
+        await ShowToastAsync("Inicio con Facebook — próximamente disponible.");
+    }
 }
 

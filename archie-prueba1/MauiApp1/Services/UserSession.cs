@@ -21,8 +21,8 @@ namespace MauiApp1.Services
 
         public static bool IsAuthenticated => !string.IsNullOrEmpty(Token);
 
-        public static string NombreCompleto => string.IsNullOrWhiteSpace(Apellido) 
-            ? Nombre 
+        public static string NombreCompleto => string.IsNullOrWhiteSpace(Apellido)
+            ? Nombre
             : $"{Nombre} {Apellido}";
 
         public static async Task SetSessionAsync(LoginResponse loginResponse, string baseUrl)
@@ -33,24 +33,14 @@ namespace MauiApp1.Services
             Apellido = loginResponse.Apellido;
             Email = loginResponse.Email;
             Rol = loginResponse.Rol;
-            Telefono = loginResponse.Telefono;
-            Direccion = loginResponse.Direccion;
-            Tipodocumento = loginResponse.Tipodocumento;
-            Numerodocumento = loginResponse.Numerodocumento;
-            Avatarurl = loginResponse.Avatarurl;
             BaseUrl = baseUrl;
 
             await SecureStorage.SetAsync("auth_token", Token ?? "");
             await SecureStorage.SetAsync("user_id", Idusuario.ToString());
-            await SecureStorage.SetAsync("user_nombre", Nombre ?? "");
-            await SecureStorage.SetAsync("user_apellido", Apellido ?? "");
-            await SecureStorage.SetAsync("user_email", Email ?? "");
-            await SecureStorage.SetAsync("user_rol", Rol ?? "");
-            await SecureStorage.SetAsync("user_telefono", Telefono ?? "");
-            await SecureStorage.SetAsync("user_direccion", Direccion ?? "");
-            await SecureStorage.SetAsync("user_tipodocumento", Tipodocumento ?? "");
-            await SecureStorage.SetAsync("user_numerodocumento", Numerodocumento ?? "");
-            await SecureStorage.SetAsync("user_avatarurl", Avatarurl ?? "");
+            await SecureStorage.SetAsync("user_nombre", Nombre);
+            await SecureStorage.SetAsync("user_apellido", Apellido);
+            await SecureStorage.SetAsync("user_email", Email);
+            await SecureStorage.SetAsync("user_rol", Rol);
         }
 
         public static async Task<bool> LoadSessionAsync()
@@ -60,7 +50,7 @@ namespace MauiApp1.Services
                 return false;
 
             Token = token;
-            
+
             var idStr = await SecureStorage.GetAsync("user_id");
             if (int.TryParse(idStr, out int id))
                 Idusuario = id;
@@ -78,8 +68,10 @@ namespace MauiApp1.Services
             return true;
         }
 
-        public static void ClearSession()
+        public static async Task ClearSession()
         {
+            await SignalRService.DisconnectAsync();   // <-- AGREGAR: causa raíz del bug de notificaciones
+
             Token = null;
             Idusuario = 0;
             Nombre = "Invitado";
@@ -91,7 +83,8 @@ namespace MauiApp1.Services
             Tipodocumento = null;
             Numerodocumento = null;
             Avatarurl = null;
-            
+            ActiveProject = null;
+
             SecureStorage.RemoveAll();
         }
     }

@@ -88,6 +88,7 @@ public partial class ProfilePage : ContentPage
     {
         var req = new ActualizarUsuarioRequest
         {
+            Idusuario = UserSession.Idusuario,
             Nombre = EditNombreEntry.Text ?? "",
             Apellido = EditApellidoEntry.Text ?? "",
             Telefono = EditTelefonoEntry.Text,

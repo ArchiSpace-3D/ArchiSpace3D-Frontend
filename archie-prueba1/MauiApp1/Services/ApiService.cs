@@ -155,7 +155,7 @@ namespace MauiApp1.Services
             }
         }
 
-        
+
         public static async Task<List<ProyectoDto>> GetProyectosAsync()
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return new List<ProyectoDto>();
@@ -347,7 +347,7 @@ namespace MauiApp1.Services
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/notificacion";
+                string url = $"{UserSession.BaseUrl}/api/notificacion/mis-notificaciones";
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 SetAuthHeader(request);
 
@@ -1243,6 +1243,40 @@ namespace MauiApp1.Services
                 return response.IsSuccessStatusCode ? (true, "Notificación eliminada.") : (false, $"Error: {response.StatusCode}");
             }
             catch (Exception ex) { return (false, $"Error: {ex.Message}"); }
+        }
+
+        public static async Task<(bool Success, string Message, LoginResponse? Data)> GoogleLoginAsync(string accessToken)
+        {
+            try
+            {
+                string baseUrl = UserSession.BaseUrl;
+                string url = $"{baseUrl}/api/usuario/google-login";
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(new { accessToken }),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(json, _jsonOptions);
+                    if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.Token))
+                    {
+                        await UserSession.SetSessionAsync(loginResponse, baseUrl);
+                        return (true, "Inicio de sesión con Google exitoso.", loginResponse);
+                    }
+                }
+
+                string err = await response.Content.ReadAsStringAsync();
+                return (false, $"Error: {err}", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error de red: {ex.Message}", null);
+            }
         }
     }
 }
