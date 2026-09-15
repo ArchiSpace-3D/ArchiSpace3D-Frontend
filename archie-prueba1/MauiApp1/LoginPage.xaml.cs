@@ -61,11 +61,49 @@ public partial class LoginPage : ContentPage
         await GoogleLoginButton.ScaleToAsync(0.95, 70);
         await GoogleLoginButton.ScaleToAsync(1.0, 70);
 
-        await ShowToastAsync("Integraremos el SDK de Google pronto...");
-        // Futura integración real de Google Sign In SDK que retorna un accessToken:
-        // var accessToken = await GoogleSignIn.GetTokenAsync();
-        // var result = await ApiService.GoogleLoginAsync(hostOrIp, accessToken);
-        // ... misma lógica de sesión que en Login.
+        try
+        {
+            LoadingOverlay.IsVisible = true;
+            if (SignalRService.HubConnection != null) await SignalRService.DisconnectAsync();
+
+            var authState = await SupabaseService.Client.Auth.SignIn(
+                Supabase.Gotrue.Constants.Provider.Google,
+                new Supabase.Gotrue.SignInOptions
+                {
+                    RedirectTo = "com.archispace.archie://login-callback"
+                });
+
+            var result = await Microsoft.Maui.Authentication.WebAuthenticator.Default.AuthenticateAsync(
+                new Microsoft.Maui.Authentication.WebAuthenticatorOptions
+                {
+                    Url = new System.Uri(authState.Uri.ToString()),
+                    CallbackUrl = new System.Uri("com.archispace.archie://login-callback")
+                });
+
+            if (result.Properties.TryGetValue("access_token", out var accessToken))
+            {
+                var (success, message, response) = await ApiService.GoogleLoginAsync(accessToken);
+                LoadingOverlay.IsVisible = false;
+
+                if (success && response != null)
+                {
+                    Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
+                }
+                else
+                {
+                    await ShowToastAsync(message);
+                }
+            }
+        }
+        catch (System.Threading.Tasks.TaskCanceledException)
+        {
+            LoadingOverlay.IsVisible = false;
+        }
+        catch (System.Exception ex)
+        {
+            LoadingOverlay.IsVisible = false;
+            await ShowToastAsync("Error Google Auth: " + ex.Message);
+        }
     }
 
     private async void OnLoginClicked(object? sender, EventArgs e)
