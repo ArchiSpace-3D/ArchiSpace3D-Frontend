@@ -308,7 +308,21 @@ namespace MauiApp1
                 await ShowToastAsync("Selecciona un proyecto primero.");
                 return;
             }
-            await Navigation.PushModalAsync(new ARPage()); 
+
+            var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.Camera>();
+            }
+
+            if (status == PermissionStatus.Granted)
+            {
+                await Navigation.PushModalAsync(new ARPage()); 
+            }
+            else
+            {
+                await ShowToastAsync("Permiso de cámara denegado.");
+            }
         }
         private async Task ShowToastAsync(string message)
         {
