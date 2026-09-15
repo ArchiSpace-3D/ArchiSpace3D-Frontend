@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -301,7 +301,15 @@ namespace MauiApp1
             BarometerLabel.Text = $"Presión: {e.Reading.PressureInHectopascals:F2} hPa";
         }
 
-        private async void OnOpenARCameraClicked(object sender, EventArgs e) { await ShowToastAsync("Abriendo cámara AR..."); }
+        private async void OnOpenARCameraClicked(object sender, EventArgs e) 
+        { 
+            if (MauiApp1.Services.UserSession.ActiveProject == null)
+            {
+                await ShowToastAsync("Selecciona un proyecto primero.");
+                return;
+            }
+            await Navigation.PushModalAsync(new ARPage()); 
+        }
         private async Task ShowToastAsync(string message)
         {
             AppleToastMessage.Text = message;
