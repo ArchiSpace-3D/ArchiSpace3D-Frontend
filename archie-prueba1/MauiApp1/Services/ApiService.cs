@@ -65,6 +65,33 @@ namespace MauiApp1.Services
         }
 
 
+        public static async Task<(bool Success, string Message, LoginResponse? Data)> GoogleLoginAsync(string hostOrUrl, string googleAccessToken)
+        {
+            try
+            {
+                string baseUrl = NormalizeBaseUrl(hostOrUrl);
+                string url = $"{baseUrl}/api/usuario/google-login";
+
+                var requestData = new { accessToken = googleAccessToken };
+                var content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<LoginResponse>(json, _jsonOptions);
+                    return (true, "Google Login exitoso.", data);
+                }
+
+                string error = await response.Content.ReadAsStringAsync();
+                return (false, $"Error Google Login: {error}", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error de red: {ex.Message}", null);
+            }
+        }
+
         public static async Task<(bool Success, string Message, LoginResponse? Data)> LoginAsync(string hostOrUrl, string email, string contrasena)
         {
             try
