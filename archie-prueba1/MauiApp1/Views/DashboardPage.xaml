@@ -142,10 +142,10 @@
         <BoxView x:Name="DetailsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseDetailsSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="ProjectDetailsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+        <Border x:Name="ProjectDetailsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Fill" Margin="25" IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
             <VerticalStackLayout x:Name="DetailsSheetCard" Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
                 <Grid ColumnDefinitions="*,Auto">
                     <VerticalStackLayout>
                         <Label x:Name="SheetProjectName" Text="Nombre Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
@@ -181,10 +181,10 @@
         <BoxView x:Name="NewProjectBackdrop" BackgroundColor="#99000000" Opacity="0" InputTransparent="True">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseNewProjectSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="NewProjectSheetCard" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" TranslationY="600">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+        <Border x:Name="NewProjectSheetCard" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Fill" Margin="25" IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
             <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Nuevo Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
@@ -206,10 +206,10 @@
         <BoxView x:Name="EditProjectBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseEditProjectSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="EditProjectSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+        <Border x:Name="EditProjectSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Fill" Margin="25" IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
             <VerticalStackLayout x:Name="EditProjectSheetCard" Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Editar Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
@@ -239,10 +239,10 @@
         <BoxView x:Name="JoinCodeBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseJoinCodeSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="JoinCodeSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+        <Border x:Name="JoinCodeSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Fill" Margin="25" IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
             <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Unirse a Proyecto" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
@@ -262,10 +262,10 @@
         <BoxView x:Name="MeasurementsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseMeasurementsSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="MeasurementsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" IsVisible="False" TranslationY="600">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
+        <Border x:Name="MeasurementsSheetModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Fill" Margin="25" IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
             <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
-                <BoxView WidthRequest="40" HeightRequest="5" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
+                
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Mediciones AR" FontSize="22" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
@@ -304,5 +304,35 @@
             <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
             <Label x:Name="AppleToastMessage" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" FontSize="14" FontAttributes="Bold"/>
         </Border>
+
+        <!-- Custom Alert Backdrop -->
+        <BoxView x:Name="AlertBackdrop" BackgroundColor="#99000000" Opacity="0" InputTransparent="True" IsVisible="False">
+            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseAlertClicked"/></BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- Custom Alert Modal -->
+        <Border x:Name="AlertModal" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Center" WidthRequest="320" Margin="25"
+                IsVisible="False" Opacity="0" Scale="0.9">
+            <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
+            <Border.Shadow><Shadow Brush="#000000" Opacity="0.2" Offset="0,10" Radius="20"/></Border.Shadow>
+            
+            <VerticalStackLayout Spacing="10" Padding="24,30,24,24" HorizontalOptions="Center">
+                <Border x:Name="AlertIconBox" BackgroundColor="#D1F4E0" StrokeThickness="0" WidthRequest="60" HeightRequest="60" HorizontalOptions="Center" Margin="0,0,0,10">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="30"/></Border.StrokeShape>
+                    <Label x:Name="AlertIconLabel" Text="✓" FontSize="28" TextColor="#129740" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+                </Border>
+
+                <Label x:Name="AlertTitle" Text="¡Éxito!" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#121212, Dark=#FFFFFF}" HorizontalTextAlignment="Center"/>
+                <Label x:Name="AlertMessage" Text="Operación exitosa." FontSize="14" TextColor="{AppThemeBinding Light=#666666, Dark=#AAAAAA}" HorizontalTextAlignment="Center" Margin="0,5,0,15"/>
+
+                <Button x:Name="AlertButton" Text="Continuar" BackgroundColor="#A3E7C9" TextColor="#000000" HeightRequest="45" CornerRadius="22" FontAttributes="Bold" Clicked="OnCloseAlertClicked"/>
+            </VerticalStackLayout>
+        </Border>
+
+        
     </Grid>
 </ContentPage>
+
+
+

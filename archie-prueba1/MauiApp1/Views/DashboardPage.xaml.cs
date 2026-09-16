@@ -1,4 +1,4 @@
-using Plugin.LocalNotification;
+﻿using Plugin.LocalNotification;
 using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
@@ -140,7 +140,7 @@ public partial class DashboardPage : ContentPage
         }
         
         SheetProjectName.Text = UserSession.ActiveProject.Nombre;
-        SheetProjectDesc.Text = UserSession.ActiveProject.Descripcion ?? "Sin descripción";
+        SheetProjectDesc.Text = UserSession.ActiveProject.Descripcion ?? "Sin descripciÃ³n";
         SheetProjectUbicacion.Text = UserSession.ActiveProject.Ubicacion ?? "--";
         SheetProjectEstado.Text = UserSession.ActiveProject.Estado ?? "--";
         SheetProjectCode.Text = $"Presupuesto: ";
@@ -148,7 +148,8 @@ public partial class DashboardPage : ContentPage
         DetailsBackdrop.IsVisible = true;
         await DetailsBackdrop.FadeToAsync(1, 200);
         ProjectDetailsSheetModal.IsVisible = true;
-        await ProjectDetailsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        ProjectDetailsSheetModal.IsVisible = true;
+        await Task.WhenAll(ProjectDetailsSheetModal.FadeTo(1, 250), ProjectDetailsSheetModal.ScaleTo(1, 250, Easing.SpringOut));
     }
 
     private async void OnCloseDetailsSheetClicked(object sender, EventArgs e)
@@ -158,7 +159,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseDetailsSheet()
     {
-        await ProjectDetailsSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await Task.WhenAll(ProjectDetailsSheetModal.FadeTo(0, 200), ProjectDetailsSheetModal.ScaleTo(0.8, 200, Easing.CubicIn));
+        ProjectDetailsSheetModal.IsVisible = false;
         await DetailsBackdrop.FadeToAsync(0, 200);
         DetailsBackdrop.IsVisible = false;
         ProjectDetailsSheetModal.IsVisible = false;
@@ -188,7 +190,8 @@ public partial class DashboardPage : ContentPage
         EditProjectBackdrop.IsVisible = true;
         await EditProjectBackdrop.FadeToAsync(1, 200);
         EditProjectSheetModal.IsVisible = true;
-        await EditProjectSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        EditProjectSheetModal.IsVisible = true;
+        await Task.WhenAll(EditProjectSheetModal.FadeTo(1, 250), EditProjectSheetModal.ScaleTo(1, 250, Easing.SpringOut));
     }
 
     private async void OnCloseEditProjectSheetClicked(object sender, EventArgs e)
@@ -198,7 +201,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseEditProjectSheet()
     {
-        await EditProjectSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await Task.WhenAll(EditProjectSheetModal.FadeTo(0, 200), EditProjectSheetModal.ScaleTo(0.8, 200, Easing.CubicIn));
+        EditProjectSheetModal.IsVisible = false;
         await EditProjectBackdrop.FadeToAsync(0, 200);
         EditProjectBackdrop.IsVisible = false;
         EditProjectSheetModal.IsVisible = false;
@@ -234,7 +238,7 @@ public partial class DashboardPage : ContentPage
 
     private async void OnEliminarProyectoFromDetailsClicked(object sender, EventArgs e)
     {
-        var confirm = await ShowAlertConfirmAsync("Eliminar", "¿Borrar proyecto?", "Sí", "No");
+        var confirm = await ShowAlertConfirmAsync("Eliminar", "Â¿Borrar proyecto?", "SÃ­", "No");
         if (!confirm || UserSession.ActiveProject == null) return;
         
         var res = await ApiService.EliminarProyectoAsync(UserSession.ActiveProject.Idproyecto);
@@ -251,7 +255,8 @@ public partial class DashboardPage : ContentPage
     {
         NewProjectBackdrop.IsVisible = true;
         await NewProjectBackdrop.FadeToAsync(1, 200);
-        await NewProjectSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        NewProjectSheetCard.IsVisible = true;
+        await Task.WhenAll(NewProjectSheetCard.FadeTo(1, 250), NewProjectSheetCard.ScaleTo(1, 250, Easing.SpringOut));
     }
 
     private async void OnCloseNewProjectSheetClicked(object sender, EventArgs e)
@@ -261,7 +266,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseNewProjectSheet()
     {
-        await NewProjectSheetCard.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await Task.WhenAll(NewProjectSheetCard.FadeTo(0, 200), NewProjectSheetCard.ScaleTo(0.8, 200, Easing.CubicIn));
+        NewProjectSheetCard.IsVisible = false;
         await NewProjectBackdrop.FadeToAsync(0, 200);
         NewProjectBackdrop.IsVisible = false;
     }
@@ -270,7 +276,7 @@ public partial class DashboardPage : ContentPage
     {
         var p = new CrearProyectoRequest
         {
-            Idarquitecto = UserSession.Rol == "Arquitecto" ? UserSession.Idusuario : 0,
+            Idarquitecto = UserSession.Rol == "Arquitecto" ? UserSession.Idusuario : UserSession.Idusuario, Idcliente = UserSession.Idusuario,
             Nombre = EntryNombreProyecto.Text ?? "Nuevo",
             Ubicacion = EntryUbicacionProyecto.Text ?? "",
             Estado = "Borrador",
@@ -282,6 +288,11 @@ public partial class DashboardPage : ContentPage
         {
             await CloseNewProjectSheet();
             await CargarProyectosAsync();
+            ShowCustomAlert("¡Proyecto Creado!", $"El proyecto '{p.Nombre}' ha sido guardado exitosamente.", false);
+        }
+        else
+        {
+            ShowCustomAlert("Error", res.Message, true);
         }
     }
 
@@ -290,7 +301,8 @@ public partial class DashboardPage : ContentPage
         JoinCodeBackdrop.IsVisible = true;
         await JoinCodeBackdrop.FadeToAsync(1, 200);
         JoinCodeSheetModal.IsVisible = true;
-        await JoinCodeSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        JoinCodeSheetModal.IsVisible = true;
+        await Task.WhenAll(JoinCodeSheetModal.FadeTo(1, 250), JoinCodeSheetModal.ScaleTo(1, 250, Easing.SpringOut));
     }
 
     private async void OnCloseJoinCodeSheetClicked(object sender, EventArgs e)
@@ -300,7 +312,8 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseJoinCodeSheet()
     {
-        await JoinCodeSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await Task.WhenAll(JoinCodeSheetModal.FadeTo(0, 200), JoinCodeSheetModal.ScaleTo(0.8, 200, Easing.CubicIn));
+        JoinCodeSheetModal.IsVisible = false;
         await JoinCodeBackdrop.FadeToAsync(0, 200);
         JoinCodeBackdrop.IsVisible = false;
         JoinCodeSheetModal.IsVisible = false;
@@ -316,7 +329,7 @@ public partial class DashboardPage : ContentPage
         {
             await CloseJoinCodeSheet();
             await CargarProyectosAsync();
-            await ShowToastAsync("Proyecto vinculado con éxito");
+            await ShowToastAsync("Proyecto vinculado con Ã©xito");
         }
         else
         {
@@ -332,12 +345,12 @@ public partial class DashboardPage : ContentPage
         var (success, msg, data) = await ApiService.CrearInvitacionAsync(UserSession.ActiveProject.Idproyecto, codigoGenerado);
         if (success && data != null)
         {
-            await ShowAlertAsync("Código Generado", $"Comparte este código con tu cliente para que se una al proyecto:\n\n{data.Codigo}", "Copiar");
+            await ShowAlertAsync("CÃ³digo Generado", $"Comparte este cÃ³digo con tu cliente para que se una al proyecto:\n\n{data.Codigo}", "Copiar");
             await Clipboard.Default.SetTextAsync(data.Codigo);
         }
         else
         {
-            await ShowAlertAsync("Error", $"No se pudo generar la invitación: {msg}", "OK");
+            await ShowAlertAsync("Error", $"No se pudo generar la invitaciÃ³n: {msg}", "OK");
         }
     }
 
@@ -352,7 +365,8 @@ public partial class DashboardPage : ContentPage
         MeasurementsBackdrop.IsVisible = true;
         await MeasurementsBackdrop.FadeToAsync(1, 200);
         MeasurementsSheetModal.IsVisible = true;
-        await MeasurementsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut);
+        MeasurementsSheetModal.IsVisible = true;
+        await Task.WhenAll(MeasurementsSheetModal.FadeTo(1, 250), MeasurementsSheetModal.ScaleTo(1, 250, Easing.SpringOut));
 
         // Load data
         LoadingMeasurementsIndicator.IsVisible = true;
@@ -369,7 +383,8 @@ public partial class DashboardPage : ContentPage
 
     private async void OnCloseMeasurementsSheetClicked(object sender, EventArgs e)
     {
-        await MeasurementsSheetModal.TranslateToAsync(0, 600, 250, Easing.CubicIn);
+        await Task.WhenAll(MeasurementsSheetModal.FadeTo(0, 200), MeasurementsSheetModal.ScaleTo(0.8, 200, Easing.CubicIn));
+        MeasurementsSheetModal.IsVisible = false;
         await MeasurementsBackdrop.FadeToAsync(0, 200);
         MeasurementsBackdrop.IsVisible = false;
         MeasurementsSheetModal.IsVisible = false;
@@ -399,5 +414,50 @@ public partial class DashboardPage : ContentPage
     {
         return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, accept, cancel);
     }
-}
 
+
+    public void ShowCustomAlert(string title, string message, bool isError = false)
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            AlertTitle.Text = title;
+            AlertMessage.Text = message;
+            
+            if (isError)
+            {
+                AlertIconBox.BackgroundColor = Color.FromArgb("#FAD2E1");
+                AlertIconLabel.Text = "✕";
+                AlertIconLabel.TextColor = Color.FromArgb("#C9184A");
+                AlertButton.BackgroundColor = Color.FromArgb("#FFB3C6");
+                AlertButton.Text = "Cerrar";
+            }
+            else
+            {
+                AlertIconBox.BackgroundColor = Color.FromArgb("#D1F4E0");
+                AlertIconLabel.Text = "✓";
+                AlertIconLabel.TextColor = Color.FromArgb("#129740");
+                AlertButton.BackgroundColor = Color.FromArgb("#A3E7C9");
+                AlertButton.Text = "Continuar";
+            }
+
+            AlertBackdrop.IsVisible = true;
+            AlertModal.IsVisible = true;
+            await Task.WhenAll(
+                AlertBackdrop.FadeTo(1, 200),
+                AlertModal.FadeTo(1, 250),
+                AlertModal.ScaleTo(1, 250, Easing.SpringOut)
+            );
+        });
+    }
+
+    private async void OnCloseAlertClicked(object sender, EventArgs e)
+    {
+        await Task.WhenAll(
+            AlertBackdrop.FadeTo(0, 200),
+            AlertModal.FadeTo(0, 200),
+            AlertModal.ScaleTo(0.9, 200, Easing.CubicIn)
+        );
+        AlertBackdrop.IsVisible = false;
+        AlertModal.IsVisible = false;
+    }
+}
