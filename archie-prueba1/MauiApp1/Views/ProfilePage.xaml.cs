@@ -1,7 +1,7 @@
 using MauiApp1.Models;
 using MauiApp1.Services;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class ProfilePage : ContentPage
 {
@@ -10,10 +10,15 @@ public partial class ProfilePage : ContentPage
         InitializeComponent();
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         CargarDatosUsuarioUI();
+        
+        await Task.WhenAll(
+            MainScroll.FadeTo(1, 600, Easing.CubicOut),
+            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+        );
     }
 
     private void CargarDatosUsuarioUI()
@@ -26,7 +31,7 @@ public partial class ProfilePage : ContentPage
         DireccionUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Direccion) ? "No registrada" : UserSession.Direccion;
         DocumentoUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Numerodocumento) ? "No registrado" : UserSession.Numerodocumento;
         
-        BtnGestionarUsuarios.IsVisible = (UserSession.Rol == "Arquitecto");
+        BtnGestiónarUsuarios.IsVisible = (UserSession.Rol == "Arquitecto");
 
         string inicial = !string.IsNullOrEmpty(UserSession.Nombre) ? UserSession.Nombre.Substring(0, 1).ToUpper() : "A";
         AvatarInitialsLabel.Text = inicial;
@@ -91,6 +96,9 @@ public partial class ProfilePage : ContentPage
             Idusuario = UserSession.Idusuario,
             Nombre = EditNombreEntry.Text ?? "",
             Apellido = EditApellidoEntry.Text ?? "",
+            Email = UserSession.Email ?? "",
+            Contrasena = "dummy_password", // To pass backend [Required] validation (ignored in Dao)
+            Rol = UserSession.Rol ?? "Invitado",
             Telefono = EditTelefonoEntry.Text,
             Direccion = EditDireccionEntry.Text,
             Numerodocumento = EditDocumentoEntry.Text
@@ -172,7 +180,7 @@ public partial class ProfilePage : ContentPage
         }
     }
 
-    private async void OnGestionarUsuariosClicked(object? sender, EventArgs e)
+    private async void OnGestiónarUsuariosClicked(object? sender, EventArgs e)
     {
         if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
         await Navigation.PushModalAsync(new AdminUsersPage());

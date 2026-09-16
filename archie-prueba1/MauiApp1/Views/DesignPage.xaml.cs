@@ -3,7 +3,7 @@ using MauiApp1.Services;
 using System.Text.Json;
 using System.Globalization;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class DesignPage : ContentPage
 {
@@ -23,9 +23,16 @@ public partial class DesignPage : ContentPage
 #endif
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        
+        // Ejecutar animación sin importar si hay proyecto o no
+        _ = Task.WhenAll(
+            MainScroll.FadeTo(1, 600, Easing.CubicOut),
+            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+        );
+
         _proyectoActual = UserSession.ActiveProject;
         if (_proyectoActual == null)
         {
@@ -127,7 +134,7 @@ public partial class DesignPage : ContentPage
             var tapDelete = new TapGestureRecognizer { CommandParameter = elem.Idelementoestructural };
             tapDelete.Tapped += async (s, e) =>
             {
-                var confirm = await Application.Current!.Windows[0].Page!.DisplayAlert("Borrar", $"¿Eliminar {elem.Tipo}?", "Sí", "No");
+                var confirm = await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Borrar", $"¿Eliminar {elem.Tipo}?", "Sí", "No");
                 if (confirm)
                 {
                     await ApiService.EliminarElementoEstructuralAsync(elem.Idelementoestructural);
@@ -179,14 +186,24 @@ public partial class DesignPage : ContentPage
             return;
         }
 
+        decimal w = ParseDecimal(AnchoEntry.Text);
+        decimal l = ParseDecimal(LargoEntry.Text);
+        decimal h = ParseDecimal(AltoEntry.Text);
+
+        if (w <= 0 || l <= 0 || h <= 0)
+        {
+            await ShowAlertAsync("Datos Inválidos", "Por favor, ingresa medidas mayores a cero para el ancho, largo y alto.", "OK");
+            return;
+        }
+
         if (_espacioActual == null)
         {
             var req = new CrearEspacioFisicoRequest
             {
                 Idproyecto = _proyectoActual.Idproyecto,
-                Altoaproximado = ParseDecimal(AltoEntry.Text),
-                Anchoaproximado = ParseDecimal(AnchoEntry.Text),
-                Largoaproximado = ParseDecimal(LargoEntry.Text),
+                Altoaproximado = h,
+                Anchoaproximado = w,
+                Largoaproximado = l,
                 Descripcion = "Espacio Principal"
             };
             var res = await ApiService.GuardarEspacioFisicoAsync(req);
@@ -198,9 +215,9 @@ public partial class DesignPage : ContentPage
         }
         else
         {
-            _espacioActual.Altoaproximado = ParseDecimal(AltoEntry.Text);
-            _espacioActual.Anchoaproximado = ParseDecimal(AnchoEntry.Text);
-            _espacioActual.Largoaproximado = ParseDecimal(LargoEntry.Text);
+            _espacioActual.Altoaproximado = h;
+            _espacioActual.Anchoaproximado = w;
+            _espacioActual.Largoaproximado = l;
             var res = await ApiService.ActualizarEspacioFisicoAsync(_espacioActual.Idespaciofisico, _espacioActual);
             if (res.Success) await ShowAlertAsync("Éxito", "Espacio actualizado", "OK");
         }
@@ -319,7 +336,7 @@ public partial class DesignPage : ContentPage
     {
         if (Application.Current?.Windows.Count > 0)
         {
-            await Application.Current.Windows[0].Page!.DisplayAlert(title, message, cancel);
+            await Application.Current.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
         }
     }
 

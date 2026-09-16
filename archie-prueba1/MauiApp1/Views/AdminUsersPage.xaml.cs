@@ -1,8 +1,8 @@
-ï»¿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class AdminUsersPage : ContentPage
 {
@@ -59,11 +59,11 @@ public partial class AdminUsersPage : ContentPage
         {
             if (user.Rol == "Arquitecto")
             {
-                await ShowAlertAsync("AcciÃ³n denegada", "No puedes eliminar a otros arquitectos del sistema.", "Entendido");
+                await ShowAlertAsync("Acción denegada", "No puedes eliminar a otros arquitectos del sistema.", "Entendido");
                 return;
             }
 
-            var confirm = await ShowAlertConfirmAsync("Eliminar Usuario", $"Â¿EstÃ¡s seguro de eliminar al cliente {user.Nombre}?", "SÃ­, eliminar", "Cancelar");
+            var confirm = await ShowAlertConfirmAsync("Eliminar Usuario", $"¿Estás seguro de eliminar al cliente {user.Nombre}?", "Sí, eliminar", "Cancelar");
             if (!confirm) return;
 
             LoadingIndicator.IsRunning = true;

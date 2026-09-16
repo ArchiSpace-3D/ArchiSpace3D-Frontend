@@ -1,8 +1,8 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class NotificationsPage : ContentPage
 {
@@ -14,10 +14,15 @@ public partial class NotificationsPage : ContentPage
         NotificacionesCollectionView.ItemsSource = _notificaciones;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         CargarNotificaciones();
+        
+        await Task.WhenAll(
+            MainScroll.FadeTo(1, 600, Easing.CubicOut),
+            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+        );
     }
 
     private async void CargarNotificaciones()

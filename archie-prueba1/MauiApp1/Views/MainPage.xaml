@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.MainPage"
+             x:Class="MauiApp1.Views.MainPage"
              NavigationPage.HasNavigationBar="False"
              BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}">
 
@@ -54,15 +54,15 @@
                     <VerticalStackLayout Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="2">
-                                <Label Text="Mediciones Guardadas" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                                <Label Text="Mediciónes Guardadas" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                                 <Label Text="Historial en base de datos" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                             </VerticalStackLayout>
                             <Image Source="ic_refresh.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" Grid.Column="1">
-                                <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnRefreshMedicionesClicked"/></Image.GestureRecognizers>
+                                <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnRefreshMediciónesClicked"/></Image.GestureRecognizers>
                             </Image>
                         </Grid>
 
-                        <VerticalStackLayout x:Name="MedicionesGuardadasStack" Spacing="8">
+                        <VerticalStackLayout x:Name="MediciónesGuardadasStack" Spacing="8">
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>

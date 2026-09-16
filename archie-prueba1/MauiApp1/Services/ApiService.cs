@@ -334,13 +334,13 @@ namespace MauiApp1.Services
         }
 
 
-        public static async Task<(bool Success, string Message)> GuardarMedicionAsync(CrearMedicionRequest medicion)
+        public static async Task<(bool Success, string Message)> GuardarMediciónAsync(CrearMediciónRequest medicion)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "Debes iniciar sesión para guardar mediciones.");
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medicion";
+                string url = $"{UserSession.BaseUrl}/api/Medición";
                 using var request = new HttpRequestMessage(HttpMethod.Post, url);
                 SetAuthHeader(request);
 
@@ -669,13 +669,13 @@ namespace MauiApp1.Services
         }
 
 
-        public static async Task<List<MedicionDto>> GetMedicionesByProyectoAsync(int idProyecto)
+        public static async Task<List<MediciónDto>> GetMediciónesByProyectoAsync(int idProyecto)
         {
-            if (string.IsNullOrEmpty(UserSession.Token)) return new List<MedicionDto>();
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<MediciónDto>();
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medicion/proyecto/{idProyecto}";
+                string url = $"{UserSession.BaseUrl}/api/Medición/proyecto/{idProyecto}";
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 SetAuthHeader(request);
 
@@ -683,21 +683,21 @@ namespace MauiApp1.Services
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<List<MedicionDto>>(json, _jsonOptions) ?? new List<MedicionDto>();
+                    return JsonSerializer.Deserialize<List<MediciónDto>>(json, _jsonOptions) ?? new List<MediciónDto>();
                 }
             }
             catch { }
 
-            return new List<MedicionDto>();
+            return new List<MediciónDto>();
         }
 
-        public static async Task<(bool Success, string Message)> EliminarMedicionAsync(int idMedicion)
+        public static async Task<(bool Success, string Message)> EliminarMediciónAsync(int idMedición)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medicion/{idMedicion}";
+                string url = $"{UserSession.BaseUrl}/api/Medición/{idMedición}";
                 using var request = new HttpRequestMessage(HttpMethod.Delete, url);
                 SetAuthHeader(request);
 

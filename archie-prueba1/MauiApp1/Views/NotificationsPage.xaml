@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Views.NotificationsPage"
+             Title="Notificaciones"
+             BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,15" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}">
+            <Border.Shadow><Shadow Brush="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
+            <Image Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseClicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+            <Label Grid.Column="1" Text="Notificaciones" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Contenido -->
+        <RefreshView x:Name="NotifRefresh" Grid.Row="1" Refreshing="OnRefresh" RefreshColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}">
+            <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
+                <VerticalStackLayout Padding="20" Spacing="15">
+                    
+                    <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center" Margin="0,20"/>
+
+                    <CollectionView x:Name="NotificacionesCollectionView">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" Margin="0,0,0,12">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                                    <Border.Shadow><Shadow Brush="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
+                                    
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="15" ColumnSpacing="12">
+                                        <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E1E1E}" StrokeThickness="0" VerticalOptions="Center">
+                                            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
+                                            <Image Source="ic_bell.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+                                        
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Titulo}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="15" FontAttributes="Bold"/>
+                                            <Label Text="{Binding Mensaje}" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="13"/>
+                                            <Label Text="{Binding Fechacreacion}" TextColor="{AppThemeBinding Light=#BDD8E9, Dark=#121212}" FontSize="11" Margin="0,4,0,0"/>
+                                        </VerticalStackLayout>
+                                        
+                                        <Border Grid.Column="2" BackgroundColor="#FFF0F0" StrokeThickness="0" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                                            <Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape>
+                                            <Image Source="ic_close.svg" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnDeleteClicked" CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Padding="20">
+                                <Label Text="Todo al día" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                <Label Text="No tienes notificaciones pendientes." TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="14" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>
+
+
+
