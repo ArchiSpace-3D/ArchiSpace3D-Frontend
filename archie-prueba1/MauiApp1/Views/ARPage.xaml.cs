@@ -4,7 +4,7 @@ using MauiApp1.Services;
 using MauiApp1.Models;
 using System.Globalization;
 
-namespace MauiApp1
+namespace MauiApp1.Views
 {
     public partial class ARPage : ContentPage
     {

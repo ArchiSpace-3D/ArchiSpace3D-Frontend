@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 using MauiApp1.Services;
 using MauiApp1.Models;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class LoginPage : ContentPage
 {
     public LoginPage()
     {
         InitializeComponent();
-        EmailEntry.Text = Microsoft.Maui.Storage.Preferences.Get("saved_email", string.Empty);
     }
 
     protected override void OnSizeAllocated(double width, double height)
@@ -31,7 +30,6 @@ public partial class LoginPage : ContentPage
             Grid.SetColumnSpan(FormCard, 1);
             FormCard.Margin = new Thickness(0);
             FormCard.StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(0) };
-            FormCard.Shadow = null;
         }
         else // Portrait
         {
@@ -45,7 +43,6 @@ public partial class LoginPage : ContentPage
             Grid.SetColumnSpan(FormCard, 1);
             FormCard.Margin = new Thickness(24, 0, 24, 0);
             FormCard.StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(30) };
-            FormCard.Shadow = new Shadow { Brush = Brush.Black, Opacity = 0.15f, Offset = new Point(0, 10), Radius = 20 };
         }
     }
 
@@ -127,7 +124,7 @@ public partial class LoginPage : ContentPage
 
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            await ShowToastAsync("Enter email and password.");
+            await ShowToastAsync("Ingresa correo y contraseña.");
             return;
         }
 
@@ -140,7 +137,6 @@ public partial class LoginPage : ContentPage
 
             if (success && response != null)
             {
-                Microsoft.Maui.Storage.Preferences.Set("saved_email", email);
                 LoadingOverlay.IsVisible = false;
                 Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
             }
@@ -163,7 +159,7 @@ public partial class LoginPage : ContentPage
 
     private void ShowLoadingWithTimeout()
     {
-        LoadingLabel.Text = "Connecting...";
+        LoadingLabel.Text = "Conectando...";
         LoadingOverlay.IsVisible = true;
         _ = Task.Delay(4000).ContinueWith(t =>
         {
@@ -171,7 +167,7 @@ public partial class LoginPage : ContentPage
             {
                 MainThread.BeginInvokeOnMainThread(() => 
                 {
-                    LoadingLabel.Text = "Waking up Railway server,\nthis might take up to 30s...";
+                    LoadingLabel.Text = "Despertando servidor,\nesto puede tomar hasta 30s...";
                 });
             }
         });

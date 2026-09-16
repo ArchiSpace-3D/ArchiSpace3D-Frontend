@@ -3,7 +3,7 @@ using MauiApp1.Services;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MauiApp1
+namespace MauiApp1.Views
 {
     public partial class MainPage : ContentPage
     {

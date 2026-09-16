@@ -3,7 +3,7 @@ using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class DashboardPage : ContentPage
 {

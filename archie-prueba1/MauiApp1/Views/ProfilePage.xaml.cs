@@ -1,7 +1,7 @@
 using MauiApp1.Models;
 using MauiApp1.Services;
 
-namespace MauiApp1;
+namespace MauiApp1.Views;
 
 public partial class ProfilePage : ContentPage
 {

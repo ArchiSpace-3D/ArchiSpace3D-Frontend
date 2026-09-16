@@ -34,13 +34,23 @@ namespace MauiApp1.Services
             Email = loginResponse.Email;
             Rol = loginResponse.Rol;
             BaseUrl = baseUrl;
+            Telefono = loginResponse.Telefono;
+            Direccion = loginResponse.Direccion;
+            Tipodocumento = loginResponse.Tipodocumento;
+            Numerodocumento = loginResponse.Numerodocumento;
+            Avatarurl = loginResponse.Avatarurl;
 
             await SecureStorage.SetAsync("auth_token", Token ?? "");
             await SecureStorage.SetAsync("user_id", Idusuario.ToString());
-            await SecureStorage.SetAsync("user_nombre", Nombre);
-            await SecureStorage.SetAsync("user_apellido", Apellido);
-            await SecureStorage.SetAsync("user_email", Email);
-            await SecureStorage.SetAsync("user_rol", Rol);
+            await SecureStorage.SetAsync("user_nombre", Nombre ?? "");
+            await SecureStorage.SetAsync("user_apellido", Apellido ?? "");
+            await SecureStorage.SetAsync("user_email", Email ?? "");
+            await SecureStorage.SetAsync("user_rol", Rol ?? "");
+            if (!string.IsNullOrEmpty(Telefono)) await SecureStorage.SetAsync("user_telefono", Telefono);
+            if (!string.IsNullOrEmpty(Direccion)) await SecureStorage.SetAsync("user_direccion", Direccion);
+            if (!string.IsNullOrEmpty(Tipodocumento)) await SecureStorage.SetAsync("user_tipodocumento", Tipodocumento);
+            if (!string.IsNullOrEmpty(Numerodocumento)) await SecureStorage.SetAsync("user_numerodocumento", Numerodocumento);
+            if (!string.IsNullOrEmpty(Avatarurl)) await SecureStorage.SetAsync("user_avatarurl", Avatarurl);
         }
 
         public static async Task<bool> LoadSessionAsync()
