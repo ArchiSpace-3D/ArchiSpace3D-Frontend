@@ -27,5 +27,6 @@ namespace MauiApp1.Services
             _client = new Client(SupabaseUrl, SupabaseAnonKey, options);
             await _client.InitializeAsync();
         }
+
     }
 }
