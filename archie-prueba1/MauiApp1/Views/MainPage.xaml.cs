@@ -324,6 +324,18 @@ namespace MauiApp1.Views
                 await ShowToastAsync("Permiso de cámara denegado.");
             }
         }
+
+        private async void OnManualMeasurementClicked(object? sender, EventArgs e) 
+        { 
+            if (MauiApp1.Services.UserSession.ActiveProject == null)
+            {
+                await ShowToastAsync("Selecciona un proyecto primero.");
+                return;
+            }
+            
+            // Launch SaveMeasurementPage directly with 0 as initial distance
+            await Navigation.PushModalAsync(new SaveMeasurementPage(0));
+        }
         private async Task ShowToastAsync(string message)
         {
             AppleToastMessage.Text = message;
@@ -335,4 +347,5 @@ namespace MauiApp1.Views
         }
     }
 }
+
 

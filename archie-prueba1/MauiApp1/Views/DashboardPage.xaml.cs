@@ -161,18 +161,34 @@ public partial class DashboardPage : ContentPage
             await ShowAlertAsync("Aviso", "Selecciona un proyecto primero.", "OK");
             return;
         }
-        
         SheetProjectName.Text = UserSession.ActiveProject.Nombre;
         SheetProjectDesc.Text = UserSession.ActiveProject.Descripcion ?? "Sin descripción";
         SheetProjectUbicacion.Text = UserSession.ActiveProject.Ubicacion ?? "--";
         SheetProjectEstado.Text = UserSession.ActiveProject.Estado ?? "--";
-        SheetProjectCode.Text = $"Presupuesto: ";
+        SheetProjectCode.Text = $"Presupuesto: {UserSession.ActiveProject.Presupuesto:C}";
+        SheetProjectClient.Text = "Cliente: Cargando...";
         
         DetailsBackdrop.IsVisible = true;
         await DetailsBackdrop.FadeToAsync(1, 200);
         ProjectDetailsSheetModal.IsVisible = true;
-        ProjectDetailsSheetModal.IsVisible = true;
         await Task.WhenAll(ProjectDetailsSheetModal.FadeToAsync(1, 250), ProjectDetailsSheetModal.ScaleToAsync(1, 250, Easing.SpringOut));
+
+        if (UserSession.ActiveProject.Idcliente > 0)
+        {
+            var cliente = await ApiService.GetUsuarioByIdAsync(UserSession.ActiveProject.Idcliente);
+            if (cliente != null)
+            {
+                SheetProjectClient.Text = $"Cliente: {cliente.Nombre} {cliente.Apellido}";
+            }
+            else
+            {
+                SheetProjectClient.Text = "Cliente: Desconocido";
+            }
+        }
+        else
+        {
+            SheetProjectClient.Text = "Cliente: Sin asignar";
+        }
     }
 
     private async void OnCloseDetailsSheetClicked(object? sender, EventArgs e)
@@ -204,11 +220,19 @@ public partial class DashboardPage : ContentPage
     {
         await CloseDetailsSheet();
         if (UserSession.ActiveProject == null) return;
-        
         EditNombreProyecto.Text = UserSession.ActiveProject.Nombre;
         EditDescripcionProyecto.Text = UserSession.ActiveProject.Descripcion;
         EditUbicacionProyecto.Text = UserSession.ActiveProject.Ubicacion;
         EditPresupuestoProyecto.Text = UserSession.ActiveProject.Presupuesto.ToString();
+        
+        if (EditEstadoProyecto.Items.Contains(UserSession.ActiveProject.Estado))
+        {
+            EditEstadoProyecto.SelectedItem = UserSession.ActiveProject.Estado;
+        }
+        else
+        {
+            EditEstadoProyecto.SelectedItem = "Borrador";
+        }
 
         EditProjectBackdrop.IsVisible = true;
         await EditProjectBackdrop.FadeToAsync(1, 200);
@@ -235,14 +259,13 @@ public partial class DashboardPage : ContentPage
     {
         if (UserSession.ActiveProject == null) return;
         var p = UserSession.ActiveProject;
-        
         var req = new ActualizarProyectoRequest
         {
             Nombre = EditNombreProyecto.Text ?? p.Nombre,
             Descripcion = EditDescripcionProyecto.Text ?? p.Descripcion,
             Ubicacion = EditUbicacionProyecto.Text ?? p.Ubicacion,
             Presupuesto = decimal.TryParse(EditPresupuestoProyecto.Text, out var v) ? v : p.Presupuesto,
-            Estado = p.Estado
+            Estado = EditEstadoProyecto.SelectedItem?.ToString() ?? p.Estado
         };
 
         var res = await ApiService.ActualizarProyectoAsync(p.Idproyecto, req);

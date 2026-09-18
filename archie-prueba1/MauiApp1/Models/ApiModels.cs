@@ -363,49 +363,77 @@ namespace MauiApp1.Models
         public int IdClienteUsado { get; set; }
     }
 
-    public class MediciónDto
+            public class MediciónDto
     {
         [JsonPropertyName("idmedicion")]
         public int Idmedicion { get; set; }
-
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
-
         [JsonPropertyName("puntoinicial")]
-        public string Puntoinicial { get; set; } = "{}";
-
+        public string? Puntoinicial { get; set; }
         [JsonPropertyName("puntofinal")]
-        public string Puntofinal { get; set; } = "{}";
-
+        public string? Puntofinal { get; set; }
         [JsonPropertyName("distancia")]
         public decimal Distancia { get; set; }
-
+        public string DistanciaFormateada => $"{Distancia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} m";
         [JsonPropertyName("fechamedicion")]
         public DateTime? Fechamedicion { get; set; }
-
         public string FechaFormateada => Fechamedicion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente";
-        public string DistanciaFormateada => $"{Distancia:N2} m";
+
+        [JsonPropertyName("etapa")]
+        public string? Etapa { get; set; }
+        [JsonPropertyName("partida")]
+        public string? Partida { get; set; }
+        [JsonPropertyName("descripcion")]
+        public string? Descripcion { get; set; }
+        [JsonPropertyName("veces")]
+        public int? Veces { get; set; }
+        [JsonPropertyName("largo")]
+        public decimal? Largo { get; set; }
+        [JsonPropertyName("ancho")]
+        public decimal? Ancho { get; set; }
+        [JsonPropertyName("alto")]
+        public decimal? Alto { get; set; }
+        [JsonPropertyName("unidad")]
+        public string? Unidad { get; set; }
+        [JsonPropertyName("totalparcial")]
+        public decimal? Totalparcial { get; set; }
     }
 
     public class CrearMediciónRequest
     {
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
-
         [JsonPropertyName("puntoinicial")]
-        public string Puntoinicial { get; set; } = "{}";
-
+        public string? Puntoinicial { get; set; }
         [JsonPropertyName("puntofinal")]
-        public string Puntofinal { get; set; } = "{}";
-
+        public string? Puntofinal { get; set; }
         [JsonPropertyName("distancia")]
         public decimal Distancia { get; set; }
-
+        public string DistanciaFormateada => $"{Distancia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} m";
         [JsonPropertyName("fechamedicion")]
         public DateTime? Fechamedicion { get; set; }
-    }
 
-    public class NotificacionDto
+        [JsonPropertyName("etapa")]
+        public string? Etapa { get; set; }
+        [JsonPropertyName("partida")]
+        public string? Partida { get; set; }
+        [JsonPropertyName("descripcion")]
+        public string? Descripcion { get; set; }
+        [JsonPropertyName("veces")]
+        public int? Veces { get; set; }
+        [JsonPropertyName("largo")]
+        public decimal? Largo { get; set; }
+        [JsonPropertyName("ancho")]
+        public decimal? Ancho { get; set; }
+        [JsonPropertyName("alto")]
+        public decimal? Alto { get; set; }
+        [JsonPropertyName("unidad")]
+        public string? Unidad { get; set; }
+        [JsonPropertyName("totalparcial")]
+        public decimal? Totalparcial { get; set; }
+    }
+public class NotificacionDto
     {
         [JsonPropertyName("idnotificacion")]
         public int Idnotificacion { get; set; }
@@ -596,5 +624,8 @@ namespace MauiApp1.Models
         public DateTime? Fechaimportacion { get; set; }
     }
 }
+
+
+
 
 

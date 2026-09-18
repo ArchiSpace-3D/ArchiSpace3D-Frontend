@@ -108,7 +108,7 @@ namespace MauiApp1.Views
             await Navigation.PopModalAsync();
         }
 
-        public async void GuardarMedidaAutomatica(string distanciaStr)
+                public async void GuardarMedidaAutomatica(string distanciaStr)
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
@@ -118,31 +118,28 @@ namespace MauiApp1.Views
                     return;
                 }
 
-                if (decimal.TryParse(distanciaStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal distancia))
+                // Convert 'XX.X cm' or 'X.X m' into meters
+                decimal distanciaMeters = 0;
+                string cleanStr = distanciaStr.Replace(",", ".");
+                if (cleanStr.Contains("cm"))
                 {
-                    var req = new CrearMediciónRequest
-                    {
-                        Idproyecto = UserSession.ActiveProject.Idproyecto,
-                        Distancia = distancia,
-                        Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
-                        Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
-                        Fechamedicion = DateTime.UtcNow
-                    };
+                    if (decimal.TryParse(cleanStr.Replace("cm", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
+                        distanciaMeters = d / 100m;
+                }
+                else
+                {
+                    if (decimal.TryParse(cleanStr.Replace("m", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
+                        distanciaMeters = d;
+                }
 
-                    var (success, msg) = await ApiService.GuardarMediciónAsync(req);
-                    if (success)
-                    {
-                        await AlertService.ShowAlertAsync("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
-                    }
-                    else
-                    {
-                        await AlertService.ShowAlertAsync("Error", $"No se guardó la medida: {msg}", "OK");
-                    }
+                if (distanciaMeters > 0)
+                {
+                    // Open the new Computos Metricos page instead of saving blindly
+                    await Navigation.PushModalAsync(new SaveMeasurementPage(distanciaMeters));
                 }
             });
         }
     }
-
 #if ANDROID
     public class MyWebChromeClient : Android.Webkit.WebChromeClient
     {
@@ -175,5 +172,6 @@ namespace MauiApp1.Views
     }
 #endif
 }
+
 
 

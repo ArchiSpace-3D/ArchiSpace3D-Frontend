@@ -1,4 +1,4 @@
-﻿#if ANDROID
+#if ANDROID
 using Plugin.Firebase.CloudMessaging;
 #endif
 
@@ -19,6 +19,20 @@ namespace MauiApp1.Services
             try
             {
 #if ANDROID
+                if (OperatingSystem.IsAndroidVersionAtLeast(33))
+                {
+                    var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        status = await Permissions.RequestAsync<Permissions.PostNotifications>();
+                    }
+                    if (status != PermissionStatus.Granted)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Permiso de notificaciones denegado.");
+                        return;
+                    }
+                }
+
                 await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
 
                 var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
@@ -30,10 +44,12 @@ namespace MauiApp1.Services
                 RegistrarListeners();
 #endif
             }
-            catch
+            catch (Exception ex)
             {
-                // Silencioso a propósito: si falla el registro del push,
-                // no debe bloquear el login del usuario.
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Application.Current?.MainPage?.DisplayAlert("Error Notificaciones", ex.Message, "OK");
+                });
             }
         }
 

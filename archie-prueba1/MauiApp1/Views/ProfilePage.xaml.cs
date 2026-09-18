@@ -97,7 +97,7 @@ public partial class ProfilePage : ContentPage
             Nombre = EditNombreEntry.Text ?? "",
             Apellido = EditApellidoEntry.Text ?? "",
             Email = UserSession.Email ?? "",
-            Contrasena = "dummy_password", // To pass backend [Required] validation (ignored in Dao)
+            Contrasena = "dummy_password", 
             Rol = UserSession.Rol ?? "Invitado",
             Telefono = EditTelefonoEntry.Text,
             Direccion = EditDireccionEntry.Text,
@@ -188,7 +188,7 @@ public partial class ProfilePage : ContentPage
         bool confirm = await AlertService.ShowAlertAsync("Cerrar Sesión", "¿Estás seguro que deseas salir?", "Sí, Salir", "Cancelar");
         if (!confirm) return;
 
-        //UserSession.ClearSession();
+        
         Application.Current!.Windows[0].Page = new LoginPage();
     }
 
@@ -197,24 +197,3 @@ public partial class ProfilePage : ContentPage
         return AlertService.ShowAlertAsync(title, message, cancel);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

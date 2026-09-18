@@ -1,4 +1,4 @@
-using MauiApp1.Services;
+﻿using MauiApp1.Services;
 
 namespace MauiApp1
 {
@@ -29,8 +29,9 @@ namespace MauiApp1
                         return;
                     }
 
-                    MainThread.BeginInvokeOnMainThread(() =>
+                                        MainThread.BeginInvokeOnMainThread(() =>
                     {
+                        _ = MauiApp1.Services.FirebasePushService.InicializarYRegistrarAsync();
                         window.Page = new AppShell();
                     });
                 }

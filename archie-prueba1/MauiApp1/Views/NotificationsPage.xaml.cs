@@ -33,7 +33,7 @@ public partial class NotificationsPage : ContentPage
 
         try
         {
-            var notifs = await ApiService.GetNotificacionesByUsuarioAsync(UserSession.Idusuario);
+            var notifs = await ApiService.GetNotificacionesAsync();
             if (notifs != null)
             {
                 foreach (var n in notifs)
@@ -78,6 +78,7 @@ public partial class NotificationsPage : ContentPage
         }
     }
 }
+
 
 
 

@@ -340,7 +340,7 @@ namespace MauiApp1.Services
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medición";
+                string url = $"{UserSession.BaseUrl}/api/Medicion";
                 using var request = new HttpRequestMessage(HttpMethod.Post, url);
                 SetAuthHeader(request);
 
@@ -358,8 +358,8 @@ namespace MauiApp1.Services
                     return (true, "Medición registrada en el proyecto.");
                 }
 
-                string err = await response.Content.ReadAsStringAsync();
-                return (false, $"Error al guardar medición: {err}");
+                                string err = await response.Content.ReadAsStringAsync();
+                return (false, $"[{response.StatusCode}] {err}");
             }
             catch (Exception ex)
             {
@@ -675,7 +675,7 @@ namespace MauiApp1.Services
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medición/proyecto/{idProyecto}";
+                string url = $"{UserSession.BaseUrl}/api/Medicion/proyecto/{idProyecto}";
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 SetAuthHeader(request);
 
@@ -697,7 +697,7 @@ namespace MauiApp1.Services
 
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/Medición/{idMedición}";
+                string url = $"{UserSession.BaseUrl}/api/Medicion/{idMedición}";
                 using var request = new HttpRequestMessage(HttpMethod.Delete, url);
                 SetAuthHeader(request);
 
@@ -1330,3 +1330,5 @@ namespace MauiApp1.Services
         }
     }
 }
+
+
