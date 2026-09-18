@@ -9,7 +9,6 @@ namespace MauiApp1.Views;
 public partial class DesignPage : ContentPage
 {
     private bool is3DMode = false;
-    // freehand, walls, modules
 
     public DesignPage()
     {
@@ -110,12 +109,12 @@ public partial class DesignPage : ContentPage
             string jsonData = result;
             try 
             {
-                // Si MAUI devuelve el string con comillas dobles extras, lo limpiamos
+                
                 if (jsonData.StartsWith("\"") && jsonData.EndsWith("\""))
                 {
                     jsonData = System.Text.Json.JsonSerializer.Deserialize<string>(result) ?? result;
                 }
-                // Limpiar posibles secuencias de escape sueltas (por si Android lo manda con escapes \\)
+                
                 jsonData = jsonData.Replace("\\\"", "\"").Replace("\\\\", "\\");
                 if (jsonData.StartsWith("\"") && jsonData.EndsWith("\""))
                 {
@@ -161,6 +160,5 @@ public partial class DesignPage : ContentPage
 }
 
 }
-
 
 

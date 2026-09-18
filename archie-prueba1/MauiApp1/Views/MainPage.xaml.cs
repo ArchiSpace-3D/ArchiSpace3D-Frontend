@@ -332,8 +332,7 @@ namespace MauiApp1.Views
                 await ShowToastAsync("Selecciona un proyecto primero.");
                 return;
             }
-            
-            // Launch SaveMeasurementPage directly with 0 as initial distance
+
             await Navigation.PushModalAsync(new SaveMeasurementPage(0));
         }
         private async Task ShowToastAsync(string message)
@@ -347,5 +346,4 @@ namespace MauiApp1.Views
         }
     }
 }
-
 

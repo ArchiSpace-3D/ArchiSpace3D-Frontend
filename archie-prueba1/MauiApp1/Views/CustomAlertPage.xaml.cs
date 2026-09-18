@@ -19,33 +19,32 @@ public partial class CustomAlertPage : ContentPage
         ActionButton.Text = acceptText;
 
         string t = title.ToLower();
-        
-        // Error Theme
+
         if (t.Contains("error") || t.Contains("fallo") || t.Contains("excep") || t.Contains("incorrect"))
         {
-            IconBg.BackgroundColor = Color.FromArgb("#FEE2E2"); // Light red
+            IconBg.BackgroundColor = Color.FromArgb("#FEE2E2"); 
             IconLabel.Text = "✕";
-            IconLabel.TextColor = Color.FromArgb("#DC2626"); // Red
+            IconLabel.TextColor = Color.FromArgb("#DC2626"); 
             
             ActionButton.BackgroundColor = Color.FromArgb("#FEE2E2");
             ActionButton.TextColor = Color.FromArgb("#991B1B");
         }
-        // Warning / Info Theme
+        
         else if (t.Contains("aviso") || t.Contains("advertencia") || t.Contains("sesi") || t.Contains("seguro"))
         {
-            IconBg.BackgroundColor = Color.FromArgb("#FEF3C7"); // Light amber
+            IconBg.BackgroundColor = Color.FromArgb("#FEF3C7"); 
             IconLabel.Text = "!";
-            IconLabel.TextColor = Color.FromArgb("#D97706"); // Amber
+            IconLabel.TextColor = Color.FromArgb("#D97706"); 
             
             ActionButton.BackgroundColor = Color.FromArgb("#FEF3C7");
             ActionButton.TextColor = Color.FromArgb("#92400E");
         }
-        // Success Theme (Default)
+        
         else
         {
-            IconBg.BackgroundColor = Color.FromArgb("#D1FAE5"); // Light green
+            IconBg.BackgroundColor = Color.FromArgb("#D1FAE5"); 
             IconLabel.Text = "✓";
-            IconLabel.TextColor = Color.FromArgb("#059669"); // Green
+            IconLabel.TextColor = Color.FromArgb("#059669"); 
             
             ActionButton.BackgroundColor = Color.FromArgb("#D1FAE5");
             ActionButton.TextColor = Color.FromArgb("#064E3B");
@@ -79,5 +78,4 @@ public partial class CustomAlertPage : ContentPage
         return true;
     }
 }
-
 

@@ -64,7 +64,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<(bool Success, string Message, LoginResponse? Data)> GoogleLoginAsync(string hostOrUrl, string googleAccessToken)
         {
             try
@@ -182,7 +181,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<List<ProyectoDto>> GetProyectosAsync()
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return new List<ProyectoDto>();
@@ -259,7 +257,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<(bool Success, string Message, InvitacionDto? Data)> CrearInvitacionAsync(int idProyecto, string codigo)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.", null);
@@ -333,7 +330,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<(bool Success, string Message)> GuardarMediciónAsync(CrearMediciónRequest medicion)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "Debes iniciar sesión para guardar mediciones.");
@@ -366,7 +362,6 @@ namespace MauiApp1.Services
                 return (false, $"Error de conexión: {ex.Message}");
             }
         }
-
 
         public static async Task<List<NotificacionDto>> GetNotificacionesAsync()
         {
@@ -409,7 +404,6 @@ namespace MauiApp1.Services
                 return false;
             }
         }
-
 
         public static async Task<EspacioFisicoDto?> GetEspacioFisicoByProyectoAsync(int idProyecto)
         {
@@ -464,7 +458,6 @@ namespace MauiApp1.Services
                 return (false, $"Error: {ex.Message}", null);
             }
         }
-
 
         public static async Task<List<VersionDisenoDto>> GetVersionesByProyectoAsync(int idProyecto)
         {
@@ -569,7 +562,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<List<ElementoEstructuralDto>> GetElementosByVersionAsync(int idVersion)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return new List<ElementoEstructuralDto>();
@@ -645,7 +637,6 @@ namespace MauiApp1.Services
             }
         }
 
-
         public static async Task<List<ModeloImportadoDto>> GetModelosByVersionAsync(int idVersion)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return new List<ModeloImportadoDto>();
@@ -667,7 +658,6 @@ namespace MauiApp1.Services
 
             return new List<ModeloImportadoDto>();
         }
-
 
         public static async Task<List<MediciónDto>> GetMediciónesByProyectoAsync(int idProyecto)
         {
@@ -711,7 +701,6 @@ namespace MauiApp1.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
 
         public static async Task<(bool Success, string Message)> ActualizarProyectoAsync(int idProyecto, ActualizarProyectoRequest proyecto)
         {
@@ -1203,10 +1192,7 @@ namespace MauiApp1.Services
             }
         }
 
-        // =======================
-        // METODOS FALTANTES DEL BACKEND
-        // =======================
-
+        
 
 
 
@@ -1330,5 +1316,4 @@ namespace MauiApp1.Services
         }
     }
 }
-
 

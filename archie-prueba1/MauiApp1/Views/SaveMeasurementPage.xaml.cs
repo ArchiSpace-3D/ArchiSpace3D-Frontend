@@ -16,7 +16,7 @@ namespace MauiApp1.Views
             InitializeComponent();
             _largoAr = largoMedido;
             LargoEntry.Text = _largoAr.ToString("0.00", CultureInfo.InvariantCulture);
-            UnidadPicker.SelectedIndex = 0; // Default a 'm'
+            UnidadPicker.SelectedIndex = 0; 
             CalculateTotal();
         }
 
@@ -111,7 +111,7 @@ namespace MauiApp1.Views
             var req = new CrearMediciónRequest
             {
                 Idproyecto = UserSession.ActiveProject.Idproyecto,
-                Distancia = largo, // Retaining original DB logic mapping
+                Distancia = largo, 
                 Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
                 Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
                 Fechamedicion = DateTime.UtcNow,
@@ -140,5 +140,4 @@ namespace MauiApp1.Views
         }
     }
 }
-
 

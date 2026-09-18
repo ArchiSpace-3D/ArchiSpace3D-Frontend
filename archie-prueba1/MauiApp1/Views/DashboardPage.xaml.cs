@@ -19,8 +19,7 @@ public partial class DashboardPage : ContentPage
     {
         base.OnAppearing();
         NombreUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Nombre) ? "Usuario" : UserSession.Nombre;
-        
-        // Control de Roles
+
         bool esArquitecto = UserSession.Rol == "Arquitecto";
         NewProjectActionContainer.IsVisible = esArquitecto;
         BtnGenerarInvitacion.IsVisible = esArquitecto;
@@ -29,7 +28,6 @@ public partial class DashboardPage : ContentPage
 
         await CargarProyectosAsync();
 
-        // Apple-style entrance animation
         await Task.WhenAll(
             MainScroll.FadeToAsync(1, 600, Easing.CubicOut),
             MainScroll.TranslateToAsync(0, 0, 600, Easing.CubicOut)
@@ -404,17 +402,14 @@ public partial class DashboardPage : ContentPage
     {
         if (UserSession.ActiveProject == null) return;
 
-        // Close details sheet first
         await CloseDetailsSheet();
 
-        // Show measurements sheet
         MeasurementsBackdrop.IsVisible = true;
         await MeasurementsBackdrop.FadeToAsync(1, 200);
         MeasurementsSheetModal.IsVisible = true;
         MeasurementsSheetModal.IsVisible = true;
         await Task.WhenAll(MeasurementsSheetModal.FadeToAsync(1, 250), MeasurementsSheetModal.ScaleToAsync(1, 250, Easing.SpringOut));
 
-        // Load data
         LoadingMeasurementsIndicator.IsVisible = true;
         LoadingMeasurementsIndicator.IsRunning = true;
         MeasurementsCollectionView.ItemsSource = null;
@@ -460,7 +455,6 @@ public partial class DashboardPage : ContentPage
     {
         return AlertService.ShowAlertAsync(title, message, accept, cancel);
     }
-
 
     public void ShowCustomAlert(string title, string message, bool isError = false)
     {
@@ -509,10 +503,6 @@ public partial class DashboardPage : ContentPage
         AlertModal.IsVisible = false;
     }
 }
-
-
-
-
 
 
 

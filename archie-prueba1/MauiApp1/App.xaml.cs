@@ -10,7 +10,7 @@ namespace MauiApp1
             bool isDark = Preferences.Get("dark_mode", false);
             UserAppTheme = isDark ? AppTheme.Dark : AppTheme.Light;
 
-            _ = SupabaseService.InitializeAsync(); // fire-and-forget, no bloquea el arranque
+            _ = SupabaseService.InitializeAsync(); 
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

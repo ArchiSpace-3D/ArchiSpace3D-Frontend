@@ -118,7 +118,6 @@ namespace MauiApp1.Views
                     return;
                 }
 
-                // Convert 'XX.X cm' or 'X.X m' into meters
                 decimal distanciaMeters = 0;
                 string cleanStr = distanciaStr.Replace(",", ".");
                 if (cleanStr.Contains("cm"))
@@ -134,7 +133,7 @@ namespace MauiApp1.Views
 
                 if (distanciaMeters > 0)
                 {
-                    // Open the new Computos Metricos page instead of saving blindly
+                    
                     await Navigation.PushModalAsync(new SaveMeasurementPage(distanciaMeters));
                 }
             });
@@ -172,6 +171,5 @@ namespace MauiApp1.Views
     }
 #endif
 }
-
 
 

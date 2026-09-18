@@ -40,7 +40,6 @@ namespace MauiApp1.Services
             await _connection.StartAsync();
         }
 
-        // Llamar después de LoadProjectsAsync, con los ids de _proyectos
         public static void RegistrarProyectos(IEnumerable<int> ids) =>
             _proyectosUsuario = ids.Distinct().ToList();
 

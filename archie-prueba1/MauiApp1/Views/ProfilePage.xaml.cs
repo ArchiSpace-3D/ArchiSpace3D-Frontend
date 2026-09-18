@@ -188,7 +188,6 @@ public partial class ProfilePage : ContentPage
         bool confirm = await AlertService.ShowAlertAsync("Cerrar Sesión", "¿Estás seguro que deseas salir?", "Sí, Salir", "Cancelar");
         if (!confirm) return;
 
-        
         Application.Current!.Windows[0].Page = new LoginPage();
     }
 

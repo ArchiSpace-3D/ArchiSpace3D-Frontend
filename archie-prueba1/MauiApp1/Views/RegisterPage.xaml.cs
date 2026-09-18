@@ -17,7 +17,7 @@ namespace MauiApp1.Views
         {
             base.OnSizeAllocated(width, height);
             
-            if (width > height) // Landscape
+            if (width > height) 
             {
                 RootGrid.ColumnDefinitions.Clear();
                 RootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4.5, GridUnitType.Star) });
@@ -31,7 +31,7 @@ namespace MauiApp1.Views
                 FormCard.Margin = new Thickness(0);
                 FormCard.StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(0) };
             }
-            else // Portrait
+            else 
             {
                 RootGrid.ColumnDefinitions.Clear();
                 RootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -75,5 +75,4 @@ namespace MauiApp1.Views
         }
     }
 }
-
 
