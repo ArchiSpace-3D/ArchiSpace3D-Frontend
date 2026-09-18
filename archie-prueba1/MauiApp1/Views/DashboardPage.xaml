@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:MauiApp1.Controls"
@@ -26,10 +26,8 @@
                         <Border WidthRequest="48" HeightRequest="48" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#1E293B}" StrokeThickness="0">
                             <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
                             <Grid>
-                                <Image Source="{AppThemeBinding Light=ic_bell.svg, Dark=ic_bell_white.svg}"" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                                <Border x:Name="NotificationCountBadge" IsVisible="False" BackgroundColor="#EF4444" WidthRequest="10" HeightRequest="10" HorizontalOptions="End" VerticalOptions="Start" Margin="0,12,12,0">
-                                    <Border.StrokeShape><RoundRectangle CornerRadius="5"/></Border.StrokeShape>
-                                </Border>
+                                <Image Source="{AppThemeBinding Light=ic_bell.svg, Dark=ic_bell_white.svg}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label x:Name="NotificationCountBadge" IsVisible="False" Text="0" BackgroundColor="#EF4444" TextColor="White" FontSize="9" FontAttributes="Bold" HorizontalOptions="End" VerticalOptions="Start" Margin="0,8,8,0" Padding="4,1" WidthRequest="18" HeightRequest="18" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                             </Grid>
                             <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnNotificationsClicked"/></Border.GestureRecognizers>
                         </Border>
@@ -59,7 +57,7 @@
                         
                         <HorizontalStackLayout Grid.Row="2" Spacing="8" VerticalOptions="End">
                             <Label Text="Ver detalles" FontSize="14" FontAttributes="Bold" TextColor="#38BDF8" VerticalOptions="Center"/>
-                            <Image Source="{AppThemeBinding Light=ic_arrow_right.svg, Dark=ic_arrow_right_white.svg}"" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
+                            <Image Source="{AppThemeBinding Light=ic_arrow_right.svg, Dark=ic_arrow_right_white.svg}" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         
                         <Grid.GestureRecognizers>
@@ -91,7 +89,7 @@
                         <VerticalStackLayout Spacing="12">
                             <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#0F172A}" StrokeThickness="0" HorizontalOptions="Start">
                                 <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
-                                <Image Source="{AppThemeBinding Light=ic_join.svg, Dark=ic_join_white.svg}"" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Image Source="{AppThemeBinding Light=ic_join.svg, Dark=ic_join_white.svg}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <Label Text="Unirse" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"/>
                             <Label Text="Con invitación" FontSize="12" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"/>
@@ -104,7 +102,7 @@
                 <!-- RECENT PROJECTS SECTION -->
                 <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
                     <Label Text="Mis Proyectos" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" VerticalOptions="Center"/>
-                    <Image Grid.Column="1" Source="{AppThemeBinding Light=ic_refresh.svg, Dark=ic_refresh_white.svg}"" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" Opacity="0.5">
+                    <Image Grid.Column="1" Source="{AppThemeBinding Light=ic_refresh.svg, Dark=ic_refresh_white.svg}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" Opacity="0.5">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnRefreshClicked"/></Image.GestureRecognizers>
                     </Image>
                 </Grid>
@@ -121,25 +119,28 @@
                                 <Grid RowDefinitions="Auto,*,Auto">
                                     <Border HorizontalOptions="Start" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#0F172A}" StrokeThickness="0" Padding="10,4">
                                         <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                        <Label Text="{Binding Estado}"" FontSize="10" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Estado}" FontSize="10" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" FontAttributes="Bold"/>
                                     </Border>
                                     
                                     <VerticalStackLayout Grid.Row="1" VerticalOptions="Center">
-                                        <Label Text="{Binding Nombre}"" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" LineBreakMode="TailTruncation"/>
-                                        <Label Text="{Binding Ubicacion}"" FontSize="13" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" Margin="0,4,0,0" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Nombre}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Ubicacion}" FontSize="13" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" Margin="0,4,0,0" LineBreakMode="TailTruncation"/>
                                     </VerticalStackLayout>
                                     
-                                    <Button Grid.Row="2" Text="Seleccionar"" BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#0F172A}" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" HeightRequest="40" CornerRadius="20" FontSize="13" FontAttributes="Bold" Clicked="OnSelectProjectClicked" CommandParameter="{Binding .}""/>
+                                    <Button Grid.Row="2" Text="Seleccionar" BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#0F172A}" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" HeightRequest="40" CornerRadius="20" FontSize="13" FontAttributes="Bold" Clicked="OnSelectProjectClicked" CommandParameter="{Binding .}"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
-                        <Label Text="No hay proyectos creados."" TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" HorizontalOptions="Center" Margin="0,40"/>
+                        <Label Text="No hay proyectos creados." TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" HorizontalOptions="Center" Margin="0,40"/>
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-            </VerticalStackLayout></ScrollView>
+                <VerticalStackLayout x:Name="NotificationsContainer" Spacing="12" Margin="0,20,0,0"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
 
         <BoxView x:Name="DetailsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseDetailsSheetClicked"/></BoxView.GestureRecognizers>
