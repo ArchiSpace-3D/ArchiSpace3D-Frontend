@@ -349,7 +349,8 @@
         </Border>
 
         
-    </Grid>
+        <controls:FloatingTabBar SelectedIndex="0" />
+</Grid>
 </ContentPage>
 
 

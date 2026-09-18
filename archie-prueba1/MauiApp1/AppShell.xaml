@@ -21,6 +21,7 @@
             </Style>
             <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
                 <Setter Property="Shell.NavBarIsVisible" Value="False" />
+                <Setter Property="Shell.TabBarIsVisible" Value="False" />
             </Style>
         </ResourceDictionary>
     </Shell.Resources>

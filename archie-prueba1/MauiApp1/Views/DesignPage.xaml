@@ -71,6 +71,7 @@
             </VerticalStackLayout>
         </Border>
 
-    </Grid>
+        <controls:FloatingTabBar SelectedIndex="1" />
+</Grid>
 </ContentPage>
 

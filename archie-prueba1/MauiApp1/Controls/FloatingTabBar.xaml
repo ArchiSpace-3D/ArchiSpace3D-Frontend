@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Controls.FloatingTabBar">
+    
+    <Border BackgroundColor="#0F172A"
+            StrokeThickness="0"
+            Margin="20,0,20,20"
+            HeightRequest="70"
+            VerticalOptions="End"
+            HorizontalOptions="Center">
+        
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,10" Radius="20" Opacity="0.3"/>
+        </Border.Shadow>
+
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="35" />
+        </Border.StrokeShape>
+        
+        <HorizontalStackLayout Spacing="5" Padding="10,0" VerticalOptions="Center" HorizontalOptions="Center">
+            
+            <!-- Tab 0 -->
+            <Border x:Name="Bg0" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="50">
+                <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="0"/></Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8" Padding="15,0" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="Icon0" Source="nav_home.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                    <Label x:Name="Label0" Text="Inicio" TextColor="White" VerticalOptions="Center" FontSize="14" FontAttributes="Bold" IsVisible="False"/>
+                </HorizontalStackLayout>
+            </Border>
+            
+            <!-- Tab 1 -->
+            <Border x:Name="Bg1" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="50">
+                <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="1"/></Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8" Padding="15,0" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="Icon1" Source="nav_layers.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                    <Label x:Name="Label1" Text="Diseño" TextColor="White" VerticalOptions="Center" FontSize="14" FontAttributes="Bold" IsVisible="False"/>
+                </HorizontalStackLayout>
+            </Border>
+            
+            <!-- Tab 2 -->
+            <Border x:Name="Bg2" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="50">
+                <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="2"/></Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8" Padding="15,0" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="Icon2" Source="nav_measure.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                    <Label x:Name="Label2" Text="Medición" TextColor="White" VerticalOptions="Center" FontSize="14" FontAttributes="Bold" IsVisible="False"/>
+                </HorizontalStackLayout>
+            </Border>
+            
+            <!-- Tab 3 -->
+            <Border x:Name="Bg3" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="50">
+                <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="3"/></Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8" Padding="15,0" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="Icon3" Source="nav_user.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center"/>
+                    <Label x:Name="Label3" Text="Perfil" TextColor="White" VerticalOptions="Center" FontSize="14" FontAttributes="Bold" IsVisible="False"/>
+                </HorizontalStackLayout>
+            </Border>
+            
+        </HorizontalStackLayout>
+    </Border>
+</ContentView>
