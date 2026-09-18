@@ -1305,5 +1305,28 @@ namespace MauiApp1.Services
                 return (false, $"Error de red: {ex.Message}", null);
             }
         }
+        public static async Task<(bool Success, string Message)> RegistrarFcmTokenAsync(int idUsuario, string token)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/usuario/{idUsuario}/fcm-token";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+
+                var body = new { idusuario = idUsuario, token };
+                request.Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode
+                    ? (true, "Token FCM registrado.")
+                    : (false, $"Error al registrar token: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error de red: {ex.Message}");
+            }
+        }
     }
 }

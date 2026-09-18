@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "831179785557",
+    "project_id": "archispace3d",
+    "storage_bucket": "archispace3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:831179785557:android:32f8a5284c76fbfa695bdc",
+        "android_client_info": {
+          "package_name": "com.archispace.archie"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYYUqurueuaZt5HlfMYjndpTxOIo5Wj-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

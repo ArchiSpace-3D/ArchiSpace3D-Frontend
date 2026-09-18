@@ -72,12 +72,18 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.12" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.101" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+	
 		<PackageReference Include="Plugin.LocalNotification" Version="14.1.2" />
 		<PackageReference Include="supabase-csharp" Version="0.16.2" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.10.4" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
+		<PackageReference Include="Plugin.Firebase.Core" Version="4.2.0" />
+		<PackageReference Include="Plugin.Firebase.CloudMessaging" Version="4.0.1" />
+		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 	</ItemGroup>
 
 	<ItemGroup>

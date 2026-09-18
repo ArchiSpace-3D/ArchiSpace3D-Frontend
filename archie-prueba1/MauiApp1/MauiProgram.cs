@@ -1,39 +1,36 @@
-using Microsoft.Extensions.Logging;
-using Plugin.LocalNotification;
-using ZXing.Net.Maui.Controls;
-
-namespace MauiApp1
-{
-    public static class MauiProgram
-    {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseBarcodeReader()
-                .UseLocalNotification()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
-
-#if DEBUG
-            builder.Logging.AddDebug();
-#endif
-
-            Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (h, v) =>
-            {
+using MauiApp1;
+using Microsoft.Maui.LifecycleEvents;
 #if ANDROID
-                h.PlatformView.Background = null;
-                h.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
-#elif WINDOWS
-                h.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+using Plugin.Firebase.Core.Platforms.Android;
 #endif
+
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .RegisterFirebaseServices()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-            return builder.Build();
-        }
+        return builder.Build();
+    }
+
+    private static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events =>
+        {
+#if ANDROID
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
+                CrossFirebase.Initialize(activity, () => Microsoft.Maui.ApplicationModel.Platform.CurrentActivity)));
+#endif
+        });
+
+        return builder;
     }
 }
