@@ -34,7 +34,7 @@ namespace MauiApp1.Views
                 status = await Permissions.RequestAsync<Permissions.Camera>();
                 if (status != PermissionStatus.Granted)
                 {
-                    await DisplayAlertAsync("Error", "Se requiere cámara", "OK");
+                    await AlertService.ShowAlertAsync("Error", "Se requiere cámara", "OK");
                     return;
                 }
             }
@@ -114,7 +114,7 @@ namespace MauiApp1.Views
             {
                 if (UserSession.ActiveProject == null)
                 {
-                    await DisplayAlert("Aviso", "No hay un proyecto activo para guardar la medida.", "OK");
+                    await AlertService.ShowAlertAsync("Aviso", "No hay un proyecto activo para guardar la medida.", "OK");
                     return;
                 }
 
@@ -132,11 +132,11 @@ namespace MauiApp1.Views
                     var (success, msg) = await ApiService.GuardarMediciónAsync(req);
                     if (success)
                     {
-                        await DisplayAlert("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
+                        await AlertService.ShowAlertAsync("Éxito", $"Medida de {distancia}m guardada en el proyecto {UserSession.ActiveProject.Nombre}.", "OK");
                     }
                     else
                     {
-                        await DisplayAlert("Error", $"No se guardó la medida: {msg}", "OK");
+                        await AlertService.ShowAlertAsync("Error", $"No se guardó la medida: {msg}", "OK");
                     }
                 }
             });
@@ -175,3 +175,5 @@ namespace MauiApp1.Views
     }
 #endif
 }
+
+

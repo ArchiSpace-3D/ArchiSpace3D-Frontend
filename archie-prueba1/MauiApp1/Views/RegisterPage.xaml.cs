@@ -52,8 +52,8 @@ namespace MauiApp1.Views
             MainLayout.Opacity = 0;
             MainLayout.TranslationY = 30;
             await Task.WhenAll(
-                MainLayout.FadeTo(1, 600, Easing.CubicOut),
-                MainLayout.TranslateTo(0, 0, 600, Easing.CubicOut)
+                MainLayout.FadeToAsync(1, 600, Easing.CubicOut),
+                MainLayout.TranslateToAsync(0, 0, 600, Easing.CubicOut)
             );
         }
 
@@ -70,8 +70,10 @@ namespace MauiApp1.Views
 
         private async void OnSubmitRegisterClicked(object? sender, EventArgs e)
         {
-            await this.DisplayAlertAsync("Aviso", "El registro ha sido migrado al panel principal por ahora.", "OK");
+            await AlertService.ShowAlertAsync("Aviso", "El registro ha sido migrado al panel principal por ahora.", "OK");
             await Navigation.PopModalAsync();
         }
     }
 }
+
+

@@ -397,7 +397,7 @@
             </VisualStateGroupList>
         </Setter>
     </Style>
-    -->
+   
 
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="Padding" Value="0"/>

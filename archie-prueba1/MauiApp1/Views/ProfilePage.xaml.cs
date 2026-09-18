@@ -1,4 +1,4 @@
-using MauiApp1.Models;
+﻿using MauiApp1.Models;
 using MauiApp1.Services;
 
 namespace MauiApp1.Views;
@@ -16,8 +16,8 @@ public partial class ProfilePage : ContentPage
         CargarDatosUsuarioUI();
         
         await Task.WhenAll(
-            MainScroll.FadeTo(1, 600, Easing.CubicOut),
-            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+            MainScroll.FadeToAsync(1, 600, Easing.CubicOut),
+            MainScroll.TranslateToAsync(0, 0, 600, Easing.CubicOut)
         );
     }
 
@@ -31,7 +31,7 @@ public partial class ProfilePage : ContentPage
         DireccionUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Direccion) ? "No registrada" : UserSession.Direccion;
         DocumentoUsuarioLabel.Text = string.IsNullOrWhiteSpace(UserSession.Numerodocumento) ? "No registrado" : UserSession.Numerodocumento;
         
-        BtnGestiónarUsuarios.IsVisible = (UserSession.Rol == "Arquitecto");
+        BtnGestionarUsuarios.IsVisible = (UserSession.Rol == "Arquitecto");
 
         string inicial = !string.IsNullOrEmpty(UserSession.Nombre) ? UserSession.Nombre.Substring(0, 1).ToUpper() : "A";
         AvatarInitialsLabel.Text = inicial;
@@ -64,7 +64,7 @@ public partial class ProfilePage : ContentPage
         }
     }
 
-    private async void OnEditProfileClicked(object sender, EventArgs e)
+    private async void OnEditProfileClicked(object? sender, EventArgs e)
     {
         EditNombreEntry.Text = UserSession.Nombre;
         EditApellidoEntry.Text = UserSession.Apellido;
@@ -77,7 +77,7 @@ public partial class ProfilePage : ContentPage
         await EditProfileSheetModal.TranslateToAsync(0, 0, 350, Easing.CubicOut);
     }
 
-    private async void OnCloseEditProfileSheetClicked(object sender, EventArgs e)
+    private async void OnCloseEditProfileSheetClicked(object? sender, EventArgs e)
     {
         await CloseEditProfileSheet();
     }
@@ -89,7 +89,7 @@ public partial class ProfilePage : ContentPage
         EditProfileBackdrop.IsVisible = false;
     }
 
-    private async void OnSubmitEditProfileClicked(object sender, EventArgs e)
+    private async void OnSubmitEditProfileClicked(object? sender, EventArgs e)
     {
         var req = new ActualizarUsuarioRequest
         {
@@ -122,14 +122,13 @@ public partial class ProfilePage : ContentPage
         }
     }
 
-    private async void OnUploadProfilePictureClicked(object sender, EventArgs e)
+    private async void OnUploadProfilePictureClicked(object? sender, EventArgs e)
     {
         try
         {
-            var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions { Title = "Selecciona una foto de perfil" });
-            if (photo != null)
+            var photos = await MediaPicker.Default.PickPhotosAsync(new MediaPickerOptions { Title = "Selecciona una foto de perfil" });
+            var photo = System.Linq.Enumerable.FirstOrDefault(photos); if (photo != null)
             {
-                // UI temporal mientras sube
                 AvatarInitialsLabel.IsVisible = false;
                 ProfileImage.IsVisible = true;
                 
@@ -138,14 +137,10 @@ public partial class ProfilePage : ContentPage
                 await streamForUi.CopyToAsync(memoryStreamUi);
                 memoryStreamUi.Position = 0;
                 ProfileImage.Source = ImageSource.FromStream(() => memoryStreamUi);
-
-                // Convert file to byte array for upload
                 using var memoryStream = new MemoryStream();
                 using var stream = await photo.OpenReadAsync();
                 await stream.CopyToAsync(memoryStream);
                 var imageBytes = memoryStream.ToArray();
-
-                // Send the image to the C# Backend to handle everything!
                 using var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", UserSession.Token);
                 
@@ -165,22 +160,22 @@ public partial class ProfilePage : ContentPage
 
                     UserSession.Avatarurl = publicUrl;
                     await SecureStorage.SetAsync("user_avatarurl", publicUrl);
-                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Éxito", "Foto de perfil actualizada correctamente a través del servidor.", "OK");
+                    await AlertService.ShowAlertAsync("Éxito", "Foto de perfil actualizada correctamente a través del servidor.", "OK");
                 }
                 else
                 {
                     string error = await response.Content.ReadAsStringAsync();
-                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error", $"No se pudo guardar en el servidor.\nDetalle: {error}", "OK");
+                    await AlertService.ShowAlertAsync("Error", $"No se pudo guardar en el servidor.\nDetalle: {error}", "OK");
                 }
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo subir la foto: {ex.Message}", "OK");
+            await AlertService.ShowAlertAsync("Error", $"No se pudo subir la foto: {ex.Message}", "OK");
         }
     }
 
-    private async void OnGestiónarUsuariosClicked(object? sender, EventArgs e)
+    private async void OnGestionarUsuariosClicked(object? sender, EventArgs e)
     {
         if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
         await Navigation.PushModalAsync(new AdminUsersPage());
@@ -190,18 +185,35 @@ public partial class ProfilePage : ContentPage
     {
         if (sender is VisualElement btn) { await btn.ScaleToAsync(0.95, 60); await btn.ScaleToAsync(1.0, 60); }
 
-        bool confirm = await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Cerrar Sesión", "¿Estás seguro que deseas salir?", "Sí, Salir", "Cancelar");
+        bool confirm = await AlertService.ShowAlertAsync("Cerrar Sesión", "¿Estás seguro que deseas salir?", "Sí, Salir", "Cancelar");
         if (!confirm) return;
 
-        UserSession.ClearSession();
+        //UserSession.ClearSession();
         Application.Current!.Windows[0].Page = new LoginPage();
     }
 
     private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
+        return AlertService.ShowAlertAsync(title, message, cancel);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

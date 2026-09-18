@@ -9,7 +9,7 @@ namespace MauiApp1.Views;
 public partial class DesignPage : ContentPage
 {
     private bool is3DMode = false;
-    private string currentMode = "freehand"; // freehand, walls, modules
+    // freehand, walls, modules
 
     public DesignPage()
     {
@@ -42,48 +42,44 @@ public partial class DesignPage : ContentPage
         }
     }
 
-    private async void OnBackClicked(object sender, EventArgs e)
+    private async void OnBackClicked(object? sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }
 
-    private void OnToggle3DClicked(object sender, EventArgs e)
+    private void OnToggle3DClicked(object? sender, EventArgs e)
     {
         is3DMode = !is3DMode;
         ModoLabel.Text = is3DMode ? "Modo: 3D Vista" : "Modo: 2D Plano";
         ViewerWebView.Eval($"if(window.switchCameraMode) window.switchCameraMode({is3DMode.ToString().ToLower()});");
     }
 
-        private void OnModoMoverClicked(object sender, EventArgs e)
+        private void OnModoMoverClicked(object? sender, EventArgs e)
     {
-        currentMode = "pan";
         ContextTitle.Text = "Modo Mover y Editar";
         ContextDesc.Text = "Arrastra el dedo para mover el plano. Toca la medida de un muro guardado para editar su tamaño.";
         UpdateActiveButton(BtnModoMover);
         ViewerWebView.Eval("if(window.switchMode) window.switchMode('pan');");
     }
 
-    private void OnModoLibreClicked(object sender, EventArgs e)
+    private void OnModoLibreClicked(object? sender, EventArgs e)
     {
-        currentMode = "freehand";
         ContextTitle.Text = "Dibujo Libre Activado";
         ContextDesc.Text = "Dibuja con tu dedo sobre la cuadrícula para generar los muros automáticamente.";
         UpdateActiveButton(BtnModoLibre);
         ViewerWebView.Eval("if(window.switchMode) window.switchMode('freehand');");
     }
 
-    private void OnModoMurosClicked(object sender, EventArgs e)
+    private void OnModoMurosClicked(object? sender, EventArgs e)
     {
-        currentMode = "walls";
         ContextTitle.Text = "Muros Secuenciales";
         ContextDesc.Text = "Toca para definir el inicio del muro y luego ingresa la medida exacta.";
         UpdateActiveButton(BtnModoMuros);
         ViewerWebView.Eval("if(window.switchMode) window.switchMode('walls');");
     }
 
-    private void OnModoModulosClicked(object sender, EventArgs e)
+    private void OnModoModulosClicked(object? sender, EventArgs e)
     {
-        currentMode = "modules";
         ContextTitle.Text = "Módulos Prefabricados";
         ContextDesc.Text = "Arrastra bloques (Salón, Pasillo, etc.) y únelos como un rompecabezas.";
         UpdateActiveButton(BtnModoModulos);
@@ -99,12 +95,12 @@ public partial class DesignPage : ContentPage
         activeBtn.Opacity = 1.0;
     }
 
-    private void OnUndoClicked(object sender, EventArgs e)
+    private void OnUndoClicked(object? sender, EventArgs e)
     {
         ViewerWebView.Eval("if(window.undoLastAction) window.undoLastAction();");
     }
 
-                private async void OnSavePlanClicked(object sender, EventArgs e)
+                private async void OnSavePlanClicked(object? sender, EventArgs e)
     {
         try
         {
@@ -130,7 +126,7 @@ public partial class DesignPage : ContentPage
 
             if (UserSession.ActiveProject == null)
             {
-                await DisplayAlert("Aviso", "No hay un proyecto activo vinculado para guardar este plano.", "OK");
+                await AlertService.ShowAlertAsync("Aviso", "No hay un proyecto activo vinculado para guardar este plano.", "OK");
                 return;
             }
 
@@ -140,9 +136,9 @@ public partial class DesignPage : ContentPage
                 existente.Puntosreferencia = jsonData;
                 var (success, msg) = await ApiService.ActualizarEspacioFisicoAsync(existente.Idespaciofisico, existente);
                 if (success)
-                    await DisplayAlert("Plano Actualizado", "El diseño se ha guardado correctamente en tu proyecto.", "OK");
+                    await AlertService.ShowAlertAsync("Plano Actualizado", "El diseño se ha guardado correctamente en tu proyecto.", "OK");
                 else
-                    await DisplayAlert("Error", "No se pudo actualizar el plano: " + msg, "OK");
+                    await AlertService.ShowAlertAsync("Error", "No se pudo actualizar el plano: " + msg, "OK");
             }
             else
             {
@@ -153,15 +149,18 @@ public partial class DesignPage : ContentPage
                 };
                 var (success, msg, data) = await ApiService.GuardarEspacioFisicoAsync(req);
                 if (success)
-                    await DisplayAlert("Plano Guardado", "El diseño se ha creado y guardado en tu proyecto.", "OK");
+                    await AlertService.ShowAlertAsync("Plano Guardado", "El diseño se ha creado y guardado en tu proyecto.", "OK");
                 else
-                    await DisplayAlert("Error", "No se pudo guardar el plano: " + msg, "OK");
+                    await AlertService.ShowAlertAsync("Error", "No se pudo guardar el plano: " + msg, "OK");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", "Excepción al guardar: " + ex.Message, "OK");
+            await AlertService.ShowAlertAsync("Error", "Excepción al guardar: " + ex.Message, "OK");
     }
 }
 
 }
+
+
+

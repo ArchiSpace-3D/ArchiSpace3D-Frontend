@@ -52,8 +52,8 @@ public partial class LoginPage : ContentPage
         MainLayout.Opacity = 0;
         MainLayout.TranslationY = 30;
         await Task.WhenAll(
-            MainLayout.FadeTo(1, 600, Easing.CubicOut),
-            MainLayout.TranslateTo(0, 0, 600, Easing.CubicOut)
+            MainLayout.FadeToAsync(1, 600, Easing.CubicOut),
+            MainLayout.TranslateToAsync(0, 0, 600, Easing.CubicOut)
         );
     }
 
@@ -188,3 +188,5 @@ public partial class LoginPage : ContentPage
         AppleToast.IsVisible = false;
     }
 }
+
+

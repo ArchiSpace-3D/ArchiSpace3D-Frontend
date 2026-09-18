@@ -1,4 +1,4 @@
-using MauiApp1.Models;
+﻿using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -20,8 +20,8 @@ public partial class NotificationsPage : ContentPage
         CargarNotificaciones();
         
         await Task.WhenAll(
-            MainScroll.FadeTo(1, 600, Easing.CubicOut),
-            MainScroll.TranslateTo(0, 0, 600, Easing.CubicOut)
+            MainScroll.FadeToAsync(1, 600, Easing.CubicOut),
+            MainScroll.TranslateToAsync(0, 0, 600, Easing.CubicOut)
         );
     }
 
@@ -51,17 +51,17 @@ public partial class NotificationsPage : ContentPage
         }
     }
 
-    private void OnRefresh(object sender, EventArgs e)
+    private void OnRefresh(object? sender, EventArgs e)
     {
         CargarNotificaciones();
     }
 
-    private async void OnCloseClicked(object sender, EventArgs e)
+    private async void OnCloseClicked(object? sender, EventArgs e)
     {
         await Navigation.PopModalAsync();
     }
 
-    private async void OnDeleteClicked(object sender, EventArgs e)
+    private async void OnDeleteClicked(object? sender, EventArgs e)
     {
         if (sender is Border btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is NotificacionDto notif)
         {
@@ -78,4 +78,6 @@ public partial class NotificationsPage : ContentPage
         }
     }
 }
+
+
 

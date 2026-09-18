@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -363,7 +363,7 @@ namespace MauiApp1.Models
         public int IdClienteUsado { get; set; }
     }
 
-    public class MediciónDto
+    public class MediciÃ³nDto
     {
         [JsonPropertyName("idmedicion")]
         public int Idmedicion { get; set; }
@@ -387,7 +387,7 @@ namespace MauiApp1.Models
         public string DistanciaFormateada => $"{Distancia:N2} m";
     }
 
-    public class CrearMediciónRequest
+    public class CrearMediciÃ³nRequest
     {
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
@@ -596,4 +596,5 @@ namespace MauiApp1.Models
         public DateTime? Fechaimportacion { get; set; }
     }
 }
+
 

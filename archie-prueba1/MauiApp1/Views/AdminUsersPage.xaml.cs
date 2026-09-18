@@ -1,4 +1,4 @@
-using MauiApp1.Models;
+ï»¿using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -43,27 +43,27 @@ public partial class AdminUsersPage : ContentPage
         }
     }
 
-    private void OnRefresh(object sender, EventArgs e)
+    private void OnRefresh(object? sender, EventArgs e)
     {
         CargarUsuarios();
     }
 
-    private async void OnCloseClicked(object sender, EventArgs e)
+    private async void OnCloseClicked(object? sender, EventArgs e)
     {
         await Navigation.PopModalAsync();
     }
 
-    private async void OnDeleteUserClicked(object sender, EventArgs e)
+    private async void OnDeleteUserClicked(object? sender, EventArgs e)
     {
         if (sender is Border btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is UsuarioDto user)
         {
             if (user.Rol == "Arquitecto")
             {
-                await ShowAlertAsync("Acción denegada", "No puedes eliminar a otros arquitectos del sistema.", "Entendido");
+                await ShowAlertAsync("AcciÃ³n denegada", "No puedes eliminar a otros arquitectos del sistema.", "Entendido");
                 return;
             }
 
-            var confirm = await ShowAlertConfirmAsync("Eliminar Usuario", $"¿Estás seguro de eliminar al cliente {user.Nombre}?", "Sí, eliminar", "Cancelar");
+            var confirm = await ShowAlertConfirmAsync("Eliminar Usuario", $"Â¿EstÃ¡s seguro de eliminar al cliente {user.Nombre}?", "SÃ­, eliminar", "Cancelar");
             if (!confirm) return;
 
             LoadingIndicator.IsRunning = true;
@@ -85,12 +85,16 @@ public partial class AdminUsersPage : ContentPage
 
     private Task ShowAlertAsync(string title, string message, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, cancel);
+        return AlertService.ShowAlertAsync(title, message, cancel);
     }
 
     private Task<bool> ShowAlertConfirmAsync(string title, string message, string accept, string cancel)
     {
-        return Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message, accept, cancel);
+        return AlertService.ShowAlertAsync(title, message, accept, cancel);
     }
 }
+
+
+
+
 

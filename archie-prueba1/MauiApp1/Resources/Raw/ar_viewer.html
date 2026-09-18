@@ -1,277 +1,311 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Archie Measure</title>
     <style>
-        body { 
-            margin: 0; overflow: hidden; background: #000; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-        }
-        canvas { display: block; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 10; }
+        #video-bg { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; }
         
-        /* Apple-style UI */
-        #ui { 
-            position: absolute; bottom: 80px; width: 100%; text-align: center; pointer-events: none; 
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-        }
-        
-        #btnMeasure {
-            pointer-events: auto; width: 64px; height: 64px; border-radius: 32px;
-            background: rgba(255, 255, 255, 0.9); border: 4px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-            transition: transform 0.1s; display: none; cursor: pointer;
-        }
-        #btnMeasure:active { transform: scale(0.9); background: #e0e0e0; }
-        #btnMeasure::after {
-            content: ''; width: 44px; height: 44px; border-radius: 22px; background: white; border: 2px solid #ccc;
-        }
-
-        #info {
-            position: absolute; top: 60px; width: 100%; text-align: center; pointer-events: none;
-        }
+        #info { position: absolute; top: 40px; width: 100%; text-align: center; pointer-events: none; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .chip {
             display: inline-flex; align-items: center; justify-content: center;
-            padding: 12px 24px; font-size: 28px; font-weight: 600;
-            background: rgba(30, 30, 30, 0.6); color: #fff; border-radius: 18px;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: -0.5px;
+            padding: 12px 24px; font-size: 18px; font-weight: bold;
+            background: rgba(30, 30, 30, 0.9); color: #fff; border-radius: 18px;
+            backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1.4;
         }
         
-        #btnEnterAR {
-            pointer-events: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            padding: 16px 32px; font-size: 17px; font-weight: 600; border-radius: 25px; border: none;
-            background: #007AFF; color: white; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+        #controls-panel {
+            pointer-events: auto;
+            background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px; color: white;
+            display: flex; flex-direction: column; align-items: center; width: 85%; max-width: 320px;
+        }
+        #controls-panel label { font-size: 13px; margin-bottom: 5px; text-align: center;}
+        #heightSlider { width: 100%; margin-bottom: 0px; }
+        
+        #freezeBtn {
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            pointer-events: auto; width: 80px; height: 80px; border-radius: 40px;
+            background: rgba(255, 255, 255, 0.9); border: 4px solid rgba(0, 122, 255, 0.8);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+            font-size: 30px; cursor: pointer; z-index: 20; transition: 0.2s;
+        }
+        #freezeBtn:active { transform: translateX(-50%) scale(0.9); background: #e0e0e0; }
+        
+        #confirmBtn {
+            display: none; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            pointer-events: auto; padding: 15px 30px; border-radius: 25px;
+            background: #34c759; color: white; font-weight: bold; font-size: 18px; border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20;
         }
         
-        #unsupportedMsg {
-            position: absolute; top: 50%; left: 10%; right: 10%; transform: translateY(-50%);
-            background: white; padding: 20px; border-radius: 20px; text-align: center;
-            display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;
+            z-index: 5; pointer-events: none;
         }
-        #unsupportedMsg h2 { margin-top: 0; font-size: 20px; color: #333; }
-        #unsupportedMsg p { color: #666; font-size: 15px; line-height: 1.4; }
+        #crosshair::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 4px; height: 4px; background: rgba(255,255,255,0.8); border-radius: 50%;
+        }
     </style>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
 </head>
 <body>
-    <div id="info"><div class="chip" id="distLabel">Mueve tu celular...</div></div>
+    <video id="video-bg" autoplay playsinline></video>
+    <div id="crosshair"></div>
     
-    <div id="ui">
-        <button id="btnMeasure"></button>
+    <div id="info">
+        <div class="chip" id="distLabel">Cargando cámara...</div>
+        <div id="controls-panel">
+            <label id="heightLabel">Altura al escritorio/piso: 1.50 m<br/><small>(Ajusta esto ANTES de tomar la foto)</small></label>
+            <input type="range" id="heightSlider" min="0.1" max="2.0" step="0.05" value="1.5">
+        </div>
     </div>
     
-    <button id="btnEnterAR">Activar Regla (AR)</button>
-    
-    <div id="unsupportedMsg">
-        <h2>AR No Soportado</h2>
-        <p>Tu dispositivo no soporta WebXR o necesitas instalar 'Google Play Services for AR' para tener medición láser de alta precisión.</p>
-    </div>
-
-    <!-- Modulos Three.js importados de unpkg -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.149.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.149.0/examples/jsm/"
-            }
-        }
-    </script>
+    <button id="freezeBtn">📸</button>
+    <button id="confirmBtn">Confirmar Medida</button>
 
     <script type="module">
         import * as THREE from 'three';
-        import { ARButton } from 'three/addons/webxr/ARButton.js';
 
-        let camera, scene, renderer;
-        let reticle;
-        
-        let hitTestSource = null;
-        let hitTestSourceRequested = false;
-        
-        let points = [];
-        let line = null;
-        let dot1 = null;
-        let dot2 = null;
+        // ... [DeviceOrientationControls implementation]
+        const _zee = new THREE.Vector3( 0, 0, 1 );
+        const _euler = new THREE.Euler();
+        const _q0 = new THREE.Quaternion();
+        const _q1 = new THREE.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) );
+        class DeviceOrientationControls {
+            constructor( object ) {
+                this.object = object;
+                this.object.rotation.reorder( 'YXZ' );
+                this.enabled = true;
+                this.deviceOrientation = {};
+                this.screenOrientation = 0;
+                this.alphaOffset = 0;
+                const scope = this;
+                const onDeviceOrientationChangeEvent = function ( event ) { scope.deviceOrientation = event; };
+                const onScreenOrientationChangeEvent = function () { scope.screenOrientation = window.orientation || 0; };
+                const setObjectQuaternion = function ( quaternion, alpha, beta, gamma, orient ) {
+                    _euler.set( beta, alpha, - gamma, 'YXZ' );
+                    quaternion.setFromEuler( _euler );
+                    quaternion.multiply( _q1 );
+                    quaternion.multiply( _q0.setFromAxisAngle( _zee, - orient ) );
+                };
+                this.connect = function () {
+                    onScreenOrientationChangeEvent();
+                    window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent );
+                    window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent );
+                    scope.enabled = true;
+                };
+                this.update = function () {
+                    if ( scope.enabled === false ) return;
+                    const device = scope.deviceOrientation;
+                    if ( device ) {
+                        let alpha = device.alpha ? THREE.MathUtils.degToRad( device.alpha ) + scope.alphaOffset : 0;
+                        let beta = device.beta ? THREE.MathUtils.degToRad( device.beta ) : 0;
+                        let gamma = device.gamma ? THREE.MathUtils.degToRad( device.gamma ) : 0;
+                        const orient = scope.screenOrientation ? THREE.MathUtils.degToRad( scope.screenOrientation ) : 0;
+                        setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
+                    }
+                };
+                this.connect();
+            }
+        }
+
+        let camera, scene, renderer, controls;
+        let dot1, dot2, line;
+        let isFrozen = false;
+        let cameraHeight = 1.5;
+        let activeDot = null;
+        let raycaster = new THREE.Raycaster();
 
         init();
         animate();
 
-        function init() {
-            const container = document.createElement('div');
-            document.body.appendChild(container);
-
+        async function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 100);
+            camera.position.set(0, cameraHeight, 0);
 
-            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-            light.position.set(0.5, 1, 0.25);
-            scene.add(light);
+            controls = new DeviceOrientationControls(camera);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true;
-            container.appendChild(renderer.domElement);
+            document.body.appendChild(renderer.domElement);
 
-            // Intentar inicializar AR Button
             try {
-                const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
-                arButton.style.display = 'none'; // Oculto, usaremos el nuestro
-                document.body.appendChild(arButton);
-                
-                document.getElementById('btnEnterAR').addEventListener('click', () => {
-                    arButton.click();
-                    document.getElementById('btnEnterAR').style.display = 'none';
-                    document.getElementById('btnMeasure').style.display = 'flex';
-                });
-            } catch(e) {
-                document.getElementById('btnEnterAR').style.display = 'none';
-                document.getElementById('unsupportedMsg').style.display = 'block';
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 3840 }, height: { ideal: 2160 } } });
+                document.getElementById('video-bg').srcObject = stream;
+                document.getElementById('distLabel').innerHTML = "Apunta al objeto<br/><small>Ajusta la altura y toma una foto</small>";
+            } catch(err) {
+                document.getElementById('distLabel').innerText = "Error de cámara";
             }
 
-            // Apple Style Reticle (Outer Ring + Inner Dot)
-            reticle = new THREE.Group();
+            document.getElementById('freezeBtn').addEventListener('click', onCapturePhoto);
+            document.getElementById('confirmBtn').addEventListener('click', onConfirmMeasure);
+
+            document.getElementById('heightSlider').addEventListener('input', (e) => {
+                cameraHeight = parseFloat(e.target.value);
+                camera.position.set(0, cameraHeight, 0);
+                document.getElementById('heightLabel').innerHTML = "Altura al escritorio/piso: " + cameraHeight.toFixed(2) + " m<br/><small>(Ajusta esto ANTES de tomar la foto)</small>";
+                
+                if (isFrozen) {
+                    // Actualizar las posiciones si ya estamos en modo foto
+                    updateDotsHeight();
+                }
+            });
+
+            // Touch events for dragging dots
+            window.addEventListener('touchstart', onTouchStart, {passive: false});
+            window.addEventListener('touchmove', onTouchMove, {passive: false});
+            window.addEventListener('touchend', () => activeDot = null);
+        }
+        
+        function onCapturePhoto() {
+            isFrozen = true;
+            document.getElementById('video-bg').pause();
+            document.getElementById('freezeBtn').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'none';
+            document.getElementById('confirmBtn').style.display = 'block';
+            document.getElementById('distLabel').innerHTML = "Arrastra los dos puntos<br/><small>Mueve los círculos azules a los extremos</small>";
             
-            const ringGeo = new THREE.RingGeometry(0.04, 0.045, 32).rotateX(-Math.PI / 2);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            reticle.add(ring);
+            // Generate initial points in front of the camera
+            let p1 = getIntersectionFromScreen(new THREE.Vector2(-0.2, 0));
+            let p2 = getIntersectionFromScreen(new THREE.Vector2(0.2, 0));
             
-            const centerGeo = new THREE.CircleGeometry(0.005, 16).rotateX(-Math.PI / 2);
-            const centerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const center = new THREE.Mesh(centerGeo, centerMat);
-            reticle.add(center);
-
-            reticle.matrixAutoUpdate = false;
-            reticle.visible = false;
-            scene.add(reticle);
-
-            const btnMeasure = document.getElementById('btnMeasure');
-            btnMeasure.addEventListener('click', onMeasureClick);
-
-            window.addEventListener('resize', onWindowResize);
+            if(!p1) p1 = new THREE.Vector3(-0.1, 0, -0.5).applyQuaternion(camera.quaternion).add(camera.position);
+            if(!p2) p2 = new THREE.Vector3(0.1, 0, -0.5).applyQuaternion(camera.quaternion).add(camera.position);
+            p1.y = 0; p2.y = 0;
+            
+            dot1 = createDot(p1);
+            dot2 = createDot(p2);
+            updateLine();
         }
 
-        function createDot(position) {
-            const geo = new THREE.SphereGeometry(0.008, 16, 16);
-            const mat = new THREE.MeshBasicMaterial({ color: 0x007AFF }); // Apple Blue
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(position);
+        function createDot(pos) {
+            let mesh = new THREE.Mesh(
+                new THREE.CircleGeometry(0.05, 32).rotateX(-Math.PI / 2),
+                new THREE.MeshBasicMaterial({ color: 0x007AFF, side: THREE.DoubleSide, depthTest: false })
+            );
+            // Add an inner white circle
+            let inner = new THREE.Mesh(
+                new THREE.CircleGeometry(0.015, 32).rotateX(-Math.PI / 2),
+                new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, depthTest: false })
+            );
+            inner.position.y = 0.001;
+            mesh.add(inner);
+            mesh.position.copy(pos);
             scene.add(mesh);
             return mesh;
         }
 
-        function onMeasureClick() {
-            if(!reticle.visible) return;
+        function getIntersectionFromScreen(vec2) {
+            raycaster.setFromCamera(vec2, camera);
+            let target = new THREE.Vector3();
+            if(raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), target)) {
+                return target;
+            }
+            return null;
+        }
+        
+        function onTouchStart(e) {
+            if(!isFrozen || !dot1 || !dot2) return;
+            // Solo arrastrar si toca el canvas, no botones
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
             
-            if(points.length === 0) {
-                // Primer Punto
-                const p = new THREE.Vector3();
-                p.setFromMatrixPosition(reticle.matrix);
-                points.push(p);
-                dot1 = createDot(p);
-                
-                // Efecto visual pulsación
-                document.getElementById('btnMeasure').style.borderColor = "rgba(0, 122, 255, 0.5)";
-                document.getElementById('distLabel').innerText = "Trazando...";
-                
-            } else if(points.length === 1) {
-                // Segundo Punto
-                const p = new THREE.Vector3();
-                p.setFromMatrixPosition(reticle.matrix);
-                points.push(p);
-                dot2 = createDot(p);
-                
-                document.getElementById('btnMeasure').style.borderColor = "rgba(255, 255, 255, 0.4)";
-                
-                // Alert a MAUI Native C# (esto hará trigger del evento OnGuardarMedida)
-                const dist = points[0].distanceTo(points[1]).toFixed(2);
-                document.getElementById('distLabel').innerText = dist + " m";
-                
-                // Cambiar tÃ­tulo
-                setTimeout(() => {
-                    // Alert nativo que será interceptado por WebView MAUI
-                    // Se usa "prompt" o alertas para pasar datos
-                    const promptVal = prompt("ARCHIE_MEDIDA:" + dist, dist);
-                    
-                    // Reset después de guardar
-                    resetMeasure();
-                }, 1000);
+            e.preventDefault();
+            let mx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+            let my = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(new THREE.Vector2(mx, my), camera);
+            let intersects = raycaster.intersectObjects([dot1, dot2]);
+            if(intersects.length > 0) {
+                activeDot = intersects[0].object;
+                if(activeDot.parent && activeDot.parent.type === "Mesh") activeDot = activeDot.parent; // En caso de tocar el centro blanco
+            } else {
+                // Seleccionar el más cercano si no tocó exactamente
+                let target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
+                if(target) {
+                    if(target.distanceTo(dot1.position) < target.distanceTo(dot2.position)) activeDot = dot1;
+                    else activeDot = dot2;
+                    activeDot.position.copy(target);
+                    updateLine();
+                }
             }
         }
         
-        function resetMeasure() {
-            if(dot1) scene.remove(dot1);
-            if(dot2) scene.remove(dot2);
-            if(line) scene.remove(line);
-            points = [];
-            dot1 = null; dot2 = null; line = null;
-            document.getElementById('distLabel').innerText = "Busca una superficie";
-            document.getElementById('btnMeasure').style.borderColor = "rgba(255, 255, 255, 0.4)";
+        function onTouchMove(e) {
+            if(!isFrozen || !activeDot) return;
+            e.preventDefault();
+            let mx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+            let my = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+            
+            let target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
+            if(target) {
+                activeDot.position.copy(target);
+                updateLine();
+            }
         }
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        function formatDistance(meters) {
+            if (meters < 1.0) return (meters * 100).toFixed(1) + " cm";
+            return meters.toFixed(2) + " m";
+        }
+
+        function updateLine() {
+            if(dot1 && dot2) {
+                if(line) scene.remove(line);
+                let geo = new THREE.BufferGeometry().setFromPoints([dot1.position, dot2.position]);
+                line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x007AFF, linewidth: 5, depthTest: false }));
+                scene.add(line);
+                let distText = formatDistance(dot1.position.distanceTo(dot2.position));
+                document.getElementById('distLabel').innerHTML = distText + "<br/><small>Arrastra los extremos</small>";
+                
+                // Actualizar tamaño de los puntos para que siempre se vean bien
+                let d1 = camera.position.distanceTo(dot1.position);
+                dot1.scale.setScalar(d1 * 0.5);
+                let d2 = camera.position.distanceTo(dot2.position);
+                dot2.scale.setScalar(d2 * 0.5);
+            }
+        }
+        
+        function updateDotsHeight() {
+            // Si cambian el slider DESPUÉS de congelar
+            if(dot1 && dot2) {
+                // No podemos recalcular tan facil sin rayo original, pero lo aproximamos
+                dot1.position.y = 0; dot2.position.y = 0;
+                updateLine();
+            }
+        }
+
+        function onConfirmMeasure() {
+            if(dot1 && dot2) {
+                let distMeters = dot1.position.distanceTo(dot2.position);
+                let distText = formatDistance(distMeters);
+                prompt("ARCHIE_MEDIDA:" + distText, distText);
+                
+                // Reiniciar
+                isFrozen = false;
+                document.getElementById('video-bg').play();
+                document.getElementById('freezeBtn').style.display = 'flex';
+                document.getElementById('crosshair').style.display = 'block';
+                document.getElementById('confirmBtn').style.display = 'none';
+                document.getElementById('distLabel').innerHTML = "Apunta al objeto<br/><small>Ajusta la altura y toma una foto</small>";
+                
+                scene.remove(dot1); scene.remove(dot2); scene.remove(line);
+                dot1 = null; dot2 = null; line = null;
+            }
         }
 
         function animate() {
-            renderer.setAnimationLoop(render);
-        }
-
-        function render(timestamp, frame) {
-            if (frame) {
-                const referenceSpace = renderer.xr.getReferenceSpace();
-                const session = renderer.xr.getSession();
-
-                if (hitTestSourceRequested === false) {
-                    session.requestReferenceSpace('viewer').then(function (referenceSpace) {
-                        session.requestHitTestSource({ space: referenceSpace }).then(function (source) {
-                            hitTestSource = source;
-                        });
-                    });
-                    session.addEventListener('end', function () {
-                        hitTestSourceRequested = false;
-                        hitTestSource = null;
-                        document.getElementById('btnEnterAR').style.display = 'block';
-                        document.getElementById('btnMeasure').style.display = 'none';
-                        resetMeasure();
-                    });
-                    hitTestSourceRequested = true;
-                }
-
-                if (hitTestSource) {
-                    const hitTestResults = frame.getHitTestResults(hitTestSource);
-                    if (hitTestResults.length > 0) {
-                        const hit = hitTestResults[0];
-                        reticle.visible = true;
-                        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-                        if(points.length === 0) {
-                            document.getElementById('distLabel').innerText = "Toca para medir";
-                        }
-                    } else {
-                        reticle.visible = false;
-                    }
-                }
-
-                // Dibujar LÃ­nea dinámica
-                if(points.length === 1 && reticle.visible) {
-                    const currentP = new THREE.Vector3();
-                    currentP.setFromMatrixPosition(reticle.matrix);
-                    
-                    if(line) scene.remove(line);
-                    
-                    // LÃ­nea entre punto 1 y retícula
-                    const geo = new THREE.BufferGeometry().setFromPoints([points[0], currentP]);
-                    const mat = new THREE.LineBasicMaterial({ color: 0x007AFF, linewidth: 3 }); // Apple blue
-                    line = new THREE.Line(geo, mat);
-                    scene.add(line);
-                    
-                    const dist = points[0].distanceTo(currentP);
-                    document.getElementById('distLabel').innerText = dist.toFixed(2) + " m";
-                }
+            requestAnimationFrame(animate);
+            if(!isFrozen) {
+                if (controls) controls.update();
             }
             renderer.render(scene, camera);
         }
