@@ -125,12 +125,12 @@ public partial class DashboardPage : ContentPage
         if (Application.Current!.UserAppTheme == AppTheme.Dark)
         {
             Application.Current.UserAppTheme = AppTheme.Light;
-            ThemeIconDashboard.Source = "ic_moon.svg";
+            
         }
         else
         {
             Application.Current.UserAppTheme = AppTheme.Dark;
-            ThemeIconDashboard.Source = "ic_sun.svg";
+            
         }
         this.RotationY = 0;
         this.Scale = 1;

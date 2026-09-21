@@ -10,7 +10,8 @@
         <!-- Blue Header Background -->
         
 
-        <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">            <VerticalStackLayout Spacing="25" Padding="24,50,24,20">
+        <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
+            <VerticalStackLayout Spacing="25" Padding="24,50,24,120">
                 <!-- HEADER: Minimalist & Clean -->
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
                     <Label Text="Bienvenido de vuelta," FontSize="14" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" FontAttributes="Bold" TextTransform="Uppercase" CharacterSpacing="1.5"/>
@@ -19,7 +20,7 @@
                     <HorizontalStackLayout Grid.Column="1" Grid.RowSpan="2" Spacing="12" VerticalOptions="Center">
                         <Border WidthRequest="48" HeightRequest="48" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#1E293B}" StrokeThickness="0">
                             <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
-                            <Image x:Name="ThemeIconDashboard" Source="ic_moon.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Image x:Name="ThemeIconDashboard" Source="{AppThemeBinding Light=ic_moon_dark.svg, Dark=ic_sun.svg}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                             <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnToggleThemeClicked"/></Border.GestureRecognizers>
                         </Border>
 
