@@ -1,6 +1,7 @@
 #if ANDROID
 using Plugin.Firebase.CloudMessaging;
 #endif
+using System.Diagnostics;
 
 namespace MauiApp1.Services
 {
@@ -10,13 +11,13 @@ namespace MauiApp1.Services
         private static bool _listenersRegistrados = false;
 #endif
 
-        
-
         public static async Task InicializarYRegistrarAsync()
         {
             try
             {
 #if ANDROID
+                Debug.WriteLine("🔥 FirebasePushService: iniciando...");
+                
                 if (OperatingSystem.IsAndroidVersionAtLeast(33))
                 {
                     var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
@@ -26,17 +27,26 @@ namespace MauiApp1.Services
                     }
                     if (status != PermissionStatus.Granted)
                     {
-                        System.Diagnostics.Debug.WriteLine("Permiso de notificaciones denegado.");
+                        Debug.WriteLine("Permiso de notificaciones denegado.");
                         return;
                     }
                 }
 
                 await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+                Debug.WriteLine("🔥 CheckIfValidAsync completado.");
 
                 var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+                Debug.WriteLine($"🔥 Token obtenido: {token}");
+
                 if (!string.IsNullOrEmpty(token) && UserSession.Idusuario > 0)
                 {
-                    await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
+                    Debug.WriteLine($"🔥 Enviando token al backend para idusuario={UserSession.Idusuario}...");
+                    var (success, message) = await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
+                    Debug.WriteLine($"🔥 Resultado registro: success={success}, message={message}");
+                }
+                else
+                {
+                    Debug.WriteLine($"🔥 No se envía: token vacío={string.IsNullOrEmpty(token)}, idusuario={UserSession.Idusuario}");
                 }
 
                 RegistrarListeners();
@@ -44,6 +54,8 @@ namespace MauiApp1.Services
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"🔥 ERROR en InicializarYRegistrarAsync: {ex.GetType().Name} - {ex.Message}");
+                Debug.WriteLine(ex.StackTrace);
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     Application.Current?.MainPage?.DisplayAlert("Error Notificaciones", ex.Message, "OK");
@@ -57,7 +69,7 @@ namespace MauiApp1.Services
             if (_listenersRegistrados) return;
             _listenersRegistrados = true;
 
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.TokenChanged += async (_, e) =>
+            CrossFirebaseCloudMessaging.Current.TokenChanged += async (_, e) =>
             {
                 if (UserSession.Idusuario > 0 && !string.IsNullOrEmpty(e.Token))
                 {
@@ -65,19 +77,19 @@ namespace MauiApp1.Services
                 }
             };
 
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.NotificationReceived += (_, e) =>
+            CrossFirebaseCloudMessaging.Current.NotificationReceived += (_, e) =>
             {
-                System.Diagnostics.Debug.WriteLine($"Push recibido: {e.Notification.Title} - {e.Notification.Body}");
+                Debug.WriteLine($"🔥 Push recibido: {e.Notification.Title} - {e.Notification.Body}");
             };
 
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.NotificationTapped += (_, e) =>
+            CrossFirebaseCloudMessaging.Current.NotificationTapped += (_, e) =>
             {
                 if (e.Notification.Data.TryGetValue("idProyecto", out var idProyectoStr) &&
                     int.TryParse(idProyectoStr, out var idProyecto))
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-
+                        // await Shell.Current.GoToAsync($"//ProyectoDetallePage?idProyecto={idProyecto}");
                     });
                 }
             };

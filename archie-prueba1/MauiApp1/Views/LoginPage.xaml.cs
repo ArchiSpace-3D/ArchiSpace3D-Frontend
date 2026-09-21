@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls;
 using System;
 using System.Threading.Tasks;
 using MauiApp1.Services;
@@ -92,9 +92,9 @@ public partial class LoginPage : ContentPage
                 var (success, message, response) = await ApiService.GoogleLoginAsync(accessToken);
                 LoadingOverlay.IsVisible = false;
 
-                                if (success && response != null)
+                if (success && response != null)
                 {
-                    _ = MauiApp1.Services.FirebasePushService.InicializarYRegistrarAsync();
+                    _ = FirebasePushService.InicializarYRegistrarAsync();
                     Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
                 }
                 else
@@ -136,12 +136,12 @@ public partial class LoginPage : ContentPage
         {
             var (success, message, response) = await ApiService.LoginAsync(hostOrIp, email, password);
 
-                            if (success && response != null)
-                {
-                    LoadingOverlay.IsVisible = false;
-                    _ = MauiApp1.Services.FirebasePushService.InicializarYRegistrarAsync();
-                    Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
-                }
+            if (success && response != null)
+            {
+                LoadingOverlay.IsVisible = false;
+                _ = FirebasePushService.InicializarYRegistrarAsync();
+                Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
+            }
             else
             {
                 LoadingOverlay.IsVisible = false;
@@ -158,7 +158,6 @@ public partial class LoginPage : ContentPage
             LoginButton.IsEnabled = true;
         }
     }
-
     private void ShowLoadingWithTimeout()
     {
         LoadingLabel.Text = "Conectando...";
@@ -190,6 +189,3 @@ public partial class LoginPage : ContentPage
         AppleToast.IsVisible = false;
     }
 }
-
-
-
