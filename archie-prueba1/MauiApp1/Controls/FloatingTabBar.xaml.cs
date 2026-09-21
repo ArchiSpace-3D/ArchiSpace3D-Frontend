@@ -15,10 +15,11 @@ public partial class FloatingTabBar : ContentView
         set => SetValue(SelectedIndexProperty, value);
     }
 
-    public FloatingTabBar()
+        public FloatingTabBar()
     {
         InitializeComponent();
         UpdateVisualStates(SelectedIndex);
+        this.Loaded += (s, e) => UpdateVisualStates(SelectedIndex);
     }
 
     private static void OnSelectedIndexChanged(BindableObject bindable, object oldValue, object newValue)
@@ -46,12 +47,21 @@ public partial class FloatingTabBar : ContentView
                 _ => "//DashboardPage"
             };
             
-            await Shell.Current.GoToAsync(route, false);
+            try
+            {
+                await Shell.Current.GoToAsync(route, false);
+            }
+            catch
+            {
+                // Si la navegación falla, revertimos el estado visual
+                UpdateVisualStates(SelectedIndex);
+            }
         }
     }
 
     private void UpdateVisualStates(int index)
     {
+        if (Bg0 == null || Bg1 == null || Bg2 == null || Bg3 == null) return;
         var activeBg = Color.FromArgb("#334155");
         var inactiveBg = Colors.Transparent;
 
