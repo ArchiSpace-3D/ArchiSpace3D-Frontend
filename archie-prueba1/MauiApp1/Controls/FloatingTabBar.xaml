@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             InputTransparent="True" CascadeInputTransparent="False"
+             VerticalOptions="End" HorizontalOptions="Center"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Controls.FloatingTabBar">
     
     <Border BackgroundColor="#0F172A"
-            InputTransparent="False"
+            
             StrokeThickness="0"
             Margin="20,0,20,20"
             HeightRequest="70"
