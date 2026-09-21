@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.SaveMeasurementPage"
@@ -76,14 +76,19 @@
                     </VerticalStackLayout>
                 </Grid>
 
+                <HorizontalStackLayout Spacing="10" VerticalOptions="Center" Margin="0,5,0,5">
+                    <Switch x:Name="DeduccionSwitch" Toggled="OnDeduccionToggled"/>
+                    <Label Text="Deducción / Resta (-)" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="14"/>
+                </HorizontalStackLayout>
+
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="DimensionsGrid">
                     <VerticalStackLayout Grid.Column="0" x:Name="AnchoContainer" IsVisible="false">
                         <Label Text="Ancho (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="AnchoEntry" Text="0" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                        <Entry x:Name="AnchoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Column="1" x:Name="AltoContainer" IsVisible="false">
                         <Label Text="Alto (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="AltoEntry" Text="0" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                        <Entry x:Name="AltoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
                 </Grid>
 

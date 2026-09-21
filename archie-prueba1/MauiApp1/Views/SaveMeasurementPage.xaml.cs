@@ -8,8 +8,11 @@ namespace MauiApp1.Views
 {
     public partial class SaveMeasurementPage : ContentPage
     {
+        public static event Action? OnMedicionGuardadaLocal;
+
         private decimal _largoAr = 0;
         private decimal _total = 0;
+        private bool _esDeduccion = false;
 
                 public SaveMeasurementPage(decimal largoMedido)
         {
@@ -22,34 +25,72 @@ namespace MauiApp1.Views
 
         private async void OnCloseClicked(object? sender, EventArgs e)
         {
-            await Navigation.PopModalAsync();
+            OnMedicionGuardadaLocal?.Invoke();
+                await Navigation.PopModalAsync();
         }
 
-        private void OnUnidadChanged(object? sender, EventArgs e)
+                private void OnUnidadChanged(object? sender, EventArgs e)
         {
             string unit = UnidadPicker.SelectedItem?.ToString() ?? "m";
             
-            if (unit == "m")
+            if (unit.Contains("U"))
             {
+                LargoEntry.IsEnabled = false;
                 AnchoContainer.IsVisible = false;
                 AltoContainer.IsVisible = false;
             }
-            else if (unit == "m²")
+            else if (unit.Contains("m") && unit.Length > 1 && (unit.Contains("2") || unit.Contains("")))
             {
-                AnchoContainer.IsVisible = true;
-                AltoContainer.IsVisible = false;
+                // Assuming it's m2 (square meters) based on having a char after m. We will differentiate by checking if it contains 3 for volume.
+                // Wait, it's safer to check the index if possible. Let's just use SelectedIndex
+                if (UnidadPicker.SelectedIndex == 1) // m2
+                {
+                    LargoEntry.IsEnabled = true;
+                    AnchoContainer.IsVisible = true;
+                    AltoContainer.IsVisible = false;
+                }
+                else if (UnidadPicker.SelectedIndex == 2) // m3
+                {
+                    LargoEntry.IsEnabled = true;
+                    AnchoContainer.IsVisible = true;
+                    AltoContainer.IsVisible = true;
+                }
             }
-            else if (unit == "m³")
+            else
             {
-                AnchoContainer.IsVisible = true;
-                AltoContainer.IsVisible = true;
-            }
-            else if (unit == "U")
-            {
-                AnchoContainer.IsVisible = false;
-                AltoContainer.IsVisible = false;
+                if (UnidadPicker.SelectedIndex == 3) // U
+                {
+                    LargoEntry.IsEnabled = false;
+                    AnchoContainer.IsVisible = false;
+                    AltoContainer.IsVisible = false;
+                }
+                else if (UnidadPicker.SelectedIndex == 2) // m3
+                {
+                    LargoEntry.IsEnabled = true;
+                    AnchoContainer.IsVisible = true;
+                    AltoContainer.IsVisible = true;
+                }
+                else if (UnidadPicker.SelectedIndex == 1) // m2
+                {
+                    LargoEntry.IsEnabled = true;
+                    AnchoContainer.IsVisible = true;
+                    AltoContainer.IsVisible = false;
+                }
+                else // m
+                {
+                    LargoEntry.IsEnabled = true;
+                    AnchoContainer.IsVisible = false;
+                    AltoContainer.IsVisible = false;
+                }
             }
             
+            CalculateTotal();
+        }
+
+        
+        private void OnDeduccionToggled(object? sender, ToggledEventArgs e)
+        {
+            _esDeduccion = e.Value;
             CalculateTotal();
         }
 
@@ -58,37 +99,37 @@ namespace MauiApp1.Views
             CalculateTotal();
         }
 
-        private void CalculateTotal()
+                private void CalculateTotal()
         {
             if (VecesEntry == null) return;
 
-            string unit = UnidadPicker.SelectedItem?.ToString() ?? "m";
-            
             int veces = 1;
             if (!string.IsNullOrWhiteSpace(VecesEntry.Text))
                 int.TryParse(VecesEntry.Text, out veces);
             
-            decimal largo = 0;
-            if (LargoEntry != null && !string.IsNullOrWhiteSpace(LargoEntry.Text))
+            decimal largo = 1;
+            if (LargoEntry != null && LargoEntry.IsEnabled && !string.IsNullOrWhiteSpace(LargoEntry.Text))
                 decimal.TryParse(LargoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out largo);
 
-            decimal ancho = 0;
-            if (AnchoContainer.IsVisible && !string.IsNullOrWhiteSpace(AnchoEntry.Text))
+            decimal ancho = 1;
+            if (AnchoContainer != null && AnchoContainer.IsVisible && !string.IsNullOrWhiteSpace(AnchoEntry.Text))
                 decimal.TryParse(AnchoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out ancho);
             
-            decimal alto = 0;
-            if (AltoContainer.IsVisible && !string.IsNullOrWhiteSpace(AltoEntry.Text))
+            decimal alto = 1;
+            if (AltoContainer != null && AltoContainer.IsVisible && !string.IsNullOrWhiteSpace(AltoEntry.Text))
                 decimal.TryParse(AltoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out alto);
 
-            if (unit == "m") _total = veces * largo;
-                        else if (unit == "m²") _total = veces * largo * ancho;
-            else if (unit == "m³") _total = veces * largo * ancho * alto;
-            else if (unit == "U") _total = veces;
+            _total = veces * largo * ancho * alto;
+
+            if (_esDeduccion)
+            {
+                _total *= -1;
+            }
 
             TotalLabel.Text = _total.ToString("0.00", CultureInfo.InvariantCulture);
         }
 
-        private async void OnSaveClicked(object? sender, EventArgs e)
+                private async void OnSaveClicked(object? sender, EventArgs e)
         {
             if (UserSession.ActiveProject == null)
             {
@@ -96,17 +137,20 @@ namespace MauiApp1.Views
                 return;
             }
 
-                        int veces = 1;
+            int veces = 1;
             int.TryParse(VecesEntry.Text, out veces);
             
-            decimal largo = 0;
-            if (LargoEntry != null && !string.IsNullOrWhiteSpace(LargoEntry.Text))
+            decimal largo = 1;
+            if (LargoEntry.IsEnabled && !string.IsNullOrWhiteSpace(LargoEntry.Text))
                 decimal.TryParse(LargoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out largo);
 
-            decimal ancho = 0;
-            decimal.TryParse(AnchoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out ancho);
-            decimal alto = 0;
-            decimal.TryParse(AltoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out alto);
+            decimal ancho = 1;
+            if (AnchoContainer.IsVisible && !string.IsNullOrWhiteSpace(AnchoEntry.Text))
+                decimal.TryParse(AnchoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out ancho);
+            
+            decimal alto = 1;
+            if (AltoContainer.IsVisible && !string.IsNullOrWhiteSpace(AltoEntry.Text))
+                decimal.TryParse(AltoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out alto);
 
             var req = new CrearMediciónRequest
             {
@@ -131,6 +175,7 @@ namespace MauiApp1.Views
             if (success)
             {
                 await AlertService.ShowAlertAsync("Éxito", $"Cómputo guardado correctamente.", "OK");
+                OnMedicionGuardadaLocal?.Invoke();
                 await Navigation.PopModalAsync();
             }
             else
