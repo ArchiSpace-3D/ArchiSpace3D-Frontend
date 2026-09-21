@@ -273,6 +273,7 @@ public partial class DashboardPage : ContentPage
             p.Descripcion = req.Descripcion;
             p.Ubicacion = req.Ubicacion;
             p.Presupuesto = req.Presupuesto;
+            p.Estado = req.Estado;
             
             await CloseEditProjectSheet();
             await CargarProyectosAsync();
