@@ -293,6 +293,10 @@ public partial class DashboardPage : ContentPage
             await CloseDetailsSheet();
             await CargarProyectosAsync();
         }
+        else
+        {
+            ShowCustomAlert("Error al Eliminar", res.Message, true);
+        }
     }
 
     private async void OnOpenNewProjectSheetClicked(object? sender, EventArgs e)
