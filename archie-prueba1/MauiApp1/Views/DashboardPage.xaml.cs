@@ -259,6 +259,7 @@ public partial class DashboardPage : ContentPage
         var p = UserSession.ActiveProject;
         var req = new ActualizarProyectoRequest
         {
+            Idproyecto = p.Idproyecto,
             Nombre = EditNombreProyecto.Text ?? p.Nombre,
             Descripcion = EditDescripcionProyecto.Text ?? p.Descripcion,
             Ubicacion = EditUbicacionProyecto.Text ?? p.Ubicacion,

@@ -225,7 +225,8 @@
                         <Label Text="Editar Proyecto" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"/>
                         <Label Text="Modifica los detalles" FontSize="12" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"/>
                     </VerticalStackLayout>
-                    <Border Grid.Column="1" WidthRequest="32" HeightRequest="32" CornerRadius="16" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#334155}" StrokeThickness="0" VerticalOptions="Center">
+                    <Border Grid.Column="1" WidthRequest="32" HeightRequest="32" BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#334155}" StrokeThickness="0" VerticalOptions="Center">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
                         <Image Source="ic_close.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center" HorizontalOptions="Center"/>
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseEditProjectSheetClicked"/></Border.GestureRecognizers>
                     </Border>

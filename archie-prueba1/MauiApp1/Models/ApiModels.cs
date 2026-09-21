@@ -140,6 +140,9 @@ namespace MauiApp1.Models
 
     public class ActualizarProyectoRequest
     {
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; } = string.Empty;
 
