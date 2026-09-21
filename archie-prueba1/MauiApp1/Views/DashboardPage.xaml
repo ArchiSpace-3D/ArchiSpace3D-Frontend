@@ -143,7 +143,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- TabBar debe ir DETRÁS de los modales para que no bloquee los botones -->
+        
         <controls:FloatingTabBar SelectedIndex="0" />
 
         <BoxView x:Name="DetailsBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False">
