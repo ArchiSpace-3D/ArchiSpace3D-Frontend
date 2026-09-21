@@ -9,11 +9,11 @@
     <Grid>
         <Border HorizontalOptions="End" VerticalOptions="Start" BackgroundColor="#0A2B4C" StrokeThickness="0" WidthRequest="40" HeightRequest="40" Margin="0,20,20,0" ZIndex="10">
             <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Image x:Name="ThemeIconImage" Source="ic_moon.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Image x:Name="ThemeIconImage" Source="{AppThemeBinding Light=ic_moon_dark.svg, Dark=ic_sun.svg}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
             <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnToggleThemeClicked"/></Border.GestureRecognizers>
         </Border>
         <ScrollView x:Name="MainScroll" Opacity="0" TranslationY="30">
-            <VerticalStackLayout Spacing="20" Padding="20,40,20,30">
+            <VerticalStackLayout Spacing="20" Padding="20,40,20,120">
                 
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                     <Grid WidthRequest="110" HeightRequest="110" HorizontalOptions="Center">

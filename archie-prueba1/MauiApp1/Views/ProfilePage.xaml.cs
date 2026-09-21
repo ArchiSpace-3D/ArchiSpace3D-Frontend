@@ -55,12 +55,12 @@ public partial class ProfilePage : ContentPage
         if (Application.Current!.UserAppTheme == AppTheme.Dark)
         {
             Application.Current.UserAppTheme = AppTheme.Light;
-            ThemeIconImage.Source = "ic_moon.svg";
+            
         }
         else
         {
             Application.Current.UserAppTheme = AppTheme.Dark;
-            ThemeIconImage.Source = "ic_sun.svg";
+            
         }
     }
 
