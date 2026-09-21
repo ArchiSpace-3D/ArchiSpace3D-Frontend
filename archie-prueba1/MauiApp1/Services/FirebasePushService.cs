@@ -1,6 +1,7 @@
 ﻿#if ANDROID
 using Plugin.Firebase.CloudMessaging;
 #endif
+using System.Diagnostics;
 
 namespace MauiApp1.Services
 {
@@ -10,30 +11,37 @@ namespace MauiApp1.Services
         private static bool _listenersRegistrados = false;
 #endif
 
-        /// <summary>
-        /// Llamar justo después de un login exitoso (normal o Google).
-        /// Pide permiso, obtiene el token FCM y lo registra en el backend.
-        /// </summary>
         public static async Task InicializarYRegistrarAsync()
         {
             try
             {
 #if ANDROID
+                Debug.WriteLine("🔥 FirebasePushService: iniciando...");
+
                 await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+                Debug.WriteLine("🔥 CheckIfValidAsync completado.");
 
                 var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+                Debug.WriteLine($"🔥 Token obtenido: {token}");
+
                 if (!string.IsNullOrEmpty(token) && UserSession.Idusuario > 0)
                 {
-                    await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
+                    Debug.WriteLine($"🔥 Enviando token al backend para idusuario={UserSession.Idusuario}...");
+                    var (success, message) = await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
+                    Debug.WriteLine($"🔥 Resultado registro: success={success}, message={message}");
+                }
+                else
+                {
+                    Debug.WriteLine($"🔥 No se envía: token vacío={string.IsNullOrEmpty(token)}, idusuario={UserSession.Idusuario}");
                 }
 
                 RegistrarListeners();
 #endif
             }
-            catch
+            catch (Exception ex)
             {
-                // Silencioso a propósito: si falla el registro del push,
-                // no debe bloquear el login del usuario.
+                Debug.WriteLine($"🔥 ERROR en InicializarYRegistrarAsync: {ex.GetType().Name} - {ex.Message}");
+                Debug.WriteLine(ex.StackTrace);
             }
         }
 
@@ -43,8 +51,7 @@ namespace MauiApp1.Services
             if (_listenersRegistrados) return;
             _listenersRegistrados = true;
 
-            // El token puede cambiar (reinstalación, limpieza de datos, etc.)
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.TokenChanged += async (_, e) =>
+            CrossFirebaseCloudMessaging.Current.TokenChanged += async (_, e) =>
             {
                 if (UserSession.Idusuario > 0 && !string.IsNullOrEmpty(e.Token))
                 {
@@ -52,21 +59,18 @@ namespace MauiApp1.Services
                 }
             };
 
-            // Push recibido con la app en foreground
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.NotificationReceived += (_, e) =>
+            CrossFirebaseCloudMessaging.Current.NotificationReceived += (_, e) =>
             {
-                System.Diagnostics.Debug.WriteLine($"Push recibido: {e.Notification.Title} - {e.Notification.Body}");
+                Debug.WriteLine($"🔥 Push recibido: {e.Notification.Title} - {e.Notification.Body}");
             };
 
-            // Usuario tocó la notificación (app en background o cerrada)
-            Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current.NotificationTapped += (_, e) =>
+            CrossFirebaseCloudMessaging.Current.NotificationTapped += (_, e) =>
             {
                 if (e.Notification.Data.TryGetValue("idProyecto", out var idProyectoStr) &&
                     int.TryParse(idProyectoStr, out var idProyecto))
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        // Ajusta esto a como navegues realmente a la pantalla del proyecto
                         // await Shell.Current.GoToAsync($"//ProyectoDetallePage?idProyecto={idProyecto}");
                     });
                 }

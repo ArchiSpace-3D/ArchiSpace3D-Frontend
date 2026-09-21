@@ -94,6 +94,7 @@ public partial class LoginPage : ContentPage
 
                 if (success && response != null)
                 {
+                    _ = FirebasePushService.InicializarYRegistrarAsync(); // 👈 AGREGAR ESTA LÍNEA
                     Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
                 }
                 else
@@ -138,6 +139,7 @@ public partial class LoginPage : ContentPage
             if (success && response != null)
             {
                 LoadingOverlay.IsVisible = false;
+                _ = FirebasePushService.InicializarYRegistrarAsync(); // 👈 AGREGAR ESTA LÍNEA
                 Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
             }
             else
@@ -156,7 +158,6 @@ public partial class LoginPage : ContentPage
             LoginButton.IsEnabled = true;
         }
     }
-
     private void ShowLoadingWithTimeout()
     {
         LoadingLabel.Text = "Conectando...";
