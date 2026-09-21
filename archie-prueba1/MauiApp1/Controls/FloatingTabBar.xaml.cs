@@ -53,7 +53,13 @@ public partial class FloatingTabBar : ContentView
             }
             catch
             {
-                // Si la navegación falla, revertimos el estado visual
+                // Fallo silencioso en la navegación
+            }
+            finally
+            {
+                // Siempre revertimos la instancia actual a su SelectedIndex real.
+                // Así cuando el usuario regrese a esta página (que MAUI mantiene viva en memoria), 
+                // el botón correcto seguirá estando iluminado.
                 UpdateVisualStates(SelectedIndex);
             }
         }
