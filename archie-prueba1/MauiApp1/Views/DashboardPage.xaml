@@ -178,6 +178,8 @@
                     <Button x:Name="BtnGenerarInvitacion" Grid.Column="1" Text="Invitar Cliente" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E3A8A}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#93C5FD}" HeightRequest="44" CornerRadius="22" FontAttributes="Bold" Clicked="OnGenerarInvitacionClicked"/>
                 </Grid>
 
+                <Button Text="Ver Espacios Físicos" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HeightRequest="44" CornerRadius="22" FontAttributes="Bold" Clicked="OnVerEspaciosClicked"/>
+
                 <Button x:Name="BtnSheetEditarProyecto" Text="Editar Proyecto" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#0A4174, Dark=#93C5FD}" HeightRequest="48" FontAttributes="Bold" Clicked="OnEditarProyectoFromDetailsClicked"/>
                 <Button x:Name="BtnSheetEliminarProyecto" Text="Eliminar Proyecto" BackgroundColor="Transparent" TextColor="#D32F2F" HeightRequest="48" FontAttributes="Bold" Clicked="OnEliminarProyectoFromDetailsClicked"/>
             </VerticalStackLayout>

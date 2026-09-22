@@ -411,6 +411,13 @@ public partial class DashboardPage : ContentPage
         }
     }
 
+    private async void OnVerEspaciosClicked(object? sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+        await CloseDetailsSheet();
+        await Navigation.PushModalAsync(new SpacesPage(UserSession.ActiveProject.Idproyecto));
+    }
+
     private async void OnVerMedicionesClicked(object? sender, EventArgs e)
     {
         if (UserSession.ActiveProject == null) return;
