@@ -171,10 +171,7 @@
                         <Label x:Name="SheetProjectEstado" Text="Estado: --" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#94A3B8}" FontAttributes="Bold"/>
                     </VerticalStackLayout>
                 </Border>
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                    <Button Text="Activar" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnSetAsActiveProjectClicked"/>
-                    <Button Grid.Column="1" Text="Diseño 3D" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnEnterDesignClicked"/>
-                </Grid>
+                <Button Text="Diseño 3D" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="48" CornerRadius="24" FontAttributes="Bold" Clicked="OnEnterDesignClicked"/>
                 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Button Text="Ver Mediciones" BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E3A8A}" TextColor="{AppThemeBinding Light=#0A4174, Dark=#93C5FD}" HeightRequest="44" CornerRadius="22" FontAttributes="Bold" Clicked="OnVerMedicionesClicked"/>
