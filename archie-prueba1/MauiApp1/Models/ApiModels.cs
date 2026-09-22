@@ -88,10 +88,10 @@ namespace MauiApp1.Models
         public int Idproyecto { get; set; }
 
         [JsonPropertyName("idarquitecto")]
-        public int Idarquitecto { get; set; }
+        public int? Idarquitecto { get; set; }
 
         [JsonPropertyName("idcliente")]
-        public int Idcliente { get; set; }
+        public int? Idcliente { get; set; }
 
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; } = string.Empty;
@@ -117,10 +117,10 @@ namespace MauiApp1.Models
     public class CrearProyectoRequest
     {
         [JsonPropertyName("idarquitecto")]
-        public int Idarquitecto { get; set; }
+        public int? Idarquitecto { get; set; }
 
         [JsonPropertyName("idcliente")]
-        public int Idcliente { get; set; }
+        public int? Idcliente { get; set; }
 
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; } = string.Empty;

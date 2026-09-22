@@ -333,7 +333,8 @@ public partial class DashboardPage : ContentPage
 
         var p = new CrearProyectoRequest
         {
-            Idarquitecto = UserSession.Rol == "Arquitecto" ? UserSession.Idusuario : UserSession.Idusuario, Idcliente = UserSession.Idusuario,
+            Idarquitecto = UserSession.Idusuario,
+            Idcliente = UserSession.Rol == "Cliente" ? UserSession.Idusuario : null,
             Nombre = EntryNombreProyecto.Text ?? "Nuevo",
             Ubicacion = EntryUbicacionProyecto.Text ?? "",
             Estado = "Borrador",
