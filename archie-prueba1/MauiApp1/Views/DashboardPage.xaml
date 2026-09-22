@@ -333,13 +333,15 @@
                         <DataTemplate>
                             <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" Margin="0,0,0,10" Padding="15">
                                 <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding FechaFormateada}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                                        <Label Text="Distancia:" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#94A3B8}"/>
-                                    </VerticalStackLayout>
-                                    <Label Grid.Column="1" Text="{Binding Distancia, StringFormat='{0:F2} m'}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" VerticalOptions="Center"/>
-                                </Grid>
+                                  <Grid ColumnDefinitions="*,Auto">
+                                      <VerticalStackLayout>
+                                          <Label Text="{Binding FechaFormateada}" FontSize="15" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                                          <Label Text="{Binding Etapa}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#94A3B8}"/>
+                                          <Label Text="{Binding Partida}" FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#94A3B8}"/>
+                                      </VerticalStackLayout>
+                                      <Label Grid.Column="1" Text="{Binding Totalparcial, StringFormat='{0:F2}'}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" VerticalOptions="Center"/>
+                                      <Label Grid.Column="1" Text="{Binding Unidad}" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#94A3B8}" VerticalOptions="End" HorizontalOptions="End"/>
+                                  </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

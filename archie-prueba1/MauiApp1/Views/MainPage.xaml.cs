@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -165,7 +165,19 @@ namespace MauiApp1.Views
                     };
 
                     var stack = new VerticalStackLayout { Spacing = 2 };
-                    stack.Children.Add(new Label { Text = $"Distancia / Altura: {m.DistanciaFormateada}", FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
+
+                    string titulo = "Medición General";
+                    if (!string.IsNullOrWhiteSpace(m.Etapa) || !string.IsNullOrWhiteSpace(m.Partida))
+                    {
+                        titulo = $"{m.Etapa ?? ""} {(!string.IsNullOrWhiteSpace(m.Etapa) && !string.IsNullOrWhiteSpace(m.Partida) ? "-" : "")} {m.Partida ?? ""}".Trim();
+                    }
+
+                    stack.Children.Add(new Label { Text = titulo, FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#001D39") });
+                    
+                    string detalleTotal = $"Total: {m.Totalparcial?.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) ?? "0.00"} {m.Unidad ?? "m"}";
+                    if (m.Veces > 1) detalleTotal += $" ({m.Veces} veces)";
+                    
+                    stack.Children.Add(new Label { Text = detalleTotal, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#129740") });
                     stack.Children.Add(new Label { Text = $"Registrada: {m.FechaFormateada}", FontSize = 11, TextColor = Color.FromArgb("#6EA2B3") });
 
                     grid.Children.Add(stack);

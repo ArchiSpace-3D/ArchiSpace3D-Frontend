@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using Microsoft.Maui.Controls;
 using MauiApp1.Models;
@@ -14,11 +14,15 @@ namespace MauiApp1.Views
         private decimal _total = 0;
         private bool _esDeduccion = false;
 
-                public SaveMeasurementPage(decimal largoMedido)
+        public SaveMeasurementPage(decimal largoMedido)
         {
             InitializeComponent();
             _largoAr = largoMedido;
-            LargoEntry.Text = _largoAr.ToString("0.00", CultureInfo.InvariantCulture);
+            if (_largoAr > 0)
+                LargoEntry.Text = _largoAr.ToString("0.00", CultureInfo.InvariantCulture);
+            else
+                LargoEntry.Text = ""; // Vacío para que el usuario no envíe 0.00 por accidente
+
             UnidadPicker.SelectedIndex = 0; 
             CalculateTotal();
         }
@@ -26,68 +30,41 @@ namespace MauiApp1.Views
         private async void OnCloseClicked(object? sender, EventArgs e)
         {
             OnMedicionGuardadaLocal?.Invoke();
-                await Navigation.PopModalAsync();
+            await Navigation.PopModalAsync();
         }
 
-                private void OnUnidadChanged(object? sender, EventArgs e)
+        private void OnUnidadChanged(object? sender, EventArgs e)
         {
             string unit = UnidadPicker.SelectedItem?.ToString() ?? "m";
             
-            if (unit.Contains("U"))
+            if (UnidadPicker.SelectedIndex == 3) // U
             {
                 LargoEntry.IsEnabled = false;
                 AnchoContainer.IsVisible = false;
                 AltoContainer.IsVisible = false;
             }
-            else if (unit.Contains("m") && unit.Length > 1 && (unit.Contains("2") || unit.Contains("")))
+            else if (UnidadPicker.SelectedIndex == 2) // m3
             {
-                // Assuming it's m2 (square meters) based on having a char after m. We will differentiate by checking if it contains 3 for volume.
-                // Wait, it's safer to check the index if possible. Let's just use SelectedIndex
-                if (UnidadPicker.SelectedIndex == 1) // m2
-                {
-                    LargoEntry.IsEnabled = true;
-                    AnchoContainer.IsVisible = true;
-                    AltoContainer.IsVisible = false;
-                }
-                else if (UnidadPicker.SelectedIndex == 2) // m3
-                {
-                    LargoEntry.IsEnabled = true;
-                    AnchoContainer.IsVisible = true;
-                    AltoContainer.IsVisible = true;
-                }
+                LargoEntry.IsEnabled = true;
+                AnchoContainer.IsVisible = true;
+                AltoContainer.IsVisible = true;
             }
-            else
+            else if (UnidadPicker.SelectedIndex == 1) // m2
             {
-                if (UnidadPicker.SelectedIndex == 3) // U
-                {
-                    LargoEntry.IsEnabled = false;
-                    AnchoContainer.IsVisible = false;
-                    AltoContainer.IsVisible = false;
-                }
-                else if (UnidadPicker.SelectedIndex == 2) // m3
-                {
-                    LargoEntry.IsEnabled = true;
-                    AnchoContainer.IsVisible = true;
-                    AltoContainer.IsVisible = true;
-                }
-                else if (UnidadPicker.SelectedIndex == 1) // m2
-                {
-                    LargoEntry.IsEnabled = true;
-                    AnchoContainer.IsVisible = true;
-                    AltoContainer.IsVisible = false;
-                }
-                else // m
-                {
-                    LargoEntry.IsEnabled = true;
-                    AnchoContainer.IsVisible = false;
-                    AltoContainer.IsVisible = false;
-                }
+                LargoEntry.IsEnabled = true;
+                AnchoContainer.IsVisible = true;
+                AltoContainer.IsVisible = false;
+            }
+            else // m
+            {
+                LargoEntry.IsEnabled = true;
+                AnchoContainer.IsVisible = false;
+                AltoContainer.IsVisible = false;
             }
             
             CalculateTotal();
         }
 
-        
         private void OnDeduccionToggled(object? sender, ToggledEventArgs e)
         {
             _esDeduccion = e.Value;
@@ -99,25 +76,35 @@ namespace MauiApp1.Views
             CalculateTotal();
         }
 
-                private void CalculateTotal()
+        private decimal ParseDecimalSafe(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return 1;
+            string clean = input.Replace(",", ".");
+            if (decimal.TryParse(clean, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal val))
+                return val;
+            return 1;
+        }
+
+        private void CalculateTotal()
         {
             if (VecesEntry == null) return;
 
             int veces = 1;
             if (!string.IsNullOrWhiteSpace(VecesEntry.Text))
                 int.TryParse(VecesEntry.Text, out veces);
+            if (veces == 0) veces = 1; // Prevenir multiplicar por 0 accidentalmente
             
             decimal largo = 1;
-            if (LargoEntry != null && LargoEntry.IsEnabled && !string.IsNullOrWhiteSpace(LargoEntry.Text))
-                decimal.TryParse(LargoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out largo);
+            if (LargoEntry != null && LargoEntry.IsEnabled)
+                largo = ParseDecimalSafe(LargoEntry.Text);
 
             decimal ancho = 1;
-            if (AnchoContainer != null && AnchoContainer.IsVisible && !string.IsNullOrWhiteSpace(AnchoEntry.Text))
-                decimal.TryParse(AnchoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out ancho);
+            if (AnchoContainer != null && AnchoContainer.IsVisible)
+                ancho = ParseDecimalSafe(AnchoEntry.Text);
             
             decimal alto = 1;
-            if (AltoContainer != null && AltoContainer.IsVisible && !string.IsNullOrWhiteSpace(AltoEntry.Text))
-                decimal.TryParse(AltoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out alto);
+            if (AltoContainer != null && AltoContainer.IsVisible)
+                alto = ParseDecimalSafe(AltoEntry.Text);
 
             _total = veces * largo * ancho * alto;
 
@@ -129,7 +116,7 @@ namespace MauiApp1.Views
             TotalLabel.Text = _total.ToString("0.00", CultureInfo.InvariantCulture);
         }
 
-                private async void OnSaveClicked(object? sender, EventArgs e)
+        private async void OnSaveClicked(object? sender, EventArgs e)
         {
             if (UserSession.ActiveProject == null)
             {
@@ -138,19 +125,25 @@ namespace MauiApp1.Views
             }
 
             int veces = 1;
-            int.TryParse(VecesEntry.Text, out veces);
+            if (!string.IsNullOrWhiteSpace(VecesEntry.Text))
+                int.TryParse(VecesEntry.Text, out veces);
+            if (veces == 0) veces = 1;
             
             decimal largo = 1;
-            if (LargoEntry.IsEnabled && !string.IsNullOrWhiteSpace(LargoEntry.Text))
-                decimal.TryParse(LargoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out largo);
+            if (LargoEntry.IsEnabled)
+                largo = ParseDecimalSafe(LargoEntry.Text);
 
             decimal ancho = 1;
-            if (AnchoContainer.IsVisible && !string.IsNullOrWhiteSpace(AnchoEntry.Text))
-                decimal.TryParse(AnchoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out ancho);
+            if (AnchoContainer.IsVisible)
+                ancho = ParseDecimalSafe(AnchoEntry.Text);
             
             decimal alto = 1;
-            if (AltoContainer.IsVisible && !string.IsNullOrWhiteSpace(AltoEntry.Text))
-                decimal.TryParse(AltoEntry.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out alto);
+            if (AltoContainer.IsVisible)
+                alto = ParseDecimalSafe(AltoEntry.Text);
+
+            // Re-calcular total al guardar por seguridad
+            _total = veces * largo * ancho * alto;
+            if (_esDeduccion) _total *= -1;
 
             var req = new CrearMediciónRequest
             {
