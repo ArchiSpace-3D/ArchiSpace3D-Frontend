@@ -1,4 +1,4 @@
-﻿using Plugin.LocalNotification;
+using Plugin.LocalNotification;
 using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
@@ -324,14 +324,18 @@ public partial class DashboardPage : ContentPage
 
     private async void OnSubmitCrearProyectoClicked(object? sender, EventArgs e)
     {
+        decimal presupuesto = 0;
+        if (!string.IsNullOrWhiteSpace(EntryPresupuestoProyecto.Text))
+            decimal.TryParse(EntryPresupuestoProyecto.Text, out presupuesto);
+
         var p = new CrearProyectoRequest
         {
             Idarquitecto = UserSession.Rol == "Arquitecto" ? UserSession.Idusuario : UserSession.Idusuario, Idcliente = UserSession.Idusuario,
             Nombre = EntryNombreProyecto.Text ?? "Nuevo",
             Ubicacion = EntryUbicacionProyecto.Text ?? "",
             Estado = "Borrador",
-            Descripcion = "Nuevo Proyecto",
-            Presupuesto = 0
+            Descripcion = string.IsNullOrWhiteSpace(EntryDescripcionProyecto.Text) ? "Nuevo Proyecto" : EntryDescripcionProyecto.Text,
+            Presupuesto = presupuesto
         };
         var res = await ApiService.CrearProyectoAsync(p);
         if (res.Success)
