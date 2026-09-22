@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MauiApp1.Models;
@@ -1314,6 +1314,72 @@ namespace MauiApp1.Services
                 return (false, $"Error de red: {ex.Message}");
             }
         }
+
+        public static async Task<List<SugerenciaDto>> GetSugerenciasByProyectoAsync(int idProyecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<SugerenciaDto>();
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/sugerencia/proyecto/{idProyecto}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<SugerenciaDto>>(json, _jsonOptions) ?? new List<SugerenciaDto>();
+                }
+            }
+            catch { }
+            return new List<SugerenciaDto>();
+        }
+
+        public static async Task<(bool Success, string Message, SugerenciaDto? Data)> CrearSugerenciaAsync(CrearSugerenciaRequest sugerencia)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.", null);
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/sugerencia";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+
+                request.Content = new StringContent(JsonSerializer.Serialize(sugerencia), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var creada = JsonSerializer.Deserialize<SugerenciaDto>(json, _jsonOptions);
+                    return (true, "Sugerencia enviada con éxito", creada);
+                }
+                return (false, $"Error al crear sugerencia: {response.StatusCode}", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}", null);
+            }
+        }
+
+        public static async Task<(bool Success, string Message)> ActualizarEstadoSugerenciaAsync(int idSugerencia, string estado)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/sugerencia/{idSugerencia}/estado";
+                using var request = new HttpRequestMessage(HttpMethod.Put, url);
+                SetAuthHeader(request);
+
+                request.Content = new StringContent(JsonSerializer.Serialize(estado), Encoding.UTF8, "application/json");
+                using var response = await _httpClient.SendAsync(request);
+                return response.IsSuccessStatusCode
+                    ? (true, "Estado actualizado")
+                    : (false, $"Error al actualizar estado: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error de red: {ex.Message}");
+            }
+        }
     }
 }
-

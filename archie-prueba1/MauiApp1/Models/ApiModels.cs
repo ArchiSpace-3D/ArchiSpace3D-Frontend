@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -157,6 +157,45 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("presupuesto")]
         public decimal? Presupuesto { get; set; }
+    }
+
+    public class SugerenciaDto
+    {
+        [JsonPropertyName("idsugerencia")]
+        public int Idsugerencia { get; set; }
+
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("idusuario")]
+        public int Idusuario { get; set; }
+
+        [JsonPropertyName("titulo")]
+        public string Titulo { get; set; } = string.Empty;
+
+        [JsonPropertyName("descripcion")]
+        public string Descripcion { get; set; } = string.Empty;
+
+        [JsonPropertyName("estado")]
+        public string? Estado { get; set; }
+
+        [JsonPropertyName("fechacreacion")]
+        public DateTime? Fechacreacion { get; set; }
+    }
+
+    public class CrearSugerenciaRequest
+    {
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("idusuario")]
+        public int Idusuario { get; set; }
+
+        [JsonPropertyName("titulo")]
+        public string Titulo { get; set; } = string.Empty;
+
+        [JsonPropertyName("descripcion")]
+        public string Descripcion { get; set; } = string.Empty;
     }
 
     public class EspacioFisicoDto

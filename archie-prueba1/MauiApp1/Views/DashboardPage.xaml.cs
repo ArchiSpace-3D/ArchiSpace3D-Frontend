@@ -418,6 +418,13 @@ public partial class DashboardPage : ContentPage
         await Navigation.PushModalAsync(new SpacesPage(UserSession.ActiveProject.Idproyecto));
     }
 
+    private async void OnVerSugerenciasClicked(object? sender, EventArgs e)
+    {
+        if (UserSession.ActiveProject == null) return;
+        await CloseDetailsSheet();
+        await Navigation.PushModalAsync(new SuggestionsPage(UserSession.ActiveProject.Idproyecto));
+    }
+
     private async void OnVerMedicionesClicked(object? sender, EventArgs e)
     {
         if (UserSession.ActiveProject == null) return;
