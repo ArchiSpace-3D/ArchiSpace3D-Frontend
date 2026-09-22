@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.NotificationsPage"
@@ -38,9 +38,9 @@
                                         </Border>
                                         
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                            <Label Text="{Binding Titulo}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="15" FontAttributes="Bold"/>
+                                            <Label Text="{Binding Tipo}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="15" FontAttributes="Bold"/>
                                             <Label Text="{Binding Mensaje}" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="13"/>
-                                            <Label Text="{Binding Fechacreacion}" TextColor="{AppThemeBinding Light=#BDD8E9, Dark=#121212}" FontSize="11" Margin="0,4,0,0"/>
+                                            <Label Text="{Binding FechaFormateada}" TextColor="{AppThemeBinding Light=#BDD8E9, Dark=#121212}" FontSize="11" Margin="0,4,0,0"/>
                                         </VerticalStackLayout>
                                         
                                         <Border Grid.Column="2" BackgroundColor="#FFF0F0" StrokeThickness="0" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">

@@ -80,7 +80,10 @@ public partial class DashboardPage : ContentPage
     {
         NotificationsContainer.Children.Clear();
         var list = await ApiService.GetNotificacionesAsync();
-        NotificationCountBadge.Text = $"{list?.Count ?? 0} nuevas";
+        
+        int unreadCount = list?.Count(n => n.Leida != true) ?? 0;
+        NotificationCountBadge.Text = unreadCount > 99 ? "99+" : unreadCount.ToString();
+        NotificationCountBadge.IsVisible = unreadCount > 0;
 
         if (list != null)
         {

@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -39,6 +39,12 @@ public partial class NotificationsPage : ContentPage
                 foreach (var n in notifs)
                 {
                     _notificaciones.Add(n);
+                    
+                    // Mark as read if not already read
+                    if (n.Leida != true)
+                    {
+                        await ApiService.MarcarNotificacionLeidaAsync(n.Idnotificacion);
+                    }
                 }
             }
         }
