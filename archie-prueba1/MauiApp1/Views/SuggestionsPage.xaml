@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:views="clr-namespace:MauiApp1.Views"
              x:Class="MauiApp1.Views.SuggestionsPage"
              BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#0B1120}"
              Title="Sugerencias">
@@ -50,7 +50,7 @@
                                     </Border>
 
                                     <!-- Admin Options -->
-                                    <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="10" Margin="0,15,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=IsArquitecto}">
+                                    <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="10" Margin="0,15,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type views:SuggestionsPage}}, Path=IsArquitecto}">
                                         <Button Text="Aprobar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#E8F5E9" TextColor="#2E7D32" CommandParameter="{Binding .}" Clicked="OnApproveClicked"/>
                                         <Button Text="Rechazar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#FFEBEE" TextColor="#C62828" CommandParameter="{Binding .}" Clicked="OnRejectClicked"/>
                                     </HorizontalStackLayout>

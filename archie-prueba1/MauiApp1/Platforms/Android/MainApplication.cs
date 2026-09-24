@@ -24,10 +24,14 @@ namespace MauiApp1
         private void CrearCanalDeNotificaciones()
         {
             var channelId = $"{PackageName}.general";
-            var notificationManager = (NotificationManager)GetSystemService(Context.NotificationService)!;
-            var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
-            notificationManager.CreateNotificationChannel(channel);
             FirebaseCloudMessagingImplementation.ChannelId = channelId;
+
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+            {
+                var notificationManager = (NotificationManager)GetSystemService(Context.NotificationService)!;
+                var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
+                notificationManager.CreateNotificationChannel(channel);
+            }
         }
     }
 }

@@ -89,7 +89,7 @@ public partial class SuggestionsPage : ContentPage
     {
         if (string.IsNullOrWhiteSpace(EntryTitulo.Text) || string.IsNullOrWhiteSpace(EntryDesc.Text))
         {
-            await DisplayAlert("Error", "Debes ingresar un título y descripción.", "OK");
+            await DisplayAlertAsync("Error", "Debes ingresar un título y descripción.", "OK");
             return;
         }
 
@@ -114,7 +114,7 @@ public partial class SuggestionsPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Error", msg, "OK");
+            await DisplayAlertAsync("Error", msg, "OK");
         }
     }
 
@@ -149,7 +149,7 @@ public partial class SuggestionsPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Error", msg, "OK");
+            await DisplayAlertAsync("Error", msg, "OK");
         }
     }
 }

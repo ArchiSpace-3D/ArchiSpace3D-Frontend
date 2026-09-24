@@ -58,7 +58,7 @@ namespace MauiApp1.Services
                 Debug.WriteLine(ex.StackTrace);
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    Application.Current?.MainPage?.DisplayAlert("Error Notificaciones", ex.Message, "OK");
+                    Application.Current?.Windows[0]?.Page?.DisplayAlertAsync("Error Notificaciones", ex.Message, "OK");
                 });
             }
         }

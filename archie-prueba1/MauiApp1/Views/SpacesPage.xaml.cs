@@ -97,7 +97,7 @@ public partial class SpacesPage : ContentPage
     {
         if (string.IsNullOrWhiteSpace(EntryDesc.Text))
         {
-            await DisplayAlert("Error", "Debe ingresar un nombre para el espacio.", "OK");
+            await DisplayAlertAsync("Error", "Debe ingresar un nombre para el espacio.", "OK");
             return;
         }
 
@@ -125,7 +125,7 @@ public partial class SpacesPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Error", msg, "OK");
+            await DisplayAlertAsync("Error", msg, "OK");
         }
     }
 
@@ -133,7 +133,7 @@ public partial class SpacesPage : ContentPage
     {
         if (sender is Image btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is EspacioFisicoDto espacio)
         {
-            bool confirm = await DisplayAlert("Eliminar", $"¿Seguro que deseas eliminar el espacio '{espacio.Descripcion}'?", "Sí", "No");
+            bool confirm = await DisplayAlertAsync("Eliminar", $"¿Seguro que deseas eliminar el espacio '{espacio.Descripcion}'?", "Sí", "No");
             if (!confirm) return;
 
             LoadingIndicator.IsRunning = true;
@@ -148,7 +148,7 @@ public partial class SpacesPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Error", msg, "OK");
+                await DisplayAlertAsync("Error", msg, "OK");
             }
         }
     }

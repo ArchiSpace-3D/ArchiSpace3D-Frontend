@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
@@ -9,7 +9,7 @@ public partial class CustomAlertPage : ContentPage
 {
     private TaskCompletionSource<bool> _tcs;
 
-    public CustomAlertPage(string title, string message, string acceptText, string cancelText, TaskCompletionSource<bool> tcs)
+    public CustomAlertPage(string title, string message, string acceptText, string? cancelText, TaskCompletionSource<bool> tcs)
     {
         InitializeComponent();
         _tcs = tcs;
