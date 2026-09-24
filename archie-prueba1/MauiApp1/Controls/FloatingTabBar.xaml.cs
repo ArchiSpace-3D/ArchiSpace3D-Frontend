@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 
@@ -30,7 +30,7 @@ public partial class FloatingTabBar : ContentView
         }
     }
 
-    private async void OnTabTapped(object sender, TappedEventArgs e)
+    private async void OnTabTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is string param && int.TryParse(param, out int index))
         {
@@ -53,13 +53,13 @@ public partial class FloatingTabBar : ContentView
             }
             catch
             {
-                // Fallo silencioso en la navegaci√≥n
+                // Fallo silencioso en la navegaciÛn
             }
             finally
             {
                 // Siempre revertimos la instancia actual a su SelectedIndex real.
-                // As√≠ cuando el usuario regrese a esta p√°gina (que MAUI mantiene viva en memoria), 
-                // el bot√≥n correcto seguir√° estando iluminado.
+                // AsÌ cuando el usuario regrese a esta p·gina (que MAUI mantiene viva en memoria), 
+                // el botÛn correcto seguir· estando iluminado.
                 UpdateVisualStates(SelectedIndex);
             }
         }

@@ -109,7 +109,7 @@ public partial class SpacesPage : ContentPage
             Anchoaproximado = ParseDecimalSafe(EntryAncho.Text),
             Altoaproximado = 2.5m, // Default height
             Puntosreferencia = "[]",
-            Fechacaptura = DateTime.UtcNow
+            
         };
 
         LoadingIndicator.IsRunning = true;

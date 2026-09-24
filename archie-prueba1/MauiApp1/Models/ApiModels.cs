@@ -159,6 +159,8 @@ namespace MauiApp1.Models
         public decimal? Presupuesto { get; set; }
     }
 
+
+
     public class SugerenciaDto
     {
         [JsonPropertyName("idsugerencia")]
@@ -250,6 +252,9 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("orientacionazimuth")]
         public decimal? Orientacionazimuth { get; set; }
+
+        [JsonPropertyName("fechacaptura")]
+        public DateTime? Fechacaptura { get; set; }
     }
 
     public class VersionDisenoDto

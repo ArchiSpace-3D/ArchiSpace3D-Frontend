@@ -176,10 +176,10 @@ public partial class DashboardPage : ContentPage
 
         if (UserSession.ActiveProject.Idcliente > 0)
         {
-            var cliente = await ApiService.GetUsuarioByIdAsync(UserSession.ActiveProject.Idcliente);
+            var cliente = await ApiService.GetUsuarioByIdAsync(UserSession.ActiveProject.Idcliente.Value);
             if (cliente != null)
             {
-                SheetProjectClient.Text = $"Cliente: {cliente.Nombre} {cliente.Apellido}";
+                SheetProjectClient.Text = $"Cliente: {cliente.Nombre}";
             }
             else
             {

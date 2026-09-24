@@ -118,13 +118,13 @@ public partial class SuggestionsPage : ContentPage
         }
     }
 
-    private async void OnApproveClicked(object sender, EventArgs e)
+    private async void OnApproveClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is SugerenciaDto sug)
             await UpdateEstado(sug, "Aprobada");
     }
 
-    private async void OnRejectClicked(object sender, EventArgs e)
+    private async void OnRejectClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is SugerenciaDto sug)
             await UpdateEstado(sug, "Rechazada");
