@@ -108,6 +108,15 @@ namespace MauiApp1.Models
         [JsonPropertyName("presupuesto")]
         public decimal? Presupuesto { get; set; }
 
+        [JsonPropertyName("imagenurl")]
+        public string? Imagenurl { get; set; }
+
+        [JsonPropertyName("codigosalaactiva")]
+        public string? Codigosalaactiva { get; set; }
+
+        [JsonPropertyName("fechaaperturasala")]
+        public DateTime? Fechaaperturasala { get; set; }
+
         [JsonPropertyName("fechacreacion")]
         public DateTime? Fechacreacion { get; set; }
 
@@ -410,7 +419,7 @@ namespace MauiApp1.Models
         public int IdClienteUsado { get; set; }
     }
 
-            public class MediciónDto
+    public class MediciónDto
     {
         [JsonPropertyName("idmedicion")]
         public int Idmedicion { get; set; }
@@ -480,7 +489,7 @@ namespace MauiApp1.Models
         [JsonPropertyName("totalparcial")]
         public decimal? Totalparcial { get; set; }
     }
-public class NotificacionDto
+    public class NotificacionDto
     {
         [JsonPropertyName("idnotificacion")]
         public int Idnotificacion { get; set; }

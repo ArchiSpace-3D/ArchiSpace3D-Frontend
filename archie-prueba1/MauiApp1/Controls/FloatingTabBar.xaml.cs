@@ -1,13 +1,12 @@
-using System;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+using MauiApp1.Views;
 
 namespace MauiApp1.Controls;
 
 public partial class FloatingTabBar : ContentView
 {
     public static readonly BindableProperty SelectedIndexProperty =
-        BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(FloatingTabBar), 0, propertyChanged: OnSelectedIndexChanged);
+        BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(FloatingTabBar), 0,
+            propertyChanged: OnSelectedIndexChanged);
 
     public int SelectedIndex
     {
@@ -15,80 +14,55 @@ public partial class FloatingTabBar : ContentView
         set => SetValue(SelectedIndexProperty, value);
     }
 
-        public FloatingTabBar()
+    public FloatingTabBar()
     {
         InitializeComponent();
-        UpdateVisualStates(SelectedIndex);
-        this.Loaded += (s, e) => UpdateVisualStates(SelectedIndex);
+        UpdateTabs(SelectedIndex);
     }
 
     private static void OnSelectedIndexChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        if (bindable is FloatingTabBar control)
+        if (bindable is FloatingTabBar tab)
+            tab.UpdateTabs((int)newValue);
+    }
+
+    private void UpdateTabs(int index)
+    {
+        var backgrounds = new[] { Bg0, Bg1, Bg2, Bg3, Bg4 };
+
+        for (int i = 0; i < backgrounds.Length; i++)
         {
-            control.UpdateVisualStates((int)newValue);
+            // Tab seleccionado: gris claro tipo Instagram
+            // Tabs no seleccionados: transparente
+            backgrounds[i].BackgroundColor = (i == index)
+                ? Color.FromArgb("#E5E5EA")
+                : Colors.Transparent;
         }
     }
 
     private async void OnTabTapped(object? sender, TappedEventArgs e)
     {
-        if (e.Parameter is string param && int.TryParse(param, out int index))
-        {
-            if (SelectedIndex == index) return;
-            
-            UpdateVisualStates(index);
-            
-            string route = index switch
-            {
-                0 => "//DashboardPage",
-                1 => "//DesignPage",
-                2 => "//MainPage",
-                3 => "//ProfilePage",
-                _ => "//DashboardPage"
-            };
-            
-            try
-            {
-                await Shell.Current.GoToAsync(route, false);
-            }
-            catch
-            {
-                // Fallo silencioso en la navegación
-            }
-            finally
-            {
-                // Siempre revertimos la instancia actual a su SelectedIndex real.
-                // Así cuando el usuario regrese a esta página (que MAUI mantiene viva en memoria), 
-                // el botón correcto seguirá estando iluminado.
-                UpdateVisualStates(SelectedIndex);
-            }
-        }
-    }
+        if (e.Parameter is not string s || !int.TryParse(s, out int index)) return;
+        if (index == SelectedIndex) return;
 
-    private void UpdateVisualStates(int index)
-    {
-        if (Bg0 == null || Bg1 == null || Bg2 == null || Bg3 == null) return;
-        var activeBg = Color.FromArgb("#334155");
-        var inactiveBg = Colors.Transparent;
-
-        Bg0.BackgroundColor = inactiveBg; Label0.IsVisible = false; Icon0.Opacity = 0.5;
-        Bg1.BackgroundColor = inactiveBg; Label1.IsVisible = false; Icon1.Opacity = 0.5;
-        Bg2.BackgroundColor = inactiveBg; Label2.IsVisible = false; Icon2.Opacity = 0.5;
-        Bg3.BackgroundColor = inactiveBg; Label3.IsVisible = false; Icon3.Opacity = 0.5;
+        SelectedIndex = index;
 
         switch (index)
         {
             case 0:
-                Bg0.BackgroundColor = activeBg; Label0.IsVisible = true; Icon0.Opacity = 1.0;
+                await Shell.Current.GoToAsync("//DashboardPage");
                 break;
             case 1:
-                Bg1.BackgroundColor = activeBg; Label1.IsVisible = true; Icon1.Opacity = 1.0;
+                await Shell.Current.GoToAsync("//DesignPage");
                 break;
             case 2:
-                Bg2.BackgroundColor = activeBg; Label2.IsVisible = true; Icon2.Opacity = 1.0;
+                await Shell.Current.GoToAsync("//DashboardPage");
                 break;
             case 3:
-                Bg3.BackgroundColor = activeBg; Label3.IsVisible = true; Icon3.Opacity = 1.0;
+                await Navigation.PushModalAsync(new NotificationsPage());
+                break;
+            case 4:
+                await Shell.Current.GoToAsync("//ProfilePage");
                 break;
         }
     }

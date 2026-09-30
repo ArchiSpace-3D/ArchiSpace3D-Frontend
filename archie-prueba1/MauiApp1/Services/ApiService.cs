@@ -354,7 +354,7 @@ namespace MauiApp1.Services
                     return (true, "Medición registrada en el proyecto.");
                 }
 
-                                string err = await response.Content.ReadAsStringAsync();
+                string err = await response.Content.ReadAsStringAsync();
                 return (false, $"[{response.StatusCode}] {err}");
             }
             catch (Exception ex)
@@ -1063,20 +1063,38 @@ namespace MauiApp1.Services
 
         public static async Task<List<ProyectoDto>> GetProyectosByClienteAsync(int idCliente)
         {
-            if (string.IsNullOrEmpty(UserSession.Token)) return new List<ProyectoDto>();
+            if (string.IsNullOrEmpty(UserSession.Token))
+            {
+                System.Diagnostics.Debug.WriteLine("[API CLIENTE] Token vacío");
+                return new List<ProyectoDto>();
+            }
             try
             {
                 string url = $"{UserSession.BaseUrl}/api/proyecto/cliente/{idCliente}";
+                System.Diagnostics.Debug.WriteLine($"[API CLIENTE] GET {url}");
+
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 SetAuthHeader(request);
                 using var response = await _httpClient.SendAsync(request);
+
+                System.Diagnostics.Debug.WriteLine($"[API CLIENTE] Status: {(int)response.StatusCode} {response.StatusCode}");
+
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"[API CLIENTE] JSON: {json}");
                     return JsonSerializer.Deserialize<List<ProyectoDto>>(json, _jsonOptions) ?? new List<ProyectoDto>();
                 }
+                else
+                {
+                    string err = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"[API CLIENTE] ❌ Error body: {err}");
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[API CLIENTE] ❌ EXCEPTION: {ex.Message}");
+            }
             return new List<ProyectoDto>();
         }
 
@@ -1192,7 +1210,7 @@ namespace MauiApp1.Services
             }
         }
 
-        
+
 
 
 
@@ -1315,6 +1333,27 @@ namespace MauiApp1.Services
             }
         }
 
+
+        public static async Task<(bool Success, string Codigo)> ActivarSalaAsync(int idProyecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "");
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/proyecto/{idProyecto}/activar-sala";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var codigo = doc.RootElement.GetProperty("codigo").GetString() ?? "";
+                    return (true, codigo);
+                }
+            }
+            catch { }
+            return (false, "");
+        }
         public static async Task<List<SugerenciaDto>> GetSugerenciasByProyectoAsync(int idProyecto)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return new List<SugerenciaDto>();
@@ -1335,6 +1374,40 @@ namespace MauiApp1.Services
             return new List<SugerenciaDto>();
         }
 
+        public static async Task<(bool Success, string Message, string? Url)> SubirImagenProyectoAsync(int idProyecto, FileResult foto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.", null);
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/proyecto/{idProyecto}/imagen";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+
+                using var stream = await foto.OpenReadAsync();
+                var streamContent = new StreamContent(stream);
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(foto.ContentType ?? "image/jpeg");
+
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(streamContent, "file", foto.FileName);
+                request.Content = multipart;
+
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var publicUrl = doc.RootElement.GetProperty("url").GetString();
+                    return (true, "Imagen subida con éxito.", publicUrl);
+                }
+                string err = await response.Content.ReadAsStringAsync();
+                return (false, $"Error ({response.StatusCode}): {err}", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}", null);
+            }
+        }
+
         public static async Task<(bool Success, string Message, SugerenciaDto? Data)> CrearSugerenciaAsync(CrearSugerenciaRequest sugerencia)
         {
             if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.", null);
@@ -1346,7 +1419,7 @@ namespace MauiApp1.Services
 
                 request.Content = new StringContent(JsonSerializer.Serialize(sugerencia), Encoding.UTF8, "application/json");
                 using var response = await _httpClient.SendAsync(request);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
@@ -1381,5 +1454,6 @@ namespace MauiApp1.Services
                 return (false, $"Error de red: {ex.Message}");
             }
         }
+
     }
 }

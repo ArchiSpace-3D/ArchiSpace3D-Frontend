@@ -80,7 +80,7 @@ namespace MauiApp1.Services
 
         public static async Task ClearSession()
         {
-            await SignalRService.DisconnectAsync();   
+            await SignalRService.DisconnectAsync();
 
             Token = null;
             Idusuario = 0;
