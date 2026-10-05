@@ -121,6 +121,10 @@ namespace MauiApp1.Models
         public DateTime? Fechacreacion { get; set; }
 
         public string FechaFormateada => Fechacreacion?.ToString("dd/MM/yyyy") ?? "Reciente";
+
+        public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
+    ? "?"
+    : Nombre.Substring(0, 1).ToUpper();
     }
 
     public class CrearProyectoRequest
@@ -548,9 +552,18 @@ namespace MauiApp1.Models
         [JsonPropertyName("avatarurl")]
         public string? Avatarurl { get; set; }
 
-        public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
-    }
+        // ✅ NUEVO
+        [JsonPropertyName("activo")]
+        public bool Activo { get; set; }
 
+        public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
+
+        public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
+            ? "?"
+            : Nombre.Substring(0, 1).ToUpper();
+
+        public string EstadoTexto => Activo ? "Activo" : "Inactivo";
+    }
     public class ActualizarUsuarioRequest
     {
         [JsonPropertyName("idusuario")]

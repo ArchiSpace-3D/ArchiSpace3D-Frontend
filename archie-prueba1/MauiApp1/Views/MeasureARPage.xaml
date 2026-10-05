@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Views.MeasureARPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ===== HEADER ===== -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,10">
+            <Image Grid.Column="0" Source="ic_back.svg" WidthRequest="24" HeightRequest="24"
+                   VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label Grid.Column="1" Text="Medir con AR"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <Border Grid.Column="2" WidthRequest="40" HeightRequest="40"
+                    BackgroundColor="Transparent" StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Image Source="ic_refresh.svg" WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRefreshTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <!-- ===== SELECTOR DE PROYECTO ===== -->
+        <Border Grid.Row="1"
+                BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+                StrokeThickness="0"
+                Padding="16"
+                Margin="20,5,20,10">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="14"/>
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                    <Label Text="PROYECTO ACTIVO"
+                           FontSize="11" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                           CharacterSpacing="1"/>
+                    <Label x:Name="LblProyectoActivo"
+                           Text="Sin proyecto seleccionado"
+                           FontSize="15" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           LineBreakMode="TailTruncation"/>
+                </VerticalStackLayout>
+
+                <Button Grid.Column="1"
+                        Text="Cambiar"
+                        BackgroundColor="#007AFF"
+                        TextColor="#FFFFFF"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        HeightRequest="36"
+                        Padding="16,0"
+                        VerticalOptions="Center"
+                        Clicked="OnSelectProjectClicked"/>
+            </Grid>
+        </Border>
+
+        <!-- ===== CÁMARA AR + LISTA ===== -->
+        <Grid Grid.Row="2" RowDefinitions="*,Auto">
+
+            <!-- Cámara AR -->
+            <Border Grid.Row="0"
+                    BackgroundColor="#000000"
+                    StrokeThickness="0"
+                    Margin="20,0,20,10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Grid>
+                    <WebView x:Name="ArWebView"
+                             HorizontalOptions="Fill"
+                             VerticalOptions="Fill"
+                             BackgroundColor="Transparent"/>
+
+                    <!-- Overlay cuando no hay proyecto -->
+                    <Grid x:Name="NoProjectOverlay"
+                          BackgroundColor="#CC000000"
+                          IsVisible="True">
+                        <VerticalStackLayout Spacing="10"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Padding="30">
+                            <Image Source="ic_ruler.svg" WidthRequest="50" HeightRequest="50"
+                                   HorizontalOptions="Center" Opacity="0.8"/>
+                            <Label Text="Selecciona un proyecto para medir"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="#FFFFFF"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="Necesitas un proyecto activo antes de usar la cámara AR."
+                                   FontSize="12"
+                                   TextColor="#CCCCCC"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Lista de mediciones -->
+            <Grid Grid.Row="1" Padding="20,0,20,10" RowDefinitions="Auto,*">
+
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                    <Label Grid.Column="0"
+                           Text="MEDICIONES DEL PROYECTO"
+                           FontSize="11" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                           CharacterSpacing="1"
+                           VerticalOptions="Center"/>
+
+                    <ActivityIndicator Grid.Column="1"
+                                       x:Name="LoadingIndicator"
+                                       IsRunning="False"
+                                       IsVisible="False"
+                                       Color="#007AFF"
+                                       WidthRequest="20"
+                                       HeightRequest="20"/>
+                </Grid>
+
+                <CollectionView Grid.Row="1"
+                                x:Name="MeasurementsCollectionView"
+                                SelectionMode="None"
+                                HeightRequest="200">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+                                    StrokeThickness="0"
+                                    Margin="0,0,0,10" Padding="14">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14"/>
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                        <Label Text="{Binding FechaFormateada}"
+                                               FontSize="14" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding Etapa}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Partida}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                               LineBreakMode="TailTruncation"/>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         VerticalOptions="Center"
+                                                         HorizontalOptions="End">
+                                        <Label Text="{Binding Totalparcial, StringFormat='{0:F2}'}"
+                                               FontSize="18" FontAttributes="Bold"
+                                               TextColor="#007AFF"
+                                               HorizontalTextAlignment="End"/>
+                                        <Label Text="{Binding Unidad}"
+                                               FontSize="11"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                               HorizontalTextAlignment="End"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="20" Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Aún no hay mediciones"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="Apunta la cámara y captura tu primera medida"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </Grid>
+        </Grid>
+
+        <!-- ===== TAB BAR ===== -->
+        <controls:FloatingTabBar Grid.Row="3" SelectedIndex="3" />
+
+        <!-- ===== MODAL SELECTOR DE PROYECTO ===== -->
+        <BoxView x:Name="SelectProjectBackdrop" Grid.RowSpan="4"
+                 BackgroundColor="#80000000" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseSelectProjectSheetTapped"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <Border x:Name="SelectProjectSheetModal" Grid.RowSpan="4"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                StrokeThickness="0"
+                VerticalOptions="End" HorizontalOptions="Fill"
+                IsVisible="False" Opacity="0" TranslationY="500">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="28,28,0,0"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="20"/>
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0,0,0,20">
+
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,16">
+                    <Label Grid.Column="0" Text="Cancelar" FontSize="16" TextColor="#007AFF"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCloseSelectProjectSheetTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Label Grid.Column="1" Text="Seleccionar Proyecto"
+                           FontSize="17" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+
+                    <Label Grid.Column="2" Text="" FontSize="16" VerticalOptions="Center"/>
+                </Grid>
+
+                <BoxView Grid.Row="1" HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light=#E5E5EA, Dark=#38383A}"/>
+
+                <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout x:Name="ProjectsSelectionList"
+                                         Spacing="0"
+                                         Padding="0,10,0,0"/>
+                </ScrollView>
+            </Grid>
+        </Border>
+
+        <!-- ===== TOAST ===== -->
+        <Border x:Name="AppleToast" Grid.RowSpan="4"
+                BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"
+                StrokeThickness="0"
+                HorizontalOptions="Center" VerticalOptions="Start"
+                Margin="0,50,0,0" Padding="20,12"
+                Opacity="0" IsVisible="False">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Label x:Name="AppleToastMessage"
+                   TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}"
+                   FontSize="14" FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"/>
+        </Border>
+
+    </Grid>
+</ContentPage>

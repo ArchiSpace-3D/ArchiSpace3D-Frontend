@@ -33,8 +33,11 @@
         <Tab Title="Diseño" Icon="nav_layers.svg">
             <ShellContent ContentTemplate="{DataTemplate views:DesignPage}" Route="DesignPage" />
         </Tab>
-        <Tab Title="Medición" Icon="nav_measure.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:MainPage}" Route="MainPage" />
+        <Tab Title="Clientes" Icon="nav_clients.svg">
+            <ShellContent ContentTemplate="{DataTemplate views:ClientsPage}" Route="ClientsPage" />
+        </Tab>
+        <Tab Title="Medir AR" Icon="nav_search.svg">
+            <ShellContent ContentTemplate="{DataTemplate views:MeasureARPage}" Route="MeasureARPage" />
         </Tab>
         <Tab Title="Perfil" Icon="nav_user.svg">
             <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" Route="ProfilePage" />
@@ -42,4 +45,3 @@
     </TabBar>
 
 </Shell>
-

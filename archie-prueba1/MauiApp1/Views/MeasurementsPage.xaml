@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Views.MeasurementsPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,10">
+            <Image Grid.Column="0" Source="ic_back.svg" WidthRequest="24" HeightRequest="24"
+                   VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label Grid.Column="1" Text="Mediciones"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <Border Grid.Column="2" WidthRequest="40" HeightRequest="40"
+                    BackgroundColor="Transparent" StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Image Source="ic_refresh.svg" WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRefreshTapped"/>
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,120">
+
+                <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+                        StrokeThickness="0" Padding="16" Margin="20,10,20,15">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="14"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="PROYECTO ACTIVO"
+                               FontSize="11" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                               CharacterSpacing="1"/>
+                        <Label x:Name="LblProyectoActivo"
+                               Text="Sin proyecto seleccionado"
+                               FontSize="15" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsRunning="False" IsVisible="False"
+                                   Color="#007AFF"
+                                   HorizontalOptions="Center" Margin="0,20"/>
+
+                <CollectionView x:Name="MeasurementsCollectionView" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+                                    StrokeThickness="0"
+                                    Margin="20,0,20,12" Padding="16">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14"/>
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label Text="{Binding FechaFormateada}"
+                                               FontSize="15" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                        <Label Text="{Binding Etapa}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"/>
+                                        <Label Text="{Binding Partida}"
+                                               FontSize="13"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"/>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End">
+                                        <Label Text="{Binding Totalparcial, StringFormat='{0:F2}'}"
+                                               FontSize="20" FontAttributes="Bold"
+                                               TextColor="#007AFF"
+                                               HorizontalTextAlignment="End"/>
+                                        <Label Text="{Binding Unidad}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                               HorizontalTextAlignment="End"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="40" Spacing="10" HorizontalOptions="Center">
+                            <Image Source="ic_ruler.svg" WidthRequest="60" HeightRequest="60"
+                                   HorizontalOptions="Center" Opacity="0.4"/>
+                            <Label Text="No hay mediciones"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="Usa la Regla AR para guardar medidas"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:FloatingTabBar Grid.Row="2" SelectedIndex="3" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:MauiApp1.Controls"
+             x:Class="MauiApp1.Views.ClientsPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#000000}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,10" VerticalOptions="Center">
+            <Image Grid.Column="0" Source="ic_back.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label x:Name="LblHeaderTitle" Grid.Column="1" Text="Clientes"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <Border x:Name="BtnEditarHeader" Grid.Column="2"
+                    WidthRequest="40" HeightRequest="40"
+                    BackgroundColor="Transparent" StrokeThickness="0"
+                    VerticalOptions="Center" IsVisible="False">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Image Source="ic_edit.svg" WidthRequest="24" HeightRequest="24"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnToggleEditModeClicked"/>
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <!-- BÚSQUEDA -->
+        <Border Grid.Row="1"
+                BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#1C1C1E}"
+                StrokeThickness="0" HeightRequest="44"
+                Margin="20,5,20,15">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="22"/>
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*" Padding="15,0" ColumnSpacing="10">
+                <Image Grid.Column="0" Source="ic_search.svg"
+                       WidthRequest="18" HeightRequest="18"
+                       VerticalOptions="Center"/>
+                <Entry x:Name="EntryBusqueda" Grid.Column="1"
+                       Placeholder="Buscar..."
+                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       TextChanged="OnBusquedaTextChanged"/>
+            </Grid>
+        </Border>
+
+        <!-- ACTIVOS -->
+        <Grid x:Name="ActivosContainer" Grid.Row="2"
+              HeightRequest="105" Margin="0,0,0,10" IsVisible="False">
+            <ScrollView Orientation="Horizontal"
+                        HorizontalScrollBarVisibility="Never"
+                        VerticalScrollBarVisibility="Never">
+                <HorizontalStackLayout x:Name="ActivosStack"
+                                       Spacing="18"
+                                       Padding="20,0,20,0"
+                                       VerticalOptions="Center"/>
+            </ScrollView>
+        </Grid>
+
+        <!-- LISTA -->
+        <ScrollView Grid.Row="3">
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,120">
+                <Label x:Name="LblSeccionLista" Text="TODOS"
+                       FontSize="12" FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                       CharacterSpacing="1" Margin="20,10,0,10"/>
+
+                <CollectionView x:Name="ClientesCollectionView" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  Padding="20,12" ColumnSpacing="14">
+
+                                <Grid Grid.Column="0">
+                                    <Border WidthRequest="56" HeightRequest="56"
+                                            BackgroundColor="{AppThemeBinding Light=#E2E8F0, Dark=#334155}"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="28"/>
+                                        </Border.StrokeShape>
+                                        <Grid>
+                                            <Label Text="{Binding PrimeraLetra}"
+                                                   FontSize="20" FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"
+                                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            <Image Source="{Binding Avatarurl}"
+                                                   Aspect="AspectFill"
+                                                   HorizontalOptions="Fill" VerticalOptions="Fill"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border WidthRequest="14" HeightRequest="14"
+                                            BackgroundColor="#34C759"
+                                            Stroke="#FFFFFF" StrokeThickness="2"
+                                            HorizontalOptions="End" VerticalOptions="End"
+                                            IsVisible="{Binding Activo}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="7"/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding NombreCompleto}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                           LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding EstadoTexto}"
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                           LineBreakMode="TailTruncation"/>
+                                </VerticalStackLayout>
+
+                                <Image Grid.Column="2" Source="ic_chevron.svg"
+                                       WidthRequest="16" HeightRequest="16"
+                                       VerticalOptions="Center"/>
+
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnClienteTapped"
+                                                          CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="40" Spacing="10" HorizontalOptions="Center">
+                            <Image Source="ic_users.svg" WidthRequest="60" HeightRequest="60"
+                                   HorizontalOptions="Center" Opacity="0.4"/>
+                            <Label x:Name="LblEmptyText"
+                                   Text="No hay clientes vinculados"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="Aparecerán cuando se vinculen a tus proyectos"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:FloatingTabBar Grid.Row="4" SelectedIndex="2" />
+
+        <!-- ===== MODAL EDITAR CLIENTE ===== -->
+        <BoxView x:Name="EditClienteBackdrop" Grid.RowSpan="5"
+                 BackgroundColor="#80000000" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseEditClienteTapped"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <Border x:Name="EditClienteSheetModal" Grid.RowSpan="5"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                StrokeThickness="0"
+                VerticalOptions="End" HorizontalOptions="Fill"
+                IsVisible="False" Opacity="0" TranslationY="600">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="28,28,0,0"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="20"/>
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0,0,0,20">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,16">
+                    <Label Grid.Column="0" Text="Cancelar" FontSize="16" TextColor="#007AFF" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCloseEditClienteTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Grid.Column="1" Text="Editar Cliente" FontSize="17" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Grid.Column="2" Text="Guardar" FontSize="16" FontAttributes="Bold" TextColor="#007AFF" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnGuardarClienteTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+
+                <BoxView Grid.Row="1" HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light=#E5E5EA, Dark=#38383A}"/>
+
+                <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout Spacing="20" Padding="20,20,20,10">
+
+                        <!-- Avatar con ícono de cámara -->
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Grid HorizontalOptions="Center">
+                                <Border WidthRequest="100" HeightRequest="100"
+                                        BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="50"/>
+                                    </Border.StrokeShape>
+                                    <Grid>
+                                        <Label x:Name="LblAvatarInicialEdit" Text="?"
+                                               FontSize="36" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"
+                                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        <Image x:Name="ImgAvatarEdit" Aspect="AspectFill"
+                                               HorizontalOptions="Fill" VerticalOptions="Fill"
+                                               IsVisible="False"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Ícono de cámara flotante -->
+                                <Border WidthRequest="32" HeightRequest="32"
+                                        BackgroundColor="#007AFF"
+                                        Stroke="#FFFFFF" StrokeThickness="2"
+                                        HorizontalOptions="End" VerticalOptions="End">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16"/>
+                                    </Border.StrokeShape>
+                                    <Image Source="ic_camera_white.svg" WidthRequest="16" HeightRequest="16"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSeleccionarAvatarClienteClicked"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                            <Label Text="Toca para cambiar foto" FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Nombre" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditNombre" Placeholder="Nombre"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Apellido -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Apellido" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditApellido" Placeholder="Apellido"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Email -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Email" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditEmail" Placeholder="correo@ejemplo.com" Keyboard="Email"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Teléfono -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Teléfono" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditTelefono" Placeholder="+57 300 000 0000" Keyboard="Telephone"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Dirección -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Dirección" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditDireccion" Placeholder="Calle 123 #45-67"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Tipo documento -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Tipo de documento" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Picker x:Name="PickerEditTipoDocumento" Title="Selecciona"
+                                        TitleColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                        TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                        Margin="15,0">
+                                    <Picker.Items>
+                                        <x:String>CC</x:String>
+                                        <x:String>CE</x:String>
+                                        <x:String>NIT</x:String>
+                                        <x:String>Pasaporte</x:String>
+                                        <x:String>TI</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Número documento -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Número de documento" FontSize="13"
+                                   TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                   Margin="8,0,0,0"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                    StrokeThickness="0" HeightRequest="50">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <Entry x:Name="EntryEditNumeroDocumento" Placeholder="1234567890" Keyboard="Numeric"
+                                       PlaceholderColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                       Margin="15,0" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Estado -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="8,10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Activo" FontSize="15" FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                <Label Text="El cliente puede iniciar sesión" FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#8E8E93, Dark=#8E8E93}"/>
+                            </VerticalStackLayout>
+                            <Switch x:Name="SwitchActivo" Grid.Column="1" OnColor="#34C759" VerticalOptions="Center"/>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Button Grid.Row="3" Text="Guardar Cambios"
+                        BackgroundColor="#007AFF" TextColor="#FFFFFF"
+                        HeightRequest="50" CornerRadius="14" FontSize="17" FontAttributes="Bold"
+                        Clicked="OnGuardarClienteTapped" Margin="20,10,20,0"/>
+            </Grid>
+        </Border>
+
+        <!-- ===== MODAL VER ARQUITECTO (CLIENTE) ===== -->
+        <BoxView x:Name="ViewArquiBackdrop" Grid.RowSpan="5"
+                 BackgroundColor="#80000000" Opacity="0" IsVisible="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseViewArquiTapped"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <Border x:Name="ViewArquiSheetModal" Grid.RowSpan="5"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                StrokeThickness="0"
+                VerticalOptions="End" HorizontalOptions="Fill"
+                IsVisible="False" Opacity="0" TranslationY="500">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="28,28,0,0"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="20"/>
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0,0,0,20">
+
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="20,18,20,10">
+                    <Label x:Name="LblVerArquiTitulo" Text="Arquitecto" FontSize="20" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                           VerticalOptions="Center"/>
+                    <Border Grid.Column="1" WidthRequest="32" HeightRequest="32"
+                            BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                            StrokeThickness="0" VerticalOptions="Start">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16"/>
+                        </Border.StrokeShape>
+                        <Image Source="ic_close.svg" WidthRequest="16" HeightRequest="16"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCloseViewArquiTapped"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <BoxView Grid.Row="1" HeightRequest="1"
+                         BackgroundColor="{AppThemeBinding Light=#E5E5EA, Dark=#38383A}"/>
+
+                <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout Spacing="16" Padding="20,20,20,10">
+
+                        <Border WidthRequest="100" HeightRequest="100"
+                                BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                StrokeThickness="0" HorizontalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="50"/>
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Label x:Name="LblVerArquiInicial" Text="?"
+                                       FontSize="36" FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <Image x:Name="ImgVerArqui" Aspect="AspectFill"
+                                       HorizontalOptions="Fill" VerticalOptions="Fill"
+                                       IsVisible="False"/>
+                            </Grid>
+                        </Border>
+
+                        <Border BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                                StrokeThickness="0" Padding="18">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="14"/>
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="12">
+
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Nombre completo" FontSize="12" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                           TextTransform="Uppercase" CharacterSpacing="1"/>
+                                    <Label x:Name="LblVerArquiNombre" Text="--" FontSize="15"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Teléfono" FontSize="12" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                           TextTransform="Uppercase" CharacterSpacing="1"/>
+                                    <Label x:Name="LblVerArquiTelefono" Text="--" FontSize="15"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Dirección" FontSize="12" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                           TextTransform="Uppercase" CharacterSpacing="1"/>
+                                    <Label x:Name="LblVerArquiDireccion" Text="--" FontSize="15"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                </VerticalStackLayout>
+
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Button Grid.Row="3" Text="Cerrar"
+                        BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}"
+                        TextColor="#007AFF"
+                        HeightRequest="48" CornerRadius="14" FontSize="16" FontAttributes="Bold"
+                        Clicked="OnCloseViewArquiClicked" Margin="20,10,20,0"/>
+            </Grid>
+        </Border>
+
+    </Grid>
+</ContentPage>

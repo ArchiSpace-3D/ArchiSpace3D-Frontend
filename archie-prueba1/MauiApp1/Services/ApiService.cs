@@ -1454,6 +1454,37 @@ namespace MauiApp1.Services
                 return (false, $"Error de red: {ex.Message}");
             }
         }
+        public static async Task<(bool Success, string Message)> SubirAvatarUsuarioAsync(int idUsuario, FileResult foto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return (false, "No autenticado.");
+
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/usuario/{idUsuario}/avatar";
+                using var request = new HttpRequestMessage(HttpMethod.Post, url);
+                SetAuthHeader(request);
+
+                using var stream = await foto.OpenReadAsync();
+                var streamContent = new StreamContent(stream);
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(foto.ContentType ?? "image/jpeg");
+
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(streamContent, "file", foto.FileName);
+                request.Content = multipart;
+
+                using var response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                    return (true, "Avatar actualizado.");
+
+                string err = await response.Content.ReadAsStringAsync();
+                return (false, $"Error ({response.StatusCode}): {err}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
 
     }
 }
