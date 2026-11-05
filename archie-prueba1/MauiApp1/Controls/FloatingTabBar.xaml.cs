@@ -1,5 +1,3 @@
-using MauiApp1.Views;
-
 namespace MauiApp1.Controls;
 
 public partial class FloatingTabBar : ContentView
@@ -18,6 +16,16 @@ public partial class FloatingTabBar : ContentView
     {
         InitializeComponent();
         UpdateTabs(SelectedIndex);
+
+        if (Application.Current != null)
+        {
+            Application.Current.RequestedThemeChanged += OnRequestedThemeChanged;
+        }
+    }
+
+    private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)
+    {
+        UpdateTabs(SelectedIndex);
     }
 
     private static void OnSelectedIndexChanged(BindableObject bindable, object oldValue, object newValue)
@@ -28,12 +36,16 @@ public partial class FloatingTabBar : ContentView
 
     private void UpdateTabs(int index)
     {
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        Color activeColor = isDark ? Color.FromArgb("#2C2C2E") : Color.FromArgb("#E5E5EA");
+
         var backgrounds = new[] { Bg0, Bg1, Bg2, Bg3, Bg4 };
         for (int i = 0; i < backgrounds.Length; i++)
         {
-            backgrounds[i].BackgroundColor = (i == index)
-                ? Color.FromArgb("#E5E5EA")
-                : Colors.Transparent;
+            if (backgrounds[i] != null)
+            {
+                backgrounds[i].BackgroundColor = (i == index) ? activeColor : Colors.Transparent;
+            }
         }
     }
 

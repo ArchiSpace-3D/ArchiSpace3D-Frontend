@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Collections.ObjectModel;
 
@@ -14,9 +14,14 @@ public partial class AdminUsersPage : ContentPage
         UsersCollectionView.ItemsSource = _usuarios;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        if (!UserSession.EsArquitecto)
+        {
+            await Navigation.PopModalAsync();
+            return;
+        }
         CargarUsuarios();
     }
 
@@ -31,7 +36,10 @@ public partial class AdminUsersPage : ContentPage
             var list = await ApiService.GetUsuariosAsync();
             if (list != null)
             {
-                foreach (var u in list) _usuarios.Add(u);
+                foreach (var u in list.Where(u => !string.Equals(u.Rol, "Arquitecto", StringComparison.OrdinalIgnoreCase)))
+                {
+                    _usuarios.Add(u);
+                }
             }
         }
         catch { }
@@ -55,15 +63,17 @@ public partial class AdminUsersPage : ContentPage
 
     private async void OnDeleteUserClicked(object? sender, EventArgs e)
     {
+        if (!UserSession.EsArquitecto) return;
+
         if (sender is Border btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is UsuarioDto user)
         {
-            if (user.Rol == "Arquitecto")
+            if (string.Equals(user.Rol, "Arquitecto", StringComparison.OrdinalIgnoreCase))
             {
                 await ShowAlertAsync("Acción denegada", "No puedes eliminar a otros arquitectos del sistema.", "Entendido");
                 return;
             }
 
-            var confirm = await ShowAlertConfirmAsync("Eliminar Usuario", $"¿Estás seguro de eliminar al cliente {user.Nombre}?", "Sí, eliminar", "Cancelar");
+            var confirm = await ShowAlertConfirmAsync("Aviso", $"¿Estás seguro de eliminar al cliente {user.NombreCompleto}?", "Sí, eliminar", "Cancelar");
             if (!confirm) return;
 
             LoadingIndicator.IsRunning = true;
@@ -93,6 +103,3 @@ public partial class AdminUsersPage : ContentPage
         return AlertService.ShowAlertAsync(title, message, accept, cancel);
     }
 }
-
-
-

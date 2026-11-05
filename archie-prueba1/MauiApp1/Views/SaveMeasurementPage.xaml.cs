@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using Microsoft.Maui.Controls;
 using MauiApp1.Models;
 using MauiApp1.Services;
+using Microsoft.Maui.Controls;
 
 namespace MauiApp1.Views
 {
@@ -10,33 +10,29 @@ namespace MauiApp1.Views
     {
         public static event Action? OnMedicionGuardadaLocal;
 
-        private decimal _largoAr = 0;
-        private decimal _total = 0;
-        private bool _esDeduccion = false;
+        private readonly decimal _largoAr;
+        private decimal _total;
+        private bool _esDeduccion;
 
         public SaveMeasurementPage(decimal largoMedido)
         {
             InitializeComponent();
             _largoAr = largoMedido;
-            if (_largoAr > 0)
-                LargoEntry.Text = _largoAr.ToString("0.00", CultureInfo.InvariantCulture);
-            else
-                LargoEntry.Text = ""; // Vacío para que el usuario no envíe 0.00 por accidente
+            LargoEntry.Text = _largoAr > 0
+                ? _largoAr.ToString("0.00", CultureInfo.InvariantCulture)
+                : string.Empty;
 
-            UnidadPicker.SelectedIndex = 0; 
+            UnidadPicker.SelectedIndex = 0;
             CalculateTotal();
         }
 
         private async void OnCloseClicked(object? sender, EventArgs e)
         {
-            OnMedicionGuardadaLocal?.Invoke();
             await Navigation.PopModalAsync();
         }
 
         private void OnUnidadChanged(object? sender, EventArgs e)
         {
-            string unit = UnidadPicker.SelectedItem?.ToString() ?? "m";
-            
             if (UnidadPicker.SelectedIndex == 3) // U
             {
                 LargoEntry.IsEnabled = false;
@@ -61,7 +57,7 @@ namespace MauiApp1.Views
                 AnchoContainer.IsVisible = false;
                 AltoContainer.IsVisible = false;
             }
-            
+
             CalculateTotal();
         }
 
@@ -76,13 +72,13 @@ namespace MauiApp1.Views
             CalculateTotal();
         }
 
-        private decimal ParseDecimalSafe(string input)
+        private static decimal ParseDecimalOrDefault(string? input, decimal defaultValue)
         {
-            if (string.IsNullOrWhiteSpace(input)) return 1;
-            string clean = input.Replace(",", ".");
+            if (string.IsNullOrWhiteSpace(input)) return defaultValue;
+            string clean = input.Replace(",", ".").Trim();
             if (decimal.TryParse(clean, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal val))
                 return val;
-            return 1;
+            return defaultValue;
         }
 
         private void CalculateTotal()
@@ -92,26 +88,22 @@ namespace MauiApp1.Views
             int veces = 1;
             if (!string.IsNullOrWhiteSpace(VecesEntry.Text))
                 int.TryParse(VecesEntry.Text, out veces);
-            if (veces == 0) veces = 1; // Prevenir multiplicar por 0 accidentalmente
-            
-            decimal largo = 1;
-            if (LargoEntry != null && LargoEntry.IsEnabled)
-                largo = ParseDecimalSafe(LargoEntry.Text);
+            if (veces <= 0) veces = 1;
 
-            decimal ancho = 1;
+            decimal largo = 1m;
+            if (LargoEntry != null && LargoEntry.IsEnabled)
+                largo = ParseDecimalOrDefault(LargoEntry.Text, 0m);
+
+            decimal ancho = 1m;
             if (AnchoContainer != null && AnchoContainer.IsVisible)
-                ancho = ParseDecimalSafe(AnchoEntry.Text);
-            
-            decimal alto = 1;
+                ancho = ParseDecimalOrDefault(AnchoEntry.Text, 1m);
+
+            decimal alto = 1m;
             if (AltoContainer != null && AltoContainer.IsVisible)
-                alto = ParseDecimalSafe(AltoEntry.Text);
+                alto = ParseDecimalOrDefault(AltoEntry.Text, 1m);
 
             _total = veces * largo * ancho * alto;
-
-            if (_esDeduccion)
-            {
-                _total *= -1;
-            }
+            if (_esDeduccion) _total *= -1;
 
             TotalLabel.Text = _total.ToString("0.00", CultureInfo.InvariantCulture);
         }
@@ -127,55 +119,61 @@ namespace MauiApp1.Views
             int veces = 1;
             if (!string.IsNullOrWhiteSpace(VecesEntry.Text))
                 int.TryParse(VecesEntry.Text, out veces);
-            if (veces == 0) veces = 1;
-            
-            decimal largo = 1;
+            if (veces <= 0) veces = 1;
+
+            decimal largo = 1m;
             if (LargoEntry.IsEnabled)
-                largo = ParseDecimalSafe(LargoEntry.Text);
+            {
+                largo = ParseDecimalOrDefault(LargoEntry.Text, 0m);
+                if (largo <= 0m)
+                {
+                    await AlertService.ShowAlertAsync("Medida requerida", "Ingresa un largo mayor a 0 metros.", "Entendido");
+                    return;
+                }
+            }
 
-            decimal ancho = 1;
-            if (AnchoContainer.IsVisible)
-                ancho = ParseDecimalSafe(AnchoEntry.Text);
-            
-            decimal alto = 1;
-            if (AltoContainer.IsVisible)
-                alto = ParseDecimalSafe(AltoEntry.Text);
+            decimal ancho = AnchoContainer.IsVisible ? ParseDecimalOrDefault(AnchoEntry.Text, 1m) : 1m;
+            decimal alto = AltoContainer.IsVisible ? ParseDecimalOrDefault(AltoEntry.Text, 1m) : 1m;
 
-            // Re-calcular total al guardar por seguridad
             _total = veces * largo * ancho * alto;
             if (_esDeduccion) _total *= -1;
 
-            var req = new CrearMediciónRequest
+            BtnGuardarComputo.IsEnabled = false;
+            try
             {
-                Idproyecto = UserSession.ActiveProject.Idproyecto,
-                Distancia = largo, 
-                Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
-                Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
-                Fechamedicion = DateTime.UtcNow,
-                
-                Etapa = EtapaEntry.Text,
-                Partida = PartidaEntry.Text,
-                Descripcion = DescEntry.Text,
-                Veces = veces,
-                Largo = largo,
-                Ancho = ancho,
-                Alto = alto,
-                Unidad = UnidadPicker.SelectedItem?.ToString() ?? "m",
-                Totalparcial = _total
-            };
+                var req = new CrearMediciónRequest
+                {
+                    Idproyecto = UserSession.ActiveProject.Idproyecto,
+                    Distancia = largo,
+                    Puntoinicial = "{\"x\":0, \"y\":0, \"z\":0}",
+                    Puntofinal = "{\"x\":0, \"y\":0, \"z\":0}",
+                    Fechamedicion = DateTime.UtcNow,
+                    Etapa = string.IsNullOrWhiteSpace(EtapaEntry.Text) ? "General" : EtapaEntry.Text.Trim(),
+                    Partida = string.IsNullOrWhiteSpace(PartidaEntry.Text) ? "Medición" : PartidaEntry.Text.Trim(),
+                    Descripcion = string.IsNullOrWhiteSpace(DescEntry.Text) ? null : DescEntry.Text.Trim(),
+                    Veces = veces,
+                    Largo = largo,
+                    Ancho = ancho,
+                    Alto = alto,
+                    Unidad = UnidadPicker.SelectedItem?.ToString() ?? "m",
+                    Totalparcial = _total
+                };
 
-            var (success, msg) = await ApiService.GuardarMediciónAsync(req);
-            if (success)
-            {
-                await AlertService.ShowAlertAsync("Éxito", $"Cómputo guardado correctamente.", "OK");
-                OnMedicionGuardadaLocal?.Invoke();
-                await Navigation.PopModalAsync();
+                var (success, msg) = await ApiService.GuardarMediciónAsync(req);
+                if (success)
+                {
+                    OnMedicionGuardadaLocal?.Invoke();
+                    await Navigation.PopModalAsync();
+                }
+                else
+                {
+                    await AlertService.ShowAlertAsync("Error", $"No se pudo guardar: {msg}", "OK");
+                }
             }
-            else
+            finally
             {
-                await AlertService.ShowAlertAsync("Error", $"No se guardó: {msg}", "OK");
+                BtnGuardarComputo.IsEnabled = true;
             }
         }
     }
 }
-

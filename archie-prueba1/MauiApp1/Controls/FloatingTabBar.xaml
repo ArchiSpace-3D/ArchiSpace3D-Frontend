@@ -1,11 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Controls.FloatingTabBar"
              VerticalOptions="End" HorizontalOptions="Center">
 
-    <Border BackgroundColor="#F2FFFFFF"
-            StrokeThickness="0"
+    <Border BackgroundColor="{AppThemeBinding Light=#F2FFFFFF, Dark=#F21C1C1E}"
+            Stroke="{AppThemeBinding Light=#14000000, Dark=#2AFFFFFF}"
+            StrokeThickness="1"
             Margin="20,0,20,20"
             HeightRequest="70"
             VerticalOptions="End"
@@ -14,7 +15,7 @@
             <RoundRectangle CornerRadius="35" />
         </Border.StrokeShape>
         <Border.Shadow>
-            <Shadow Brush="#000000" Offset="0,4" Radius="16" Opacity="0.12"/>
+            <Shadow Brush="#000000" Offset="0,4" Radius="16" Opacity="0.18"/>
         </Border.Shadow>
 
         <HorizontalStackLayout Spacing="6" Padding="10,0" VerticalOptions="Center" HorizontalOptions="Center">
@@ -27,10 +28,10 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="0"/>
                 </Border.GestureRecognizers>
-                <Image x:Name="Icon0" Source="nav_home.svg" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Image x:Name="Icon0" Source="{AppThemeBinding Light=nav_home.svg, Dark=nav_home_white.svg}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
-            <!-- Tab 1: Proyectos / Diseño -->
+            <!-- Tab 1: Planos / Diseño CAD -->
             <Border x:Name="Bg1" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="52" WidthRequest="52">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="26"/>
@@ -38,10 +39,10 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="1"/>
                 </Border.GestureRecognizers>
-                <Image x:Name="Icon1" Source="nav_layers.svg" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Image x:Name="Icon1" Source="{AppThemeBinding Light=nav_layers.svg, Dark=nav_layers_white.svg}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
-            <!-- Tab 2: Enviar -->
+            <!-- Tab 2: Clientes / Arquitecto -->
             <Border x:Name="Bg2" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="52" WidthRequest="52">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="26"/>
@@ -49,10 +50,10 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="2"/>
                 </Border.GestureRecognizers>
-                <Image x:Name="Icon2" Source="nav_send.svg" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Image x:Name="Icon2" Source="{AppThemeBinding Light=nav_clients.svg, Dark=nav_clients_white.svg}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
-            <!-- Tab 3: Buscar -->
+            <!-- Tab 3: Mediciones AR -->
             <Border x:Name="Bg3" BackgroundColor="Transparent" StrokeThickness="0" HeightRequest="52" WidthRequest="52">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="26"/>
@@ -60,7 +61,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="3"/>
                 </Border.GestureRecognizers>
-                <Image x:Name="Icon3" Source="nav_search.svg" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Image x:Name="Icon3" Source="{AppThemeBinding Light=nav_measure_dark.svg, Dark=nav_measure_white.svg}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <!-- Tab 4: Perfil -->
@@ -71,7 +72,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="4"/>
                 </Border.GestureRecognizers>
-                <Image x:Name="Icon4" Source="nav_user.svg" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Image x:Name="Icon4" Source="{AppThemeBinding Light=nav_user.svg, Dark=nav_user_white.svg}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
         </HorizontalStackLayout>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.AdminUsersPage"
@@ -6,9 +6,9 @@
              BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}">
 
     <Grid RowDefinitions="Auto,*">
-        <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,15" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}">
-            <Border.Shadow><Shadow Brush="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
-            <Image Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,15" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}">
+            <Grid.Shadow><Shadow Brush="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Opacity="0.05" Offset="0,2" Radius="5"/></Grid.Shadow>
+            <Image Source="{AppThemeBinding Light=ic_close.svg, Dark=ic_close_white.svg}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnCloseClicked"/>
                 </Image.GestureRecognizers>
@@ -31,7 +31,7 @@
                                     
                                     <Grid ColumnDefinitions="*,Auto" Padding="15">
                                         <VerticalStackLayout Spacing="2" VerticalOptions="Center">
-                                            <Label Text="{Binding Nombre}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold"/>
+                                            <Label Text="{Binding NombreCompleto}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold"/>
                                             <Label Text="{Binding Email}" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="13"/>
                                             <Border BackgroundColor="{AppThemeBinding Light=#E8F1F8, Dark=#1E1E1E}" StrokeThickness="0" HorizontalOptions="Start" Padding="8,4" Margin="0,5,0,0">
                                                 <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>

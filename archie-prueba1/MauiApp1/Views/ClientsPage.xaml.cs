@@ -1,7 +1,12 @@
-﻿using MauiApp1.Models;
-using MauiApp1.Services;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using MauiApp1.Models;
+using MauiApp1.Services;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 
 namespace MauiApp1.Views;
 
@@ -23,12 +28,15 @@ public partial class ClientsPage : ContentPage
     {
         base.OnAppearing();
 
-        bool esArquitecto = UserSession.Rol == "Arquitecto";
+        bool esArquitecto = UserSession.EsArquitecto;
         LblHeaderTitle.Text = esArquitecto ? "Clientes" : "Mi Arquitecto";
-        LblSeccionLista.Text = esArquitecto ? "TODOS" : "ARQUITECTOS";
+        LblSeccionLista.Text = esArquitecto ? "TODOS LOS CLIENTES" : "ARQUITECTO ASIGNADO";
         LblEmptyText.Text = esArquitecto
             ? "No hay clientes vinculados"
-            : "No hay arquitectos vinculados";
+            : "No tienes arquitecto vinculado aún";
+        LblEmptySubText.Text = esArquitecto
+            ? "Aparecerán cuando asignes o vincules clientes a tus proyectos"
+            : "Vincula el código de invitación de tu arquitecto desde Inicio";
 
         await CargarPersonasAsync();
     }
@@ -37,7 +45,7 @@ public partial class ClientsPage : ContentPage
     {
         try
         {
-            bool esArquitecto = UserSession.Rol == "Arquitecto";
+            bool esArquitecto = UserSession.EsArquitecto;
 
             List<ProyectoDto> proyectos = esArquitecto
                 ? await ApiService.GetProyectosByArquitectoAsync(UserSession.Idusuario)
@@ -70,8 +78,9 @@ public partial class ClientsPage : ContentPage
             var usuarios = await ApiService.GetUsuariosAsync();
             var rolFiltro = esArquitecto ? "Cliente" : "Arquitecto";
 
-            _todos = usuarios
-                .Where(u => u.Rol == rolFiltro && idsVinculados.Contains(u.Idusuario))
+            _todos = (usuarios ?? new List<UsuarioDto>())
+                .Where(u => string.Equals(u.Rol, rolFiltro, StringComparison.OrdinalIgnoreCase)
+                         && idsVinculados.Contains(u.Idusuario))
                 .OrderBy(u => u.Nombre)
                 .ToList();
 
@@ -112,11 +121,12 @@ public partial class ClientsPage : ContentPage
 
     private View CreateActivoCircle(UsuarioDto persona)
     {
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
         var border = new Border
         {
             WidthRequest = 70,
             HeightRequest = 70,
-            BackgroundColor = Color.FromArgb("#E2E8F0"),
+            BackgroundColor = Color.FromArgb(isDark ? "#1E293B" : "#E2E8F0"),
             StrokeThickness = 2,
             Stroke = Color.FromArgb("#34C759"),
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 35 }
@@ -128,7 +138,7 @@ public partial class ClientsPage : ContentPage
             Text = persona.PrimeraLetra,
             FontSize = 24,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#0F172A"),
+            TextColor = Color.FromArgb(isDark ? "#F8FAFC" : "#0F172A"),
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         });
@@ -154,7 +164,7 @@ public partial class ClientsPage : ContentPage
         {
             Text = persona.Nombre,
             FontSize = 11,
-            TextColor = Color.FromArgb("#64748B"),
+            TextColor = Color.FromArgb(isDark ? "#94A3B8" : "#64748B"),
             HorizontalTextAlignment = TextAlignment.Center,
             LineBreakMode = LineBreakMode.TailTruncation,
             WidthRequest = 70
@@ -194,7 +204,7 @@ public partial class ClientsPage : ContentPage
 
     private void OnClienteTapped(UsuarioDto persona)
     {
-        if (UserSession.Rol == "Arquitecto")
+        if (UserSession.EsArquitecto)
             _ = AbrirModalEditarCliente(persona);
         else
             _ = AbrirModalVerArquitecto(persona);
@@ -204,7 +214,7 @@ public partial class ClientsPage : ContentPage
     {
         if (e.Parameter is not UsuarioDto persona) return;
 
-        if (UserSession.Rol == "Arquitecto")
+        if (UserSession.EsArquitecto)
             await AbrirModalEditarCliente(persona);
         else
             await AbrirModalVerArquitecto(persona);
@@ -212,8 +222,8 @@ public partial class ClientsPage : ContentPage
 
     private void OnToggleEditModeClicked(object? sender, TappedEventArgs e)
     {
-        _ = AlertService.ShowAlertAsync("Modo edición",
-            "Toca cualquier cliente de la lista para editarlo.", "OK");
+        _ = AlertService.ShowAlertAsync("Gestión de clientes",
+            "Selecciona cualquier cliente de la lista para editar su información o estado.", "Entendido");
     }
 
     // ====================== MODAL EDITAR ======================
@@ -318,15 +328,16 @@ public partial class ClientsPage : ContentPage
         var req = new ActualizarUsuarioRequest
         {
             Idusuario = _clienteEditando.Idusuario,
-            Nombre = EntryEditNombre.Text ?? _clienteEditando.Nombre,
-            Apellido = EntryEditApellido.Text ?? _clienteEditando.Apellido,
-            Email = EntryEditEmail.Text ?? _clienteEditando.Email,
-            Telefono = EntryEditTelefono.Text,
-            Direccion = EntryEditDireccion.Text,
+            Nombre = string.IsNullOrWhiteSpace(EntryEditNombre.Text) ? _clienteEditando.Nombre : EntryEditNombre.Text.Trim(),
+            Apellido = EntryEditApellido.Text?.Trim() ?? _clienteEditando.Apellido,
+            Email = string.IsNullOrWhiteSpace(EntryEditEmail.Text) ? _clienteEditando.Email : EntryEditEmail.Text.Trim(),
+            Telefono = string.IsNullOrWhiteSpace(EntryEditTelefono.Text) ? null : EntryEditTelefono.Text.Trim(),
+            Direccion = string.IsNullOrWhiteSpace(EntryEditDireccion.Text) ? null : EntryEditDireccion.Text.Trim(),
             Tipodocumento = PickerEditTipoDocumento.SelectedItem?.ToString(),
-            Numerodocumento = EntryEditNumeroDocumento.Text,
+            Numerodocumento = string.IsNullOrWhiteSpace(EntryEditNumeroDocumento.Text) ? null : EntryEditNumeroDocumento.Text.Trim(),
             Rol = _clienteEditando.Rol,
-            Avatarurl = _clienteEditando.Avatarurl
+            Avatarurl = _clienteEditando.Avatarurl,
+            Activo = SwitchActivo.IsToggled
         };
 
         var res = await ApiService.ActualizarUsuarioAsync(_clienteEditando.Idusuario, req);
@@ -354,6 +365,7 @@ public partial class ClientsPage : ContentPage
     {
         LblVerArquiTitulo.Text = arquitecto.NombreCompleto;
         LblVerArquiNombre.Text = arquitecto.NombreCompleto;
+        LblVerArquiEmail.Text = string.IsNullOrWhiteSpace(arquitecto.Email) ? "--" : arquitecto.Email;
         LblVerArquiTelefono.Text = string.IsNullOrWhiteSpace(arquitecto.Telefono) ? "--" : arquitecto.Telefono;
         LblVerArquiDireccion.Text = string.IsNullOrWhiteSpace(arquitecto.Direccion) ? "--" : arquitecto.Direccion;
 

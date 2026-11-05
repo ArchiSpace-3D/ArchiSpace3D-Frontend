@@ -8,18 +8,23 @@ namespace MauiApp1.Views;
 public partial class SpacesPage : ContentPage
 {
     private readonly ObservableCollection<EspacioFisicoDto> _espacios = new();
-    private int _idProyecto;
+    private readonly int _idProyecto;
 
     public SpacesPage(int idProyecto)
     {
         InitializeComponent();
         _idProyecto = idProyecto;
         SpacesCollectionView.ItemsSource = _espacios;
+        BtnNuevoEspacio.IsVisible = UserSession.EsArquitecto;
+        LblEmptySpacesSubtitle.Text = UserSession.EsArquitecto
+            ? "Añade las habitaciones o zonas del proyecto."
+            : "El arquitecto aún no ha registrado áreas en este proyecto.";
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        BtnNuevoEspacio.IsVisible = UserSession.EsArquitecto;
         CargarEspacios();
     }
 
@@ -31,10 +36,10 @@ public partial class SpacesPage : ContentPage
 
         try
         {
-            var espacios = await ApiService.GetEspaciosFisicosAsync();
+            var espacios = await ApiService.GetEspaciosPorProyectoListaAsync(_idProyecto);
             if (espacios != null)
             {
-                foreach (var e in espacios.Where(x => x.Idproyecto == _idProyecto))
+                foreach (var e in espacios.Where(x => !string.Equals(x.Descripcion, "__PLANO_CAD__", StringComparison.OrdinalIgnoreCase)))
                 {
                     _espacios.Add(e);
                 }
@@ -55,10 +60,13 @@ public partial class SpacesPage : ContentPage
 
     private async void OnNewSpaceClicked(object? sender, EventArgs e)
     {
+        if (!UserSession.EsArquitecto) return;
+
         EntryDesc.Text = "";
         EntryLargo.Text = "";
         EntryAncho.Text = "";
-        
+        EntryAlto.Text = "2.5";
+
         SheetBackdrop.IsVisible = true;
         SheetBackdrop.InputTransparent = false;
         await SheetBackdrop.FadeToAsync(1, 200);
@@ -84,32 +92,34 @@ public partial class SpacesPage : ContentPage
         SheetBackdrop.IsVisible = false;
     }
 
-    private decimal ParseDecimalSafe(string val)
+    private static decimal ParseDecimalSafe(string? val)
     {
         if (string.IsNullOrWhiteSpace(val)) return 0;
         val = val.Replace(",", ".");
-        if (decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-            return result;
-        return 0;
+        return decimal.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
     }
 
     private async void OnSubmitSpaceClicked(object? sender, EventArgs e)
     {
+        if (!UserSession.EsArquitecto) return;
+
         if (string.IsNullOrWhiteSpace(EntryDesc.Text))
         {
-            await DisplayAlertAsync("Error", "Debe ingresar un nombre para el espacio.", "OK");
+            await AlertService.ShowAlertAsync("Aviso", "Debe ingresar un nombre para el espacio.", "OK");
             return;
         }
+
+        decimal alto = ParseDecimalSafe(EntryAlto.Text);
+        if (alto <= 0) alto = 2.5m;
 
         var req = new CrearEspacioFisicoRequest
         {
             Idproyecto = _idProyecto,
-            Descripcion = EntryDesc.Text,
+            Descripcion = EntryDesc.Text.Trim(),
             Largoaproximado = ParseDecimalSafe(EntryLargo.Text),
             Anchoaproximado = ParseDecimalSafe(EntryAncho.Text),
-            Altoaproximado = 2.5m, // Default height
-            Puntosreferencia = "[]",
-            
+            Altoaproximado = alto,
+            Puntosreferencia = "[]"
         };
 
         LoadingIndicator.IsRunning = true;
@@ -125,15 +135,17 @@ public partial class SpacesPage : ContentPage
         }
         else
         {
-            await DisplayAlertAsync("Error", msg, "OK");
+            await AlertService.ShowAlertAsync("Error", msg, "OK");
         }
     }
 
     private async void OnDeleteSpaceClicked(object? sender, EventArgs e)
     {
-        if (sender is Image btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is EspacioFisicoDto espacio)
+        if (!UserSession.EsArquitecto) return;
+
+        if (sender is View btn && btn.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tap && tap.CommandParameter is EspacioFisicoDto espacio)
         {
-            bool confirm = await DisplayAlertAsync("Eliminar", $"¿Seguro que deseas eliminar el espacio '{espacio.Descripcion}'?", "Sí", "No");
+            bool confirm = await AlertService.ShowAlertAsync("Aviso", $"¿Seguro que deseas eliminar el espacio '{espacio.Descripcion}'?", "Sí, eliminar", "Cancelar");
             if (!confirm) return;
 
             LoadingIndicator.IsRunning = true;
@@ -148,7 +160,7 @@ public partial class SpacesPage : ContentPage
             }
             else
             {
-                await DisplayAlertAsync("Error", msg, "OK");
+                await AlertService.ShowAlertAsync("Error", msg, "OK");
             }
         }
     }

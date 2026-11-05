@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:views="clr-namespace:MauiApp1.Views"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:MauiApp1.Views"
              x:Class="MauiApp1.Views.SuggestionsPage"
              BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#0B1120}"
              Title="Sugerencias">
@@ -14,20 +15,14 @@
                         <Label Text="Ideas y Sugerencias" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"/>
                         <Label Text="Buzón de ideas del proyecto" FontSize="14" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"/>
                     </VerticalStackLayout>
-                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" WidthRequest="48" HeightRequest="48" StrokeThickness="0">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="24"/></Border.StrokeShape>
-                        <Image Source="{AppThemeBinding Light=ic_close.svg, Dark=ic_close.svg}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Image.Triggers>
-                                <DataTrigger TargetType="Image" Binding="{Binding AppTheme}" Value="Light">
-                                    <Setter Property="Source" Value="ic_close.svg"/>
-                                </DataTrigger>
-                            </Image.Triggers>
-                        </Image>
+                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1E293B}" WidthRequest="44" HeightRequest="44" StrokeThickness="0" VerticalOptions="Center">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="22"/></Border.StrokeShape>
+                        <Image Source="ic_close_white.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                         <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseClicked"/></Border.GestureRecognizers>
                     </Border>
                 </Grid>
 
-                <Button Text="+ Enviar Sugerencia" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontAttributes="Bold" Clicked="OnNewSuggestionClicked"/>
+                <Button Text="Nueva Sugerencia" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontAttributes="Bold" Clicked="OnNewSuggestionClicked"/>
 
                 <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,20"/>
                 
@@ -49,7 +44,6 @@
                                         <Label Text="{Binding Estado}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#93C5FD}"/>
                                     </Border>
 
-                                    <!-- Admin Options -->
                                     <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="10" Margin="0,15,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type views:SuggestionsPage}}, Path=IsArquitecto}">
                                         <Button Text="Aprobar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#E8F5E9" TextColor="#2E7D32" CommandParameter="{Binding .}" Clicked="OnApproveClicked"/>
                                         <Button Text="Rechazar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#FFEBEE" TextColor="#C62828" CommandParameter="{Binding .}" Clicked="OnRejectClicked"/>
@@ -69,7 +63,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <BoxView x:Name="SheetBackdrop" BackgroundColor="#99000000" Opacity="0" InputTransparent="True">
+        <BoxView x:Name="SheetBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False" InputTransparent="True">
             <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseSheetClicked"/></BoxView.GestureRecognizers>
         </BoxView>
         <Border x:Name="NewSuggestionSheet" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" HorizontalOptions="Fill" Margin="0" IsVisible="False" Opacity="0" TranslationY="500">
@@ -77,14 +71,14 @@
             <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Enviar Idea" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    <Image Grid.Column="1" Source="ic_close.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                    <Image Grid.Column="1" Source="{AppThemeBinding Light=ic_close.svg, Dark=ic_close_white.svg}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                         <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseSheetClicked"/></Image.GestureRecognizers>
                     </Image>
                 </Grid>
                 
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
                     <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EntryTitulo" Placeholder="Título de la idea (ej. Pintar de azul)" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
+                    <Entry x:Name="EntryTitulo" Placeholder="Título de la idea (ej. Iluminación cálida)" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
                 </Border>
                 
                 <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="100">

@@ -2,15 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.SaveMeasurementPage"
+             NavigationPage.HasNavigationBar="False"
              BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#B3000000}"
              Title="Guardar Medida">
-    
+
     <Grid>
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Tapped="OnCloseClicked"/>
         </Grid.GestureRecognizers>
-        
-        <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}"
+
+        <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
                 StrokeThickness="0"
                 VerticalOptions="End"
                 Margin="0"
@@ -19,89 +20,125 @@
                 <RoundRectangle CornerRadius="25,25,0,0"/>
             </Border.StrokeShape>
             <Border.GestureRecognizers>
-                <!-- Stop propagation -->
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
-            
-            <VerticalStackLayout Spacing="15">
-                <BoxView HeightRequest="5" WidthRequest="40" CornerRadius="2.5" Color="{AppThemeBinding Light=#BDD8E9, Dark=#444444}" HorizontalOptions="Center" Margin="0,0,0,10"/>
-                
-                <Label Text="Guardar Cómputo" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                
-                                <!-- Largo Principal -->
-                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" Padding="15">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                        <Label Text="📏" FontSize="20" VerticalOptions="Center"/>
-                        <Label Text="Largo (m):" FontSize="14" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" VerticalOptions="Center"/>
-                        <Entry x:Name="LargoEntry" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#BDD8E9}" Keyboard="Numeric" TextChanged="OnValuesChanged" VerticalOptions="Center" WidthRequest="100"/>
+
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Spacing="15">
+                    <BoxView HeightRequest="5" WidthRequest="40" CornerRadius="2.5" Color="{AppThemeBinding Light=#CBD5E1, Dark=#475569}" HorizontalOptions="Center" Margin="0,0,0,6"/>
+
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <Label Text="Guardar Cómputo" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                        <Border Grid.Column="1" WidthRequest="32" HeightRequest="32"
+                                BackgroundColor="{AppThemeBinding Light=#F2F2F7, Dark=#2C2C2E}" StrokeThickness="0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                            <Image Source="ic_close.svg" WidthRequest="14" HeightRequest="14" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCloseClicked"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+
+                    <!-- Largo Principal -->
+                    <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" Padding="15,10">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10" VerticalOptions="Center">
+                            <Image Grid.Column="0" Source="{AppThemeBinding Light=ic_ruler.svg, Dark=ic_ruler_white.svg}" WidthRequest="22" HeightRequest="22" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="Largo (m):" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" VerticalOptions="Center"/>
+                            <Entry Grid.Column="2" x:Name="LargoEntry" Placeholder="0.00" PlaceholderColor="#8E8E93" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#FFFFFF}" Keyboard="Numeric" TextChanged="OnValuesChanged" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Etapa / Fase" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Entry x:Name="EtapaEntry" Placeholder="Ej: Estructura" PlaceholderColor="#8E8E93" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Partida" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Entry x:Name="PartidaEntry" Placeholder="Ej: Muro Ladrillo" PlaceholderColor="#8E8E93" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Descripción / Ubicación" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                        <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                            <Entry x:Name="DescEntry" Placeholder="Ej: Sala principal muro norte" PlaceholderColor="#8E8E93" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Unidad" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="10,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Picker x:Name="UnidadPicker" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" SelectedIndexChanged="OnUnidadChanged" VerticalOptions="Center">
+                                    <Picker.Items>
+                                        <x:String>m</x:String>
+                                        <x:String>m²</x:String>
+                                        <x:String>m³</x:String>
+                                        <x:String>U</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Veces" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Entry x:Name="VecesEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" Spacing="4">
+                            <Label Text="Total Parcial" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#ECFDF5, Dark=#064E3B}" StrokeThickness="0" HeightRequest="44" Padding="10,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Label x:Name="TotalLabel" Text="0.00" FontSize="17" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#059669, Dark=#34D399}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center" Margin="0,2">
+                        <Switch x:Name="DeduccionSwitch" OnColor="#EF4444" Toggled="OnDeduccionToggled"/>
+                        <Label Text="Deducción / Resta (-)" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="14"/>
                     </HorizontalStackLayout>
-                </Border>
-                
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                    <VerticalStackLayout Grid.Column="0">
-                        <Label Text="Etapa / Fase" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="EtapaEntry" Placeholder="Ej: Estructura" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1">
-                        <Label Text="Partida" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="PartidaEntry" Placeholder="Ej: Muro Ladrillo" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                </Grid>
 
-                <VerticalStackLayout>
-                    <Label Text="Descripción / Ubicación" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                    <Entry x:Name="DescEntry" Placeholder="Ej: Eje A entre 1 y 2" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="DimensionsGrid">
+                        <VerticalStackLayout Grid.Column="0" x:Name="AnchoContainer" IsVisible="False" Spacing="4">
+                            <Label Text="Ancho (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Entry x:Name="AnchoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" x:Name="AltoContainer" IsVisible="False" Spacing="4">
+                            <Label Text="Alto (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
+                            <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#2C2C2E}" StrokeThickness="0" HeightRequest="44" Padding="12,0">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                                <Entry x:Name="AltoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Button x:Name="BtnGuardarComputo"
+                            Text="Guardar Medición"
+                            BackgroundColor="#007AFF"
+                            TextColor="#FFFFFF"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            CornerRadius="14"
+                            HeightRequest="50"
+                            Margin="0,10,0,0"
+                            Clicked="OnSaveClicked"/>
                 </VerticalStackLayout>
-                
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                    <VerticalStackLayout Grid.Column="0">
-                        <Label Text="Unidad" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Picker x:Name="UnidadPicker" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" SelectedIndexChanged="OnUnidadChanged">
-                            <Picker.Items>
-                                <x:String>m</x:String>
-                                <x:String>m²</x:String>
-                                <x:String>m³</x:String>
-                                <x:String>U</x:String>
-                            </Picker.Items>
-                        </Picker>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1">
-                        <Label Text="Veces" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="VecesEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="2">
-                        <Label Text="Total Parcial" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Label x:Name="TotalLabel" Text="0.00" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#129740, Dark=#129740}" VerticalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Grid>
-
-                <HorizontalStackLayout Spacing="10" VerticalOptions="Center" Margin="0,5,0,5">
-                    <Switch x:Name="DeduccionSwitch" Toggled="OnDeduccionToggled"/>
-                    <Label Text="Deducción / Resta (-)" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="14"/>
-                </HorizontalStackLayout>
-
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="DimensionsGrid">
-                    <VerticalStackLayout Grid.Column="0" x:Name="AnchoContainer" IsVisible="false">
-                        <Label Text="Ancho (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="AnchoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1" x:Name="AltoContainer" IsVisible="false">
-                        <Label Text="Alto (m)" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                        <Entry x:Name="AltoEntry" Text="1" Keyboard="Numeric" TextChanged="OnValuesChanged" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                </Grid>
-
-                <Button Text="GUARDAR CÓMPUTO"
-                        BackgroundColor="#001D39"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        CornerRadius="25"
-                        HeightRequest="50"
-                        Margin="0,15,0,0"
-                        Clicked="OnSaveClicked"/>
-            </VerticalStackLayout>
+            </ScrollView>
         </Border>
     </Grid>
 </ContentPage>
-

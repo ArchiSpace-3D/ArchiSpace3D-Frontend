@@ -10,7 +10,7 @@
 
         <!-- HEADER -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,10" VerticalOptions="Center">
-            <Image Grid.Column="0" Source="ic_back.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+            <Image Grid.Column="0" Source="{AppThemeBinding Light=ic_back.svg, Dark=ic_back_white.svg}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped"/>
                 </Image.GestureRecognizers>
@@ -28,7 +28,7 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
-                <Image Source="ic_edit.svg" WidthRequest="24" HeightRequest="24"
+                <Image Source="{AppThemeBinding Light=ic_edit.svg, Dark=ic_edit_white.svg}" WidthRequest="22" HeightRequest="22"
                        HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnToggleEditModeClicked"/>
@@ -105,7 +105,7 @@
 
                                     <Border WidthRequest="14" HeightRequest="14"
                                             BackgroundColor="#34C759"
-                                            Stroke="#FFFFFF" StrokeThickness="2"
+                                            Stroke="{AppThemeBinding Light=#FFFFFF, Dark=#000000}" StrokeThickness="2"
                                             HorizontalOptions="End" VerticalOptions="End"
                                             IsVisible="{Binding Activo}">
                                         <Border.StrokeShape>
@@ -146,7 +146,8 @@
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"
                                    HorizontalTextAlignment="Center"/>
-                            <Label Text="Aparecerán cuando se vinculen a tus proyectos"
+                            <Label x:Name="LblEmptySubText"
+                                   Text="Aparecerán cuando se vinculen a tus proyectos"
                                    FontSize="12"
                                    TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}"
                                    HorizontalTextAlignment="Center"/>
@@ -465,6 +466,14 @@
                                            TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
                                            TextTransform="Uppercase" CharacterSpacing="1"/>
                                     <Label x:Name="LblVerArquiNombre" Text="--" FontSize="15"
+                                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Correo electrónico" FontSize="12" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
+                                           TextTransform="Uppercase" CharacterSpacing="1"/>
+                                    <Label x:Name="LblVerArquiEmail" Text="--" FontSize="15"
                                            TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
                                 </VerticalStackLayout>
 

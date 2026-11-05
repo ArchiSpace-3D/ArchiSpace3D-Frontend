@@ -9,7 +9,7 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="20,40,20,10">
-            <Image Grid.Column="0" Source="ic_back.svg" WidthRequest="24" HeightRequest="24"
+            <Image Grid.Column="0" Source="{AppThemeBinding Light=ic_back.svg, Dark=ic_back_white.svg}" WidthRequest="24" HeightRequest="24"
                    VerticalOptions="Center">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackTapped"/>
@@ -27,7 +27,7 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
-                <Image Source="ic_refresh.svg" WidthRequest="22" HeightRequest="22"
+                <Image Source="{AppThemeBinding Light=ic_refresh.svg, Dark=ic_refresh_white.svg}" WidthRequest="22" HeightRequest="22"
                        HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnRefreshTapped"/>
@@ -69,16 +69,16 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="14"/>
                                 </Border.StrokeShape>
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
                                     <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                        <Label Text="{Binding FechaFormateada}"
+                                        <Label Text="{Binding DetalleResumen}"
                                                FontSize="15" FontAttributes="Bold"
                                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
                                         <Label Text="{Binding Etapa}"
                                                FontSize="13"
                                                TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"/>
-                                        <Label Text="{Binding Partida}"
-                                               FontSize="13"
+                                        <Label Text="{Binding FechaFormateada}"
+                                               FontSize="12"
                                                TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"/>
                                     </VerticalStackLayout>
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" HorizontalOptions="End">
@@ -91,6 +91,18 @@
                                                TextColor="{AppThemeBinding Light=#6D6D72, Dark=#8E8E93}"
                                                HorizontalTextAlignment="End"/>
                                     </VerticalStackLayout>
+                                    <Border Grid.Column="2" WidthRequest="34" HeightRequest="34"
+                                            BackgroundColor="#FFE5E5" StrokeThickness="0"
+                                            VerticalOptions="Center" IsVisible="{Binding PuedeEliminar}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="17"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="ic_trash.svg" WidthRequest="16" HeightRequest="16"
+                                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnEliminarMedicionTapped" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                    </Border>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -98,13 +110,13 @@
 
                     <CollectionView.EmptyView>
                         <VerticalStackLayout Padding="40" Spacing="10" HorizontalOptions="Center">
-                            <Image Source="ic_ruler.svg" WidthRequest="60" HeightRequest="60"
+                            <Image Source="{AppThemeBinding Light=ic_ruler.svg, Dark=ic_ruler_white.svg}" WidthRequest="60" HeightRequest="60"
                                    HorizontalOptions="Center" Opacity="0.4"/>
                             <Label Text="No hay mediciones"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"
                                    HorizontalTextAlignment="Center"/>
-                            <Label Text="Usa la Regla AR para guardar medidas"
+                            <Label Text="Usa el módulo de Mediciones AR para registrar medidas"
                                    FontSize="12"
                                    TextColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}"
                                    HorizontalTextAlignment="Center"/>

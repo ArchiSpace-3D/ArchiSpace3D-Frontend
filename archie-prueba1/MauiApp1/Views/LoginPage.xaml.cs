@@ -1,8 +1,7 @@
-using Microsoft.Maui.Controls;
 using System;
 using System.Threading.Tasks;
 using MauiApp1.Services;
-using MauiApp1.Models;
+using Microsoft.Maui.Controls;
 
 namespace MauiApp1.Views;
 
@@ -16,8 +15,8 @@ public partial class LoginPage : ContentPage
     protected override void OnSizeAllocated(double width, double height)
     {
         base.OnSizeAllocated(width, height);
-        
-        if (width > height) 
+
+        if (width > height)
         {
             RootGrid.ColumnDefinitions.Clear();
             RootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4.5, GridUnitType.Star) });
@@ -25,17 +24,17 @@ public partial class LoginPage : ContentPage
 
             Grid.SetColumn(BgImage, 1);
             Grid.SetColumnSpan(BgImage, 1);
-            
+
             Grid.SetColumn(FormCard, 0);
             Grid.SetColumnSpan(FormCard, 1);
             FormCard.Margin = new Thickness(0);
             FormCard.StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(0) };
         }
-        else 
+        else
         {
             RootGrid.ColumnDefinitions.Clear();
             RootGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            
+
             Grid.SetColumn(BgImage, 0);
             Grid.SetColumnSpan(BgImage, 1);
 
@@ -49,6 +48,8 @@ public partial class LoginPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _ = ApiService.WarmUpServerAsync();
+
         MainLayout.Opacity = 0;
         MainLayout.TranslationY = 30;
         await Task.WhenAll(
@@ -60,7 +61,18 @@ public partial class LoginPage : ContentPage
     private void OnTogglePasswordVisibility(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-        PasswordToggleIcon.Source = PasswordEntry.IsPassword ? "ic_eye_off.svg" : "ic_eye_on.svg";
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        PasswordToggleIcon.Source = PasswordEntry.IsPassword
+            ? (isDark ? "ic_eye_off_white.svg" : "ic_eye_off.svg")
+            : (isDark ? "ic_eye_on_white.svg" : "ic_eye_on.svg");
+    }
+
+    private async void OnForgotPasswordTapped(object? sender, EventArgs e)
+    {
+        await AlertService.ShowAlertAsync(
+            "Recuperación de acceso",
+            "Si registraste tu cuenta con Google, usa el botón de Google para ingresar directamente. Si necesitas restablecer tu contraseña, contacta a tu arquitecto o administrador del proyecto.",
+            "Entendido");
     }
 
     private async void OnGoogleLoginClicked(object? sender, EventArgs e)
@@ -70,6 +82,7 @@ public partial class LoginPage : ContentPage
 
         try
         {
+            LoadingLabel.Text = "Conectando con Google...";
             LoadingOverlay.IsVisible = true;
             await SignalRService.DisconnectAsync();
 
@@ -80,34 +93,47 @@ public partial class LoginPage : ContentPage
                     RedirectTo = "com.archispace.archie://login-callback"
                 });
 
+            if (authState?.Uri == null)
+            {
+                LoadingOverlay.IsVisible = false;
+                await ShowToastAsync("No se pudo iniciar la autenticación con Google.");
+                return;
+            }
+
             var result = await Microsoft.Maui.Authentication.WebAuthenticator.Default.AuthenticateAsync(
                 new Microsoft.Maui.Authentication.WebAuthenticatorOptions
                 {
-                    Url = new System.Uri(authState.Uri.ToString()),
-                    CallbackUrl = new System.Uri("com.archispace.archie://login-callback")
+                    Url = new Uri(authState.Uri.ToString()),
+                    CallbackUrl = new Uri("com.archispace.archie://login-callback")
                 });
 
-            if (result.Properties.TryGetValue("access_token", out var accessToken))
+            if (result.Properties.TryGetValue("access_token", out var accessToken) && !string.IsNullOrWhiteSpace(accessToken))
             {
                 var (success, message, response) = await ApiService.GoogleLoginAsync(accessToken);
                 LoadingOverlay.IsVisible = false;
 
                 if (success && response != null)
                 {
+                    _ = SignalRService.ConnectAsync();
                     _ = FirebasePushService.InicializarYRegistrarAsync();
-                    Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
+                    Application.Current!.Windows[0].Page = new AppShell();
                 }
                 else
                 {
                     await ShowToastAsync(message);
                 }
             }
+            else
+            {
+                LoadingOverlay.IsVisible = false;
+                await ShowToastAsync("No se recibió token de acceso de Google.");
+            }
         }
-        catch (System.Threading.Tasks.TaskCanceledException)
+        catch (TaskCanceledException)
         {
             LoadingOverlay.IsVisible = false;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             LoadingOverlay.IsVisible = false;
             await ShowToastAsync("Error Google Auth: " + ex.Message);
@@ -119,7 +145,6 @@ public partial class LoginPage : ContentPage
         await LoginButton.ScaleToAsync(0.95, 70);
         await LoginButton.ScaleToAsync(1.0, 70);
 
-        string hostOrIp = "https://archispace3d-backend-production.up.railway.app";
         string email = EmailEntry.Text?.Trim() ?? string.Empty;
         string password = PasswordEntry.Text?.Trim() ?? string.Empty;
 
@@ -134,13 +159,14 @@ public partial class LoginPage : ContentPage
 
         try
         {
-            var (success, message, response) = await ApiService.LoginAsync(hostOrIp, email, password);
+            var (success, message, response) = await ApiService.LoginAsync(UserSession.BaseUrl, email, password);
 
             if (success && response != null)
             {
                 LoadingOverlay.IsVisible = false;
+                _ = SignalRService.ConnectAsync();
                 _ = FirebasePushService.InicializarYRegistrarAsync();
-                Microsoft.Maui.Controls.Application.Current!.Windows[0].Page = new AppShell();
+                Application.Current!.Windows[0].Page = new AppShell();
             }
             else
             {
@@ -158,6 +184,7 @@ public partial class LoginPage : ContentPage
             LoginButton.IsEnabled = true;
         }
     }
+
     private void ShowLoadingWithTimeout()
     {
         LoadingLabel.Text = "Conectando...";
@@ -166,7 +193,7 @@ public partial class LoginPage : ContentPage
         {
             if (LoadingOverlay.IsVisible)
             {
-                MainThread.BeginInvokeOnMainThread(() => 
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
                     LoadingLabel.Text = "Despertando servidor,\nesto puede tomar hasta 30s...";
                 });

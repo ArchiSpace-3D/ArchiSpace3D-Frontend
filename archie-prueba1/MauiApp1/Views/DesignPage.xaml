@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:MauiApp1.Controls"
@@ -7,72 +7,198 @@
              BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#121212}">
 
     <Grid>
-        <!-- The Fullscreen 3D/2D Viewer -->
-        <WebView x:Name="ViewerWebView" 
-                 HorizontalOptions="Fill" 
-                 VerticalOptions="Fill" />
+        <!-- Fullscreen 2D/3D CAD Viewer -->
+        <WebView x:Name="ViewerWebView"
+                 StyleId="CadEditorWebView"
+                 HorizontalOptions="Fill"
+                 VerticalOptions="Fill"
+                 Navigated="OnWebViewNavigated" />
 
         <!-- Floating Top Bar -->
-        <Border BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE121212}" 
-                StrokeThickness="0" 
-                HorizontalOptions="Fill" 
-                VerticalOptions="Start" 
-                Margin="20,40,20,0"
-                Padding="15,10">
+        <Border BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE1C1C1E}"
+                StrokeThickness="0"
+                HorizontalOptions="Fill"
+                VerticalOptions="Start"
+                Margin="16,42,16,0"
+                Padding="14,10">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
             <Border.Shadow>
-                <Shadow Brush="#000000" Opacity="0.1" Offset="0,4" Radius="10"/>
+                <Shadow Brush="#000000" Opacity="0.12" Offset="0,4" Radius="10"/>
             </Border.Shadow>
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <Image Source="ic_back.svg" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
-                    <Image.GestureRecognizers>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="Transparent" VerticalOptions="Center">
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBackClicked"/>
-                    </Image.GestureRecognizers>
-                </Image>
-                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Editor de Espacios" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center"/>
-                    <Label x:Name="ModoLabel" Text="Modo: 2D Plano" FontSize="12" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" HorizontalOptions="Center"/>
+                    </Border.GestureRecognizers>
+                    <Image Source="{AppThemeBinding Light=ic_back.svg, Dark=ic_back_white.svg}"
+                           WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="1">
+                    <Label x:Name="ProjectTitleLabel"
+                           Text="Editor de Espacios"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           LineBreakMode="TailTruncation"
+                           MaxLines="1"
+                           TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="ModoLabel"
+                           Text="Modo: 2D Plano"
+                           FontSize="11"
+                           TextColor="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}"
+                           HorizontalOptions="Center"/>
                 </VerticalStackLayout>
-                <Button Grid.Column="2" Text="3D" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}" TextColor="White" CornerRadius="12" WidthRequest="40" HeightRequest="40" Padding="0" Clicked="OnToggle3DClicked"/>
+
+                <Button x:Name="BtnToggle3D"
+                        Grid.Column="2"
+                        Text="3D"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}"
+                        TextColor="White"
+                        CornerRadius="12"
+                        WidthRequest="44"
+                        HeightRequest="38"
+                        Padding="0"
+                        Clicked="OnToggle3DClicked"/>
             </Grid>
         </Border>
 
-        <!-- Floating Action Buttons (Right Side) -->
-        <VerticalStackLayout HorizontalOptions="End" VerticalOptions="Center" Spacing="15" Margin="0,0,20,0">
-            <Button x:Name="BtnModoMover" Text="✋" FontSize="20" WidthRequest="50" HeightRequest="50" CornerRadius="25" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1A1A}" TextColor="#001D39" Clicked="OnModoMoverClicked">
-    <Button.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,5" Radius="10"/></Button.Shadow>
-</Button>
-            <Button x:Name="BtnModoLibre" Text="✏️" FontSize="20" WidthRequest="50" HeightRequest="50" CornerRadius="25" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1A1A}" TextColor="#001D39" Clicked="OnModoLibreClicked">
-                <Button.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,5" Radius="10"/></Button.Shadow>
-            </Button>
-            <Button x:Name="BtnModoMuros" Text="📏" FontSize="20" WidthRequest="50" HeightRequest="50" CornerRadius="25" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1A1A}" TextColor="#001D39" Clicked="OnModoMurosClicked">
-                <Button.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,5" Radius="10"/></Button.Shadow>
-            </Button>
-            <Button x:Name="BtnModoModulos" Text="📦" FontSize="20" WidthRequest="50" HeightRequest="50" CornerRadius="25" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1A1A}" TextColor="#001D39" Clicked="OnModoModulosClicked">
-                <Button.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,5" Radius="10"/></Button.Shadow>
-            </Button>
-        </VerticalStackLayout>
+        <!-- Floating Right CAD Toolbar (Scrollable so it never overlaps Top Bar or Bottom ContextPanel) -->
+        <ScrollView x:Name="ToolbarScroll"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    VerticalScrollBarVisibility="Never"
+                    Margin="0,108,14,225">
+            <VerticalStackLayout Spacing="8" Padding="4">
+                <ImageButton x:Name="BtnModoMover"
+                             Source="{AppThemeBinding Light=ic_cad_move.svg, Dark=ic_cad_move_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnModoMoverClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
 
-        <!-- Floating Bottom Panel (Contextual) -->
-        <Border x:Name="ContextPanel" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" 
-                StrokeThickness="0" HorizontalOptions="Fill" VerticalOptions="End" Margin="20,0,20,40" Padding="20">
+                <ImageButton x:Name="BtnModoLibre"
+                             Source="{AppThemeBinding Light=ic_edit.svg, Dark=ic_edit_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnModoLibreClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnModoMuros"
+                             Source="{AppThemeBinding Light=ic_cad_wall.svg, Dark=ic_cad_wall_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnModoMurosClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnOrto"
+                             Source="{AppThemeBinding Light=ic_cad_ortho.svg, Dark=ic_cad_ortho_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnToggleOrtoClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnModoModulos"
+                             Source="{AppThemeBinding Light=ic_cad_module.svg, Dark=ic_cad_module_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnModoModulosClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnPuerta"
+                             Source="{AppThemeBinding Light=ic_cad_door.svg, Dark=ic_cad_door_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnPuertaClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnVentana"
+                             Source="{AppThemeBinding Light=ic_cad_window.svg, Dark=ic_cad_window_white.svg}"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
+                             Clicked="OnVentanaClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+
+                <ImageButton x:Name="BtnImportarDXF"
+                             Source="ic_cad_import_white.svg"
+                             Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                             BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}"
+                             Clicked="OnImportarDXFClicked">
+                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.18" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                </ImageButton>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Floating Bottom Contextual Panel -->
+        <Border x:Name="ContextPanel"
+                BackgroundColor="{AppThemeBinding Light=#F2FFFFFF, Dark=#F21C1C1E}"
+                StrokeThickness="0"
+                HorizontalOptions="Fill"
+                VerticalOptions="End"
+                Margin="16,0,16,96"
+                Padding="16,12">
             <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Border.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,-5" Radius="15"/></Border.Shadow>
-            
-            <VerticalStackLayout Spacing="10">
-                <Label x:Name="ContextTitle" Text="Dibujo Libre Activado" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                <Label x:Name="ContextDesc" Text="Dibuja con tu dedo sobre la cuadrícula para generar los muros automáticamente." FontSize="13" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
-                
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="15" Margin="0,10,0,0">
-                    <Button Text="Deshacer" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#333333}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" CornerRadius="12" Clicked="OnUndoClicked"/>
-                    <Button Grid.Column="1" Text="Guardar Plano" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}" TextColor="White" CornerRadius="12" Clicked="OnSavePlanClicked"/>
+            <Border.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="14"/></Border.Shadow>
+
+            <VerticalStackLayout Spacing="6">
+                <Label x:Name="ContextTitle"
+                       Text="Dibujo Libre Activado"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
+                <Label x:Name="ContextDesc"
+                       Text="Dibuja sobre la cuadrícula para generar muros rectificados automáticamente."
+                       FontSize="12"
+                       TextColor="{AppThemeBinding Light=#527995, Dark=#94A3B8}"/>
+
+                <Grid x:Name="ActionButtonsGrid" ColumnDefinitions="Auto,*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                    <ImageButton x:Name="BtnUndo"
+                                 Source="{AppThemeBinding Light=ic_cad_undo.svg, Dark=ic_cad_undo_white.svg}"
+                                 Padding="10"
+                                 WidthRequest="42"
+                                 HeightRequest="38"
+                                 CornerRadius="10"
+                                 BackgroundColor="{AppThemeBinding Light=#E8EEF4, Dark=#2C2C32}"
+                                 Clicked="OnUndoClicked"/>
+
+                    <Button x:Name="BtnHistorial"
+                            Grid.Column="1"
+                            Text="Historial"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            BackgroundColor="{AppThemeBinding Light=#E8EEF4, Dark=#2C2C32}"
+                            TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"
+                            CornerRadius="10"
+                            HeightRequest="38"
+                            Padding="8,0"
+                            Clicked="OnHistorialClicked"/>
+
+                    <Button x:Name="BtnGuardarPlano"
+                            Grid.Column="2"
+                            Text="Guardar Plano"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="38"
+                            Padding="8,0"
+                            Clicked="OnSavePlanClicked"/>
                 </Grid>
             </VerticalStackLayout>
         </Border>
 
-        <controls:FloatingTabBar SelectedIndex="1" />
-</Grid>
+        <controls:FloatingTabBar SelectedIndex="1" VerticalOptions="End" />
+    </Grid>
 </ContentPage>
-

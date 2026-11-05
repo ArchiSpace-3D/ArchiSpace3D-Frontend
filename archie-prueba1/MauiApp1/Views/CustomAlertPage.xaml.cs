@@ -1,13 +1,8 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-
 namespace MauiApp1.Views;
 
 public partial class CustomAlertPage : ContentPage
 {
-    private TaskCompletionSource<bool> _tcs;
+    private readonly TaskCompletionSource<bool> _tcs;
 
     public CustomAlertPage(string title, string message, string acceptText, string? cancelText, TaskCompletionSource<bool> tcs)
     {
@@ -18,34 +13,29 @@ public partial class CustomAlertPage : ContentPage
         MessageLabel.Text = message;
         ActionButton.Text = acceptText;
 
-        string t = title.ToLower();
+        string t = title.ToLowerInvariant();
 
-        if (t.Contains("error") || t.Contains("fallo") || t.Contains("excep") || t.Contains("incorrect"))
+        if (t.Contains("error") || t.Contains("fallo") || t.Contains("excep") || t.Contains("incorrect") || t.Contains("denegad"))
         {
-            IconBg.BackgroundColor = Color.FromArgb("#FEE2E2"); 
-            IconLabel.Text = "✕";
-            IconLabel.TextColor = Color.FromArgb("#DC2626"); 
-            
+            IconBg.BackgroundColor = Color.FromArgb("#FEE2E2");
+            IconImage.Source = "ic_error.svg";
+
             ActionButton.BackgroundColor = Color.FromArgb("#FEE2E2");
             ActionButton.TextColor = Color.FromArgb("#991B1B");
         }
-        
-        else if (t.Contains("aviso") || t.Contains("advertencia") || t.Contains("sesi") || t.Contains("seguro"))
+        else if (t.Contains("aviso") || t.Contains("advertencia") || t.Contains("sesi") || t.Contains("seguro") || t.Contains("eliminar"))
         {
-            IconBg.BackgroundColor = Color.FromArgb("#FEF3C7"); 
-            IconLabel.Text = "!";
-            IconLabel.TextColor = Color.FromArgb("#D97706"); 
-            
+            IconBg.BackgroundColor = Color.FromArgb("#FEF3C7");
+            IconImage.Source = "ic_warning.svg";
+
             ActionButton.BackgroundColor = Color.FromArgb("#FEF3C7");
             ActionButton.TextColor = Color.FromArgb("#92400E");
         }
-        
         else
         {
-            IconBg.BackgroundColor = Color.FromArgb("#D1FAE5"); 
-            IconLabel.Text = "✓";
-            IconLabel.TextColor = Color.FromArgb("#059669"); 
-            
+            IconBg.BackgroundColor = Color.FromArgb("#D1FAE5");
+            IconImage.Source = "ic_check.svg";
+
             ActionButton.BackgroundColor = Color.FromArgb("#D1FAE5");
             ActionButton.TextColor = Color.FromArgb("#064E3B");
         }
@@ -64,7 +54,7 @@ public partial class CustomAlertPage : ContentPage
         await Navigation.PopModalAsync(false);
         _tcs.TrySetResult(true);
     }
-    
+
     private async void OnCancelClicked(object? sender, EventArgs e)
     {
         await Navigation.PopModalAsync(false);
@@ -73,9 +63,8 @@ public partial class CustomAlertPage : ContentPage
 
     protected override bool OnBackButtonPressed()
     {
-        Navigation.PopModalAsync(false);
+        _ = Navigation.PopModalAsync(false);
         _tcs.TrySetResult(false);
         return true;
     }
 }
-

@@ -4,6 +4,10 @@
 <dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Archie necesita acceso a la cámara para realizar mediciones en Realidad Aumentada y capturar fotografías de los proyectos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Archie necesita acceso a tu galería para seleccionar imágenes de referencia de proyectos y fotos de perfil.</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>

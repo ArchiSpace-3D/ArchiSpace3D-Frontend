@@ -79,6 +79,10 @@ namespace MauiApp1.Services
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     var data = JsonSerializer.Deserialize<LoginResponse>(json, _jsonOptions);
+                    if (data != null && !string.IsNullOrEmpty(data.Token))
+                    {
+                        await UserSession.SetSessionAsync(data, baseUrl);
+                    }
                     return (true, "Google Login exitoso.", data);
                 }
 
@@ -418,13 +422,45 @@ namespace MauiApp1.Services
                 using var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
-                    string json = await response.Content.ReadAsStringAsync();
+                    string json = (await response.Content.ReadAsStringAsync()).Trim();
+                    if (json.StartsWith("["))
+                    {
+                        var list = JsonSerializer.Deserialize<List<EspacioFisicoDto>>(json, _jsonOptions);
+                        return list?.FirstOrDefault(e => e.Descripcion == "__PLANO_CAD__")
+                            ?? list?.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Puntosreferencia) && e.Puntosreferencia.TrimStart().StartsWith("{"))
+                            ?? list?.FirstOrDefault();
+                    }
                     return JsonSerializer.Deserialize<EspacioFisicoDto>(json, _jsonOptions);
                 }
             }
             catch { }
 
             return null;
+        }
+
+        public static async Task<List<EspacioFisicoDto>> GetEspaciosPorProyectoListaAsync(int idProyecto)
+        {
+            if (string.IsNullOrEmpty(UserSession.Token)) return new List<EspacioFisicoDto>();
+
+            try
+            {
+                string url = $"{UserSession.BaseUrl}/api/espacioFisico/proyecto/{idProyecto}/lista";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                SetAuthHeader(request);
+
+                using var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    var list = JsonSerializer.Deserialize<List<EspacioFisicoDto>>(json, _jsonOptions) ?? new List<EspacioFisicoDto>();
+                    return list.Where(e => e.Descripcion != "__PLANO_CAD__").ToList();
+                }
+            }
+            catch { }
+
+            var todos = await GetEspaciosFisicosAsync();
+            return todos?.Where(e => e.Idproyecto == idProyecto && e.Descripcion != "__PLANO_CAD__").ToList()
+                ?? new List<EspacioFisicoDto>();
         }
 
         public static async Task<(bool Success, string Message, EspacioFisicoDto? Data)> GuardarEspacioFisicoAsync(CrearEspacioFisicoRequest espacio)
@@ -746,11 +782,21 @@ namespace MauiApp1.Services
                 using var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
-                    UserSession.Nombre = usuario.Nombre;
+                    if (idUsuario == UserSession.Idusuario)
+                    {
+                        UserSession.Nombre = usuario.Nombre;
+                        UserSession.Apellido = usuario.Apellido;
+                        UserSession.Telefono = usuario.Telefono;
+                        UserSession.Direccion = usuario.Direccion;
+                        if (usuario.Tipodocumento != null) UserSession.Tipodocumento = usuario.Tipodocumento;
+                        if (usuario.Numerodocumento != null) UserSession.Numerodocumento = usuario.Numerodocumento;
+                        await UserSession.PersistCurrentFieldsAsync();
+                    }
                     return (true, "Perfil actualizado con éxito.");
                 }
 
-                return (false, $"Error al actualizar perfil ({response.StatusCode})");
+                var errBody = await response.Content.ReadAsStringAsync();
+                return (false, string.IsNullOrWhiteSpace(errBody) ? $"Error al actualizar perfil ({response.StatusCode})" : errBody);
             }
             catch (Exception ex)
             {
@@ -1088,12 +1134,12 @@ namespace MauiApp1.Services
                 else
                 {
                     string err = await response.Content.ReadAsStringAsync();
-                    System.Diagnostics.Debug.WriteLine($"[API CLIENTE] ❌ Error body: {err}");
+                    System.Diagnostics.Debug.WriteLine($"[API CLIENTE] Error body: {err}");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[API CLIENTE] ❌ EXCEPTION: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[API CLIENTE] EXCEPTION: {ex.Message}");
             }
             return new List<ProyectoDto>();
         }
@@ -1141,7 +1187,7 @@ namespace MauiApp1.Services
             if (string.IsNullOrEmpty(UserSession.Token)) return null;
             try
             {
-                string url = $"{UserSession.BaseUrl}/api/invitacion/codigo/{codigo}";
+                string url = $"{UserSession.BaseUrl}/api/invitacion/codigo/{Uri.EscapeDataString(codigo)}";
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 SetAuthHeader(request);
                 using var response = await _httpClient.SendAsync(request);
@@ -1475,7 +1521,24 @@ namespace MauiApp1.Services
                 using var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(json);
+                        if (doc.RootElement.TryGetProperty("url", out var urlProp))
+                        {
+                            var publicUrl = urlProp.GetString();
+                            if (!string.IsNullOrWhiteSpace(publicUrl) && idUsuario == UserSession.Idusuario)
+                            {
+                                UserSession.Avatarurl = publicUrl;
+                                await UserSession.PersistCurrentFieldsAsync();
+                            }
+                        }
+                    }
+                    catch { }
                     return (true, "Avatar actualizado.");
+                }
 
                 string err = await response.Content.ReadAsStringAsync();
                 return (false, $"Error ({response.StatusCode}): {err}");
@@ -1484,6 +1547,19 @@ namespace MauiApp1.Services
             {
                 return (false, $"Error: {ex.Message}");
             }
+        }
+
+        public static Task<(bool Success, string Message, VersionDisenoDto? Data)> GuardarVersionAsync(CrearVersionDisenoRequest version) =>
+            CrearVersionDisenoAsync(version);
+
+        public static async Task WarmUpServerAsync()
+        {
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                await _httpClient.GetAsync(UserSession.BaseUrl + "/", cts.Token);
+            }
+            catch { }
         }
 
     }

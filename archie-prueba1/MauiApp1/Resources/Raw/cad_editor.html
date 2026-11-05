@@ -1,508 +1,1288 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAD Editor 3D</title>
+    <title>Archie CAD 2D/3D</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #F4F6F8; }
-        #canvas { display: block; touch-action: none; position: absolute; top: 0; left: 0; z-index: 1; }
-        #three-container { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        :root {
+            --bg-color: #F4F6F8;
+            --grid-line: rgba(0, 29, 57, 0.06);
+            --dialog-bg: #FFFFFF;
+            --dialog-text: #001D39;
+            --dialog-sub: #6EA2B3;
+            --input-bg: #F8FAFC;
+            --input-border: #0A4174;
+        }
+        body.dark {
+            --bg-color: #121212;
+            --grid-line: rgba(255, 255, 255, 0.06);
+            --dialog-bg: #1E1E22;
+            --dialog-text: #F8FAFC;
+            --dialog-sub: #94A3B8;
+            --input-bg: #2A2A30;
+            --input-border: #38BDF8;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: var(--bg-color);
+            touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
         .grid {
-            background-size: 20px 20px;
-            background-image: 
-                linear-gradient(to right, rgba(0, 29, 57, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 29, 57, 0.05) 1px, transparent 1px);
+            background-size: 25px 25px;
+            background-image:
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
         }
-        
+        #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        #three-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 2; display: none; }
+        canvas { display: block; touch-action: none; }
+
         #measure-dialog {
-            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 10; text-align: center; font-family: sans-serif;
+            display: none; position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--dialog-bg); color: var(--dialog-text);
+            padding: 20px; border-radius: 18px; width: min(310px, 88vw);
+            box-shadow: 0 14px 36px rgba(0,0,0,0.32); z-index: 20; text-align: center;
         }
-        #measure-dialog input { padding: 10px; font-size: 16px; border: 2px solid #0A4174; border-radius: 8px; text-align: center;}
-        #wall-inputs input { width: 120px; }
-        #module-inputs { display: none; gap: 10px; justify-content: center; align-items: center; }
-        #module-inputs input { width: 80px; }
-        
-        #measure-dialog button { margin-top: 15px; padding: 10px 20px; background: #0A4174; color: white; border: none; border-radius: 8px; font-weight: bold; cursor:pointer;}
+        #measure-dialog h3 { margin: 0 0 6px 0; font-size: 17px; color: var(--dialog-text); }
+        #measure-dialog p { margin: 0 0 14px 0; font-size: 12px; color: var(--dialog-sub); }
+        #measure-dialog label { font-size: 12px; color: var(--dialog-sub); display: block; margin: 8px 0 4px 0; }
+        #measure-dialog input {
+            padding: 9px 10px; font-size: 15px; border: 1.5px solid var(--input-border);
+            background: var(--input-bg); color: var(--dialog-text);
+            border-radius: 10px; text-align: center; width: 100%; outline: none;
+        }
+        .dim-row { display: flex; gap: 8px; align-items: center; justify-content: center; }
+        .dim-row input { width: 45%; }
+        .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .btn-primary {
+            flex: 1; padding: 10px 14px; background: #0A4174; color: #FFFFFF;
+            border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .btn-secondary {
+            flex: 1; padding: 10px 14px; background: rgba(148, 163, 184, 0.25); color: var(--dialog-text);
+            border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .btn-danger {
+            width: 100%; padding: 9px 14px; background: rgba(239, 68, 68, 0.14); color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
+            margin-top: 6px;
+        }
+        #toast {
+            position: absolute; top: 102px; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 65, 116, 0.94); color: #FFFFFF; padding: 9px 16px;
+            border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 30;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.22); opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease; white-space: nowrap; max-width: 85vw; overflow: hidden; text-overflow: ellipsis;
+        }
     </style>
 </head>
-<body class="grid" id="grid-body">
-    <canvas id="canvas"></canvas>
+<body class="grid" id="gridBody">
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
     <div id="three-container"></div>
+    <div id="toast"></div>
 
     <div id="measure-dialog">
-        <h3 id="measure-title" style="margin-top:0; color:#001D39;">Medida del Muro</h3>
-        
-        <div id="wall-inputs">
-            <input type="number" id="wallLength" placeholder="Mts (Ej: 3.5)" step="0.1">
-        </div>
-        
-        <div id="module-inputs">
-            <input type="number" id="modWidth" placeholder="Ancho" step="0.1">
-            <span style="font-weight:bold; color:#001D39;">X</span>
-            <input type="number" id="modHeight" placeholder="Largo" step="0.1">
+        <h3 id="measure-title">Medida del Muro</h3>
+        <p id="measure-subtitle">Ingresa las dimensiones exactas en metros.</p>
+
+        <div id="wall-inputs" style="display:none;">
+            <label>Longitud (metros)</label>
+            <input type="number" id="wallLength" placeholder="Ej: 3.50" step="0.05" min="0.1">
         </div>
 
-        <br>
-        <button onclick="confirmMeasurement()">Guardar</button>
-        <button onclick="cancelMeasurement()" style="background:#ccc; color:black; margin-left:10px;">Cancelar</button>
+        <div id="module-inputs" style="display:none;">
+            <div id="mod-label-wrap">
+                <label>Nombre del espacio</label>
+                <input type="text" id="modLabel" placeholder="Ej: Sala, Cocina, Baño" maxlength="24">
+            </div>
+            <label>Ancho x Largo (metros)</label>
+            <div class="dim-row">
+                <input type="number" id="modWidth" placeholder="Ancho" step="0.1" min="0.2">
+                <span style="font-weight:bold;">×</span>
+                <input type="number" id="modHeight" placeholder="Largo" step="0.1" min="0.1">
+            </div>
+            <label>Rotación (grados)</label>
+            <input type="number" id="modRotation" placeholder="0" step="15">
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="cancelMeasurement()">Cancelar</button>
+            <button class="btn-primary" onclick="confirmMeasurement()">Aplicar</button>
+        </div>
+        <button id="btnDeleteElement" class="btn-danger" style="display:none;" onclick="deleteSelectedElement()">Eliminar elemento</button>
     </div>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const gridBody = document.getElementById('gridBody');
         const measureDialog = document.getElementById('measure-dialog');
-        const wallLengthInput = document.getElementById('wallLength');
-        const modWidthInput = document.getElementById('modWidth');
-        const modHeightInput = document.getElementById('modHeight');
-        const wallInputsBlock = document.getElementById('wall-inputs');
-        const moduleInputsBlock = document.getElementById('module-inputs');
-        const gridBody = document.getElementById('grid-body');
-        
+        const toastEl = document.getElementById('toast');
+        const SCALE = 50; // 50 px = 1 metro
+
+        let isDarkTheme = false;
+        let isReadOnly = false;
+        let mode = 'freehand'; // freehand, walls, modules, pan
+        let currentModuleType = 'room'; // room, door, window
+        let snapOrthogonal = false;
+
+        let offsetX = 0;
+        let offsetY = 0;
+        let zoom = 1.0;
+
+        let points = [];
+        let modules = [];
+        let historyStack = [];
+
+        let activePointers = new Map();
+        let lastPinchCenter = null;
+        let lastPinchDist = null;
+
+        let isDrawing = false;
+        let panStartScreen = { x: 0, y: 0 };
+        let panInitialOffset = { x: 0, y: 0 };
+        let draggingModuleIndex = -1;
+        let dragModuleOffset = { x: 0, y: 0 };
+        let moduleMovedDuringDrag = false;
+
+        let currentPath = [];
+        let tempStartPoint = null;
+        let tempEndPoint = null;
+        let currentSnapPoint = null;
+
+        let editingPathIndex = -1;
+        let editingSegmentIndex = -1;
+        let editingModuleIndex = -1;
+
+        function showToast(msg) {
+            toastEl.textContent = msg;
+            toastEl.style.opacity = '1';
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => { toastEl.style.opacity = '0'; }, 2400);
+        }
+
+        function pushHistory() {
+            historyStack.push(JSON.stringify({ points, modules }));
+            if (historyStack.length > 40) historyStack.shift();
+        }
+
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             draw2D();
+            if (is3DInitialized && renderer && camera) {
+                camera.aspect = window.innerWidth / Math.max(1, window.innerHeight);
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
         window.addEventListener('resize', resize);
-        
-        let mode = 'freehand'; // freehand, walls, modules, pan
-        let isDrawing = false;
-        
-        let offsetX = 0;
-        let offsetY = 0;
-        let panStart = {x:0, y:0};
-        
-        let points = [];
-        let modules = [];
-        let currentPath = [];
-        
-        let tempStartPoint = null;
-        let tempEndPoint = null;
-        let editingPathIndex = -1; 
-        let editingModuleIndex = -1;
-        
-        const SCALE = 50; 
 
-        function getWorldPos(e) {
-            return { x: e.clientX - offsetX, y: e.clientY - offsetY };
+        function getWorldPos(clientX, clientY) {
+            return { x: (clientX - offsetX) / zoom, y: (clientY - offsetY) / zoom };
         }
 
-        function draw2D() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(offsetX, offsetY);
-            
-            // Módulos
-            ctx.fillStyle = 'rgba(10, 65, 116, 0.2)';
-            ctx.strokeStyle = '#0A4174';
-            ctx.lineWidth = 2;
-            for (let m of modules) {
-                let w = m.w || 100;
-                let h = m.h || 100;
-                let wMts = (w / SCALE).toFixed(1);
-                let hMts = (h / SCALE).toFixed(1);
-                
-                ctx.fillRect(m.x - w/2, m.y - h/2, w, h);
-                ctx.strokeRect(m.x - w/2, m.y - h/2, w, h);
-                ctx.fillStyle = '#0A4174';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.textAlign = "center";
-                ctx.fillText(`${wMts}m x ${hMts}m`, m.x, m.y + 5);
-                ctx.fillStyle = 'rgba(10, 65, 116, 0.2)';
-                ctx.textAlign = "start";
+        function getSnappedPos(x, y) {
+            const snapDist = 18 / zoom;
+            let bestPoint = null;
+            let bestD = snapDist;
+            const check = (px, py) => {
+                const d = Math.hypot(x - px, y - py);
+                if (d < bestD) { bestD = d; bestPoint = { x: px, y: py }; }
+            };
+            for (const path of points) {
+                for (const p of path) check(p.x, p.y);
             }
-            
-            // Muros guardados
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            for (let pathIdx=0; pathIdx<points.length; pathIdx++) {
-                let path = points[pathIdx];
-                if(path.length < 2) continue;
-                
-                ctx.strokeStyle = '#001D39';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.moveTo(path[0].x, path[0].y);
-                for(let i=1; i<path.length; i++) {
-                    ctx.lineTo(path[i].x, path[i].y);
-                }
-                ctx.stroke();
+            if (tempStartPoint) check(tempStartPoint.x, tempStartPoint.y);
+            return bestPoint;
+        }
 
-                if (path.length === 2) {
-                    let p1 = path[0], p2 = path[1];
-                    let dx = p2.x - p1.x;
-                    let dy = p2.y - p1.y;
-                    let length = Math.sqrt(dx*dx + dy*dy) / SCALE;
-                    
-                    let midX = (p1.x + p2.x) / 2;
-                    let midY = (p1.y + p2.y) / 2;
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(midX - 25, midY - 10, 50, 20);
-                    ctx.fillStyle = '#e63946';
-                    ctx.font = 'bold 12px sans-serif';
-                    ctx.textAlign = "center";
-                    ctx.fillText(length.toFixed(2) + "m", midX, midY + 4);
-                    ctx.textAlign = "start";
+        function applyOrtho(anchor, target) {
+            if (!snapOrthogonal || !anchor) return target;
+            const dx = Math.abs(target.x - anchor.x);
+            const dy = Math.abs(target.y - anchor.y);
+            return dx >= dy ? { x: target.x, y: anchor.y } : { x: anchor.x, y: target.y };
+        }
+
+        function simplifyPath(pts, tolerance) {
+            if (pts.length <= 2) return pts;
+            let dmax = 0;
+            let index = 0;
+            const start = pts[0];
+            const end = pts[pts.length - 1];
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const lenSq = dx * dx + dy * dy;
+
+            for (let i = 1; i < pts.length - 1; i++) {
+                let d;
+                if (lenSq === 0) {
+                    d = Math.hypot(pts[i].x - start.x, pts[i].y - start.y);
+                } else {
+                    const t = Math.max(0, Math.min(1, ((pts[i].x - start.x) * dx + (pts[i].y - start.y) * dy) / lenSq));
+                    d = Math.hypot(pts[i].x - (start.x + t * dx), pts[i].y - (start.y + t * dy));
                 }
-            }
-            
-            // Trazo actual (Freehand)
-            if (currentPath.length > 0) {
-                ctx.strokeStyle = '#6EA2B3';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.moveTo(currentPath[0].x, currentPath[0].y);
-                for(let i=1; i<currentPath.length; i++) {
-                    ctx.lineTo(currentPath[i].x, currentPath[i].y);
-                }
-                ctx.stroke();
+                if (d > dmax) { index = i; dmax = d; }
             }
 
-            // Trazo actual (Muros)
-            if (tempStartPoint && tempEndPoint && mode === 'walls') {
-                ctx.strokeStyle = '#e63946';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.moveTo(tempStartPoint.x, tempStartPoint.y);
-                ctx.lineTo(tempEndPoint.x, tempEndPoint.y);
-                ctx.stroke();
-                
-                let dx = tempEndPoint.x - tempStartPoint.x;
-                let dy = tempEndPoint.y - tempStartPoint.y;
-                let length = Math.sqrt(dx*dx + dy*dy) / SCALE;
-                let midX = (tempStartPoint.x + tempEndPoint.x) / 2;
-                let midY = (tempStartPoint.y + tempEndPoint.y) / 2;
-                
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.textAlign = "center";
-                ctx.fillText(length.toFixed(2) + "m", midX, midY - 10);
-                ctx.textAlign = "start";
+            if (dmax > tolerance) {
+                const rec1 = simplifyPath(pts.slice(0, index + 1), tolerance);
+                const rec2 = simplifyPath(pts.slice(index), tolerance);
+                return rec1.slice(0, -1).concat(rec2);
             }
-            
-            ctx.restore();
+            return [start, end];
+        }
+
+        function findNearestWallProjection(wx, wy, maxDistWorld) {
+            let best = null;
+            let bestD = maxDistWorld;
+            for (let pi = 0; pi < points.length; pi++) {
+                const path = points[pi];
+                for (let si = 0; si < path.length - 1; si++) {
+                    const p1 = path[si], p2 = path[si + 1];
+                    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                    const lenSq = dx * dx + dy * dy;
+                    if (lenSq < 1) continue;
+                    const t = Math.max(0, Math.min(1, ((wx - p1.x) * dx + (wy - p1.y) * dy) / lenSq));
+                    const projX = p1.x + t * dx;
+                    const projY = p1.y + t * dy;
+                    const d = Math.hypot(wx - projX, wy - projY);
+                    if (d < bestD) {
+                        bestD = d;
+                        best = {
+                            x: projX,
+                            y: projY,
+                            angle: Math.atan2(dy, dx),
+                            pathIdx: pi,
+                            segIdx: si
+                        };
+                    }
+                }
+            }
+            return best;
+        }
+
+        function hitTestModule(wx, wy) {
+            for (let i = modules.length - 1; i >= 0; i--) {
+                const m = modules[i];
+                const w = m.w || 100;
+                const h = Math.max(m.h || 100, 28);
+                const cos = Math.cos(-(m.rotation || 0));
+                const sin = Math.sin(-(m.rotation || 0));
+                const lx = (wx - m.x) * cos - (wy - m.y) * sin;
+                const ly = (wx - m.x) * sin + (wy - m.y) * cos;
+                if (Math.abs(lx) <= w / 2 + 8 && Math.abs(ly) <= h / 2 + 8) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         canvas.addEventListener('pointerdown', (e) => {
-            if(measureDialog.style.display === 'block') return;
+            if (measureDialog.style.display === 'block') return;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-            if(mode === 'pan') {
+            if (activePointers.size === 2) {
+                isDrawing = false;
+                draggingModuleIndex = -1;
+                const pts = Array.from(activePointers.values());
+                lastPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+                lastPinchCenter = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+                return;
+            }
+            if (activePointers.size > 1) return;
+
+            const wp = getWorldPos(e.clientX, e.clientY);
+
+            if (isReadOnly || mode === 'pan') {
+                panStartScreen = { x: e.clientX, y: e.clientY };
+                panInitialOffset = { x: offsetX, y: offsetY };
+                if (!isReadOnly) {
+                    const hitMod = hitTestModule(wp.x, wp.y);
+                    if (hitMod >= 0) {
+                        draggingModuleIndex = hitMod;
+                        moduleMovedDuringDrag = false;
+                        dragModuleOffset = { x: wp.x - modules[hitMod].x, y: wp.y - modules[hitMod].y };
+                        pushHistory();
+                        return;
+                    }
+                }
                 isDrawing = true;
-                panStart = {x: e.clientX - offsetX, y: e.clientY - offsetY};
                 return;
             }
 
-            let wp = getWorldPos(e);
+            const snapped = getSnappedPos(wp.x, wp.y);
+            let finalPos = snapped || wp;
 
-            if(mode === 'modules') {
-                modules.push({x: wp.x, y: wp.y, w: 100, h: 100});
+            if (mode === 'modules') {
+                pushHistory();
+                let placeX = wp.x, placeY = wp.y, rot = 0;
+                if (currentModuleType === 'door' || currentModuleType === 'window') {
+                    const nearWall = findNearestWallProjection(wp.x, wp.y, 45 / zoom);
+                    if (nearWall) {
+                        placeX = nearWall.x;
+                        placeY = nearWall.y;
+                        rot = nearWall.angle;
+                    }
+                }
+                const defaultW = (currentModuleType === 'door') ? 45 : (currentModuleType === 'window' ? 60 : 150);
+                const defaultH = (currentModuleType === 'door' || currentModuleType === 'window') ? 14 : 150;
+                const defaultLabel = currentModuleType === 'room' ? ('Espacio ' + (modules.filter(m => (m.type || 'room') === 'room').length + 1)) : '';
+                modules.push({
+                    x: placeX,
+                    y: placeY,
+                    w: defaultW,
+                    h: defaultH,
+                    type: currentModuleType,
+                    label: defaultLabel,
+                    rotation: rot
+                });
                 draw2D();
                 return;
             }
-            
-            if(mode === 'walls') {
-                if(!tempStartPoint) {
-                    tempStartPoint = {x: wp.x, y: wp.y};
+
+            if (mode === 'walls') {
+                if (!tempStartPoint) {
+                    tempStartPoint = { x: finalPos.x, y: finalPos.y };
+                    draw2D();
                 } else {
-                    tempEndPoint = {x: wp.x, y: wp.y};
-                    let dx = tempEndPoint.x - tempStartPoint.x;
-                    let dy = tempEndPoint.y - tempStartPoint.y;
-                    let currentLength = (Math.sqrt(dx*dx + dy*dy) / SCALE).toFixed(2);
-                    
-                    document.getElementById('measure-title').innerText = "Crear Muro";
-                    editingPathIndex = -1;
-                    editingModuleIndex = -1;
-                    wallInputsBlock.style.display = 'block';
-                    moduleInputsBlock.style.display = 'none';
-                    measureDialog.style.display = 'block';
-                    wallLengthInput.value = currentLength;
-                    wallLengthInput.focus();
+                    let endCandidate = applyOrtho(tempStartPoint, finalPos);
+                    const snapEnd = getSnappedPos(endCandidate.x, endCandidate.y);
+                    if (snapEnd && !snapOrthogonal) endCandidate = snapEnd;
+
+                    tempEndPoint = { x: endCandidate.x, y: endCandidate.y };
+                    const dx = tempEndPoint.x - tempStartPoint.x;
+                    const dy = tempEndPoint.y - tempStartPoint.y;
+                    const currentLength = Math.max(0.1, Math.hypot(dx, dy) / SCALE).toFixed(2);
+
+                    openWallDialog("Crear Muro", currentLength, -1, -1);
+                }
+                return;
+            }
+
+            if (mode === 'freehand') {
+                isDrawing = true;
+                currentPath = [{ x: finalPos.x, y: finalPos.y }];
+            }
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (activePointers.has(e.pointerId)) {
+                activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            }
+
+            if (activePointers.size === 2) {
+                const pts = Array.from(activePointers.values());
+                const newDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+                const newCenter = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+
+                if (lastPinchCenter && lastPinchDist > 5) {
+                    offsetX += (newCenter.x - lastPinchCenter.x);
+                    offsetY += (newCenter.y - lastPinchCenter.y);
+
+                    const oldZoom = zoom;
+                    zoom = Math.max(0.2, Math.min(4.5, zoom * (newDist / lastPinchDist)));
+                    const zoomRatio = zoom / oldZoom;
+
+                    offsetX = newCenter.x - (newCenter.x - offsetX) * zoomRatio;
+                    offsetY = newCenter.y - (newCenter.y - offsetY) * zoomRatio;
+
+                    gridBody.style.backgroundSize = `${25 * zoom}px ${25 * zoom}px`;
+                    gridBody.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
+                    draw2D();
+                }
+                lastPinchCenter = newCenter;
+                lastPinchDist = newDist;
+                return;
+            }
+            if (activePointers.size > 1) return;
+
+            const wp = getWorldPos(e.clientX, e.clientY);
+
+            if (draggingModuleIndex >= 0 && !isReadOnly) {
+                const movedPx = Math.hypot(e.clientX - panStartScreen.x, e.clientY - panStartScreen.y);
+                if (movedPx > 6) moduleMovedDuringDrag = true;
+                const m = modules[draggingModuleIndex];
+                m.x = wp.x - dragModuleOffset.x;
+                m.y = wp.y - dragModuleOffset.y;
+                if (m.type === 'door' || m.type === 'window') {
+                    const nearWall = findNearestWallProjection(m.x, m.y, 35 / zoom);
+                    if (nearWall) {
+                        m.x = nearWall.x;
+                        m.y = nearWall.y;
+                        m.rotation = nearWall.angle;
+                    }
                 }
                 draw2D();
                 return;
             }
 
-            isDrawing = true;
-            currentPath = [{x: wp.x, y: wp.y}];
-        });
-
-        canvas.addEventListener('pointermove', (e) => {
-            if (mode === 'pan' && isDrawing) {
-                offsetX = e.clientX - panStart.x;
-                offsetY = e.clientY - panStart.y;
+            if ((isReadOnly || mode === 'pan') && isDrawing) {
+                offsetX = panInitialOffset.x + (e.clientX - panStartScreen.x);
+                offsetY = panInitialOffset.y + (e.clientY - panStartScreen.y);
                 gridBody.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
                 draw2D();
                 return;
             }
 
-            let wp = getWorldPos(e);
+            currentSnapPoint = getSnappedPos(wp.x, wp.y);
 
-            if (mode === 'walls' && tempStartPoint && !tempEndPoint) {
-                tempEndPoint = {x: wp.x, y: wp.y};
+            if (mode === 'walls' && tempStartPoint && measureDialog.style.display !== 'block') {
+                let target = applyOrtho(tempStartPoint, wp);
+                if (currentSnapPoint && !snapOrthogonal) target = currentSnapPoint;
+                tempEndPoint = { x: target.x, y: target.y };
                 draw2D();
-                tempEndPoint = null; 
+                return;
             }
-            if (!isDrawing) return;
-            if (mode === 'freehand') {
-                currentPath.push({x: wp.x, y: wp.y});
-                draw2D();
+
+            if (mode === 'freehand' && isDrawing) {
+                let target = wp;
+                if (snapOrthogonal && currentPath.length > 0) {
+                    target = applyOrtho(currentPath[currentPath.length - 1], wp);
+                }
+                if (currentSnapPoint) target = currentSnapPoint;
+                const last = currentPath[currentPath.length - 1];
+                if (!last || Math.hypot(target.x - last.x, target.y - last.y) >= 4 / zoom) {
+                    currentPath.push({ x: target.x, y: target.y });
+                    draw2D();
+                }
             }
         });
 
         canvas.addEventListener('pointerup', (e) => {
-            if(mode === 'pan') {
-                isDrawing = false;
-                
-                let dxPan = Math.abs(e.clientX - offsetX - panStart.x);
-                let dyPan = Math.abs(e.clientY - offsetY - panStart.y);
-                
-                if(dxPan < 10 && dyPan < 10) {
-                    let wp = getWorldPos(e);
-                    
-                    // 1. Verificar si tocamos un módulo
-                    for(let i=modules.length-1; i>=0; i--) {
-                        let m = modules[i];
-                        let w = m.w || 100;
-                        let h = m.h || 100;
-                        if(wp.x >= m.x - w/2 && wp.x <= m.x + w/2 && wp.y >= m.y - h/2 && wp.y <= m.y + h/2) {
-                            document.getElementById('measure-title').innerText = "Editar Módulo";
-                            editingModuleIndex = i;
-                            editingPathIndex = -1;
-                            
-                            wallInputsBlock.style.display = 'none';
-                            moduleInputsBlock.style.display = 'flex';
-                            measureDialog.style.display = 'block';
-                            
-                            modWidthInput.value = (w / SCALE).toFixed(1);
-                            modHeightInput.value = (h / SCALE).toFixed(1);
-                            modWidthInput.focus();
-                            return; // Stop checking
-                        }
-                    }
+            activePointers.delete(e.pointerId);
+            if (activePointers.size < 2) {
+                lastPinchCenter = null;
+                lastPinchDist = null;
+            }
 
-                    // 2. Verificar si tocamos un muro
-                    for(let i=0; i<points.length; i++) {
-                        let path = points[i];
-                        if(path.length === 2) {
-                            let midX = (path[0].x + path[1].x) / 2;
-                            let midY = (path[0].y + path[1].y) / 2;
-                            let dist = Math.sqrt(Math.pow(midX - wp.x, 2) + Math.pow(midY - wp.y, 2));
-                            if(dist < 80) {
-                                let dx = path[1].x - path[0].x;
-                                let dy = path[1].y - path[0].y;
-                                let currentLength = (Math.sqrt(dx*dx + dy*dy) / SCALE).toFixed(2);
-                                
-                                document.getElementById('measure-title').innerText = "Editar Muro";
-                                editingPathIndex = i;
-                                editingModuleIndex = -1;
-                                
-                                wallInputsBlock.style.display = 'block';
-                                moduleInputsBlock.style.display = 'none';
-                                measureDialog.style.display = 'block';
-                                wallLengthInput.value = currentLength;
-                                wallLengthInput.focus();
-                                return;
-                            }
-                        }
+            const movedScreen = Math.hypot(e.clientX - panStartScreen.x, e.clientY - panStartScreen.y);
+
+            if (draggingModuleIndex >= 0) {
+                const idx = draggingModuleIndex;
+                draggingModuleIndex = -1;
+                if (!moduleMovedDuringDrag) {
+                    historyStack.pop(); // No move happened, open edit modal instead
+                    openModuleDialog(idx);
+                }
+                draw2D();
+                return;
+            }
+
+            if (isReadOnly || mode === 'pan') {
+                isDrawing = false;
+                if (!isReadOnly && movedScreen < 8) {
+                    const wp = getWorldPos(e.clientX, e.clientY);
+                    const hitMod = hitTestModule(wp.x, wp.y);
+                    if (hitMod >= 0) {
+                        openModuleDialog(hitMod);
+                        return;
+                    }
+                    const nearWall = findNearestWallProjection(wp.x, wp.y, 28 / zoom);
+                    if (nearWall) {
+                        const seg = points[nearWall.pathIdx];
+                        const p1 = seg[nearWall.segIdx], p2 = seg[nearWall.segIdx + 1];
+                        const len = (Math.hypot(p2.x - p1.x, p2.y - p1.y) / SCALE).toFixed(2);
+                        openWallDialog("Editar Muro", len, nearWall.pathIdx, nearWall.segIdx);
+                        return;
                     }
                 }
                 return;
             }
 
-            if(isDrawing && mode === 'freehand') {
+            if (mode === 'freehand' && isDrawing) {
                 isDrawing = false;
-                if(currentPath.length > 1) {
-                    points.push([...currentPath]);
+                if (currentPath.length > 1) {
+                    const simplified = simplifyPath(currentPath, snapOrthogonal ? 3 : 7);
+                    const totalLen = Math.hypot(
+                        simplified[simplified.length - 1].x - simplified[0].x,
+                        simplified[simplified.length - 1].y - simplified[0].y
+                    );
+                    if (simplified.length >= 2 && (totalLen > 8 || currentPath.length > 4)) {
+                        pushHistory();
+                        points.push(simplified);
+                    }
                 }
                 currentPath = [];
+                currentSnapPoint = null;
                 draw2D();
             }
         });
+
+        canvas.addEventListener('pointercancel', (e) => {
+            activePointers.delete(e.pointerId);
+            isDrawing = false;
+            draggingModuleIndex = -1;
+            currentSnapPoint = null;
+        });
+
+        function openWallDialog(title, lengthVal, pathIdx, segIdx) {
+            document.getElementById('measure-title').innerText = title;
+            document.getElementById('measure-subtitle').innerText = "Ingresa la longitud exacta en metros.";
+            editingPathIndex = pathIdx;
+            editingSegmentIndex = segIdx;
+            editingModuleIndex = -1;
+            document.getElementById('wall-inputs').style.display = 'block';
+            document.getElementById('module-inputs').style.display = 'none';
+            document.getElementById('btnDeleteElement').style.display = pathIdx >= 0 ? 'block' : 'none';
+            const input = document.getElementById('wallLength');
+            input.value = lengthVal;
+            measureDialog.style.display = 'block';
+        }
+
+        function openModuleDialog(modIdx) {
+            const m = modules[modIdx];
+            const typeTitle = m.type === 'door' ? 'Editar Puerta' : (m.type === 'window' ? 'Editar Ventana' : 'Editar Espacio');
+            document.getElementById('measure-title').innerText = typeTitle;
+            document.getElementById('measure-subtitle').innerText = "Ajusta dimensiones o rotación.";
+            editingModuleIndex = modIdx;
+            editingPathIndex = -1;
+            editingSegmentIndex = -1;
+
+            document.getElementById('wall-inputs').style.display = 'none';
+            document.getElementById('module-inputs').style.display = 'block';
+            document.getElementById('mod-label-wrap').style.display = (m.type === 'door' || m.type === 'window') ? 'none' : 'block';
+            document.getElementById('modLabel').value = m.label || '';
+            document.getElementById('modWidth').value = ((m.w || 100) / SCALE).toFixed(2);
+            document.getElementById('modHeight').value = ((m.h || 100) / SCALE).toFixed(2);
+            document.getElementById('modRotation').value = m.rotation ? Math.round((m.rotation * 180) / Math.PI) : 0;
+            document.getElementById('btnDeleteElement').style.display = 'block';
+            measureDialog.style.display = 'block';
+        }
 
         function cancelMeasurement() {
             measureDialog.style.display = 'none';
             tempStartPoint = null;
             tempEndPoint = null;
             editingPathIndex = -1;
+            editingSegmentIndex = -1;
             editingModuleIndex = -1;
             draw2D();
+        }
+
+        function deleteSelectedElement() {
+            pushHistory();
+            if (editingModuleIndex >= 0 && editingModuleIndex < modules.length) {
+                modules.splice(editingModuleIndex, 1);
+                showToast("Elemento eliminado");
+            } else if (editingPathIndex >= 0 && editingPathIndex < points.length) {
+                points.splice(editingPathIndex, 1);
+                showToast("Muro eliminado");
+            }
+            cancelMeasurement();
         }
 
         function confirmMeasurement() {
             measureDialog.style.display = 'none';
-            
-            if(editingModuleIndex >= 0) {
-                // Editar tamaño de Módulo
-                let mw = parseFloat(modWidthInput.value);
-                let mh = parseFloat(modHeightInput.value);
-                if(!isNaN(mw) && mw > 0) modules[editingModuleIndex].w = mw * SCALE;
-                if(!isNaN(mh) && mh > 0) modules[editingModuleIndex].h = mh * SCALE;
-            } 
-            else {
-                // Editar o crear Muro
-                let length = parseFloat(wallLengthInput.value);
-                if(!isNaN(length) && length > 0) {
-                    if(editingPathIndex >= 0) {
-                        let p1 = points[editingPathIndex][0];
-                        let p2 = points[editingPathIndex][1];
-                        let dx = p2.x - p1.x;
-                        let dy = p2.y - p1.y;
-                        let angle = Math.atan2(dy, dx);
-                        
-                        points[editingPathIndex][1].x = p1.x + Math.cos(angle) * (length * SCALE);
-                        points[editingPathIndex][1].y = p1.y + Math.sin(angle) * (length * SCALE);
-                    } else if(tempStartPoint && tempEndPoint) {
-                        let dx = tempEndPoint.x - tempStartPoint.x;
-                        let dy = tempEndPoint.y - tempStartPoint.y;
-                        let angle = Math.atan2(dy, dx);
-                        let finalX = tempStartPoint.x + Math.cos(angle) * (length * SCALE);
-                        let finalY = tempStartPoint.y + Math.sin(angle) * (length * SCALE);
-                        
+
+            if (editingModuleIndex >= 0 && editingModuleIndex < modules.length) {
+                pushHistory();
+                const m = modules[editingModuleIndex];
+                const w = parseFloat(document.getElementById('modWidth').value);
+                const h = parseFloat(document.getElementById('modHeight').value);
+                const r = parseFloat(document.getElementById('modRotation').value);
+                const lbl = document.getElementById('modLabel').value.trim();
+                if (!isNaN(w) && w > 0) m.w = w * SCALE;
+                if (!isNaN(h) && h > 0) m.h = h * SCALE;
+                if (!isNaN(r)) m.rotation = (r * Math.PI) / 180;
+                if ((m.type || 'room') === 'room') m.label = lbl;
+            } else {
+                const length = parseFloat(document.getElementById('wallLength').value);
+                if (!isNaN(length) && length > 0) {
+                    pushHistory();
+                    if (editingPathIndex >= 0 && editingSegmentIndex >= 0) {
+                        const path = points[editingPathIndex];
+                        const p1 = path[editingSegmentIndex];
+                        const p2 = path[editingSegmentIndex + 1];
+                        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                        const newX = p1.x + Math.cos(angle) * (length * SCALE);
+                        const newY = p1.y + Math.sin(angle) * (length * SCALE);
+                        const deltaX = newX - p2.x;
+                        const deltaY = newY - p2.y;
+                        for (let k = editingSegmentIndex + 1; k < path.length; k++) {
+                            path[k].x += deltaX;
+                            path[k].y += deltaY;
+                        }
+                    } else if (tempStartPoint && tempEndPoint) {
+                        const dx = tempEndPoint.x - tempStartPoint.x;
+                        const dy = tempEndPoint.y - tempStartPoint.y;
+                        const angle = (dx === 0 && dy === 0) ? 0 : Math.atan2(dy, dx);
+                        const finalX = tempStartPoint.x + Math.cos(angle) * (length * SCALE);
+                        const finalY = tempStartPoint.y + Math.sin(angle) * (length * SCALE);
+
                         points.push([
-                            {x: tempStartPoint.x, y: tempStartPoint.y},
-                            {x: finalX, y: finalY}
+                            { x: tempStartPoint.x, y: tempStartPoint.y },
+                            { x: finalX, y: finalY }
                         ]);
+                        // Chain next sequential wall automatically from endpoint!
+                        tempStartPoint = { x: finalX, y: finalY };
+                        tempEndPoint = null;
+                        editingPathIndex = -1;
+                        editingSegmentIndex = -1;
+                        editingModuleIndex = -1;
+                        draw2D();
+                        return;
                     }
                 }
             }
-            
+
             tempStartPoint = null;
             tempEndPoint = null;
             editingPathIndex = -1;
+            editingSegmentIndex = -1;
             editingModuleIndex = -1;
             draw2D();
         }
 
-        // --- 3D ENGINE (THREE.JS) - CARGADO DINAMICAMENTE ---
-        let scene, camera, renderer, controls;
+        function drawDimensionPill(text, x, y, bgColor, textColor) {
+            ctx.font = 'bold 11px sans-serif';
+            const padX = 6;
+            const tw = ctx.measureText(text).width + padX * 2;
+            const th = 18;
+            ctx.fillStyle = bgColor;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(x - tw / 2, y - th / 2, tw, th, 6);
+            else ctx.rect(x - tw / 2, y - th / 2, tw, th);
+            ctx.fill();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+        }
+
+        function draw2D() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(zoom, zoom);
+
+            const wallColor = isDarkTheme ? '#E2E8F0' : '#001D39';
+            const pillBg = isDarkTheme ? 'rgba(30, 41, 59, 0.92)' : 'rgba(255, 255, 255, 0.94)';
+            const pillText = isDarkTheme ? '#38BDF8' : '#0A4174';
+
+            // 1. Módulos de habitación
+            for (const m of modules) {
+                if (m.type === 'door' || m.type === 'window') continue;
+                const w = m.w || 100;
+                const h = m.h || 100;
+                ctx.save();
+                ctx.translate(m.x, m.y);
+                ctx.rotate(m.rotation || 0);
+
+                ctx.fillStyle = isDarkTheme ? 'rgba(56, 189, 248, 0.14)' : 'rgba(10, 65, 116, 0.14)';
+                ctx.strokeStyle = isDarkTheme ? '#38BDF8' : '#0A4174';
+                ctx.lineWidth = 2;
+                ctx.fillRect(-w / 2, -h / 2, w, h);
+                ctx.strokeRect(-w / 2, -h / 2, w, h);
+
+                const wMts = (w / SCALE).toFixed(1);
+                const hMts = (h / SCALE).toFixed(1);
+                ctx.fillStyle = isDarkTheme ? '#F8FAFC' : '#001D39';
+                ctx.textAlign = 'center';
+                if (m.label) {
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText(m.label, 0, -4);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillStyle = isDarkTheme ? '#94A3B8' : '#0A4174';
+                    ctx.fillText(`${wMts}m × ${hMts}m`, 0, 12);
+                } else {
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText(`${wMts}m × ${hMts}m`, 0, 4);
+                }
+                ctx.restore();
+            }
+
+            // 2. Muros guardados
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            for (let pathIdx = 0; pathIdx < points.length; pathIdx++) {
+                const path = points[pathIdx];
+                if (!path || path.length < 2) continue;
+
+                ctx.beginPath();
+                ctx.moveTo(path[0].x, path[0].y);
+                for (let i = 1; i < path.length; i++) ctx.lineTo(path[i].x, path[i].y);
+                ctx.strokeStyle = wallColor;
+                ctx.lineWidth = 7;
+                ctx.stroke();
+
+                // Nodos en vértices
+                ctx.fillStyle = isDarkTheme ? '#38BDF8' : '#0A4174';
+                for (const pt of path) {
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Cotas de cada segmento
+                for (let i = 0; i < path.length - 1; i++) {
+                    const p1 = path[i], p2 = path[i + 1];
+                    const length = Math.hypot(p2.x - p1.x, p2.y - p1.y) / SCALE;
+                    if (length >= 0.25) {
+                        const midX = (p1.x + p2.x) / 2;
+                        const midY = (p1.y + p2.y) / 2;
+                        drawDimensionPill(length.toFixed(2) + ' m', midX, midY - 12, pillBg, pillText);
+                    }
+                }
+            }
+
+            // 3. Puertas y ventanas encima de los muros
+            for (const m of modules) {
+                if (m.type !== 'door' && m.type !== 'window') continue;
+                const w = m.w || 45;
+                ctx.save();
+                ctx.translate(m.x, m.y);
+                ctx.rotate(m.rotation || 0);
+
+                // Borrar visualmente el tramo de muro debajo
+                ctx.fillStyle = isDarkTheme ? '#121212' : '#F4F6F8';
+                ctx.fillRect(-w / 2, -5, w, 10);
+
+                if (m.type === 'door') {
+                    ctx.strokeStyle = '#D97706';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(-w / 2, 0);
+                    ctx.lineTo(-w / 2, -w);
+                    ctx.stroke();
+
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 3]);
+                    ctx.beginPath();
+                    ctx.arc(-w / 2, 0, w, -Math.PI / 2, 0);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+                    ctx.strokeStyle = '#0284C7';
+                    ctx.lineWidth = 2;
+                    ctx.fillRect(-w / 2, -4, w, 8);
+                    ctx.strokeRect(-w / 2, -4, w, 8);
+                    ctx.beginPath();
+                    ctx.moveTo(-w / 2, 0);
+                    ctx.lineTo(w / 2, 0);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // 4. Trazo libre en curso
+            if (currentPath.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(currentPath[0].x, currentPath[0].y);
+                for (let i = 1; i < currentPath.length; i++) ctx.lineTo(currentPath[i].x, currentPath[i].y);
+                ctx.strokeStyle = '#38BDF8';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+
+            // 5. Punto inicial / previsualización de muro secuencial
+            if (tempStartPoint) {
+                ctx.beginPath();
+                ctx.arc(tempStartPoint.x, tempStartPoint.y, 6 / zoom, 0, Math.PI * 2);
+                ctx.fillStyle = '#EF4444';
+                ctx.fill();
+
+                if (tempEndPoint) {
+                    ctx.beginPath();
+                    ctx.moveTo(tempStartPoint.x, tempStartPoint.y);
+                    ctx.lineTo(tempEndPoint.x, tempEndPoint.y);
+                    ctx.strokeStyle = '#EF4444';
+                    ctx.lineWidth = 5;
+                    ctx.setLineDash([6, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    const length = Math.hypot(tempEndPoint.x - tempStartPoint.x, tempEndPoint.y - tempStartPoint.y) / SCALE;
+                    drawDimensionPill(
+                        length.toFixed(2) + ' m',
+                        (tempStartPoint.x + tempEndPoint.x) / 2,
+                        (tempStartPoint.y + tempEndPoint.y) / 2 - 14,
+                        '#EF4444',
+                        '#FFFFFF'
+                    );
+                }
+            }
+
+            // 6. Indicador de Snap Magnético
+            if (currentSnapPoint) {
+                ctx.beginPath();
+                ctx.arc(currentSnapPoint.x, currentSnapPoint.y, 8 / zoom, 0, Math.PI * 2);
+                ctx.fillStyle = '#10B981';
+                ctx.fill();
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2 / zoom;
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // --- PARSER DXF NATIVO (SIN DEPENDENCIA DE CDN EXTERNA) ---
+        function parseDxfNative(dxfText) {
+            const lines = dxfText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+            const pairs = [];
+            for (let i = 0; i + 1 < lines.length; i += 2) {
+                const code = parseInt(lines[i].trim(), 10);
+                if (!isNaN(code)) pairs.push({ code, val: lines[i + 1].trim() });
+            }
+
+            const segments = [];
+            let inEntities = false;
+            let idx = 0;
+
+            while (idx < pairs.length) {
+                const p = pairs[idx];
+                if (p.code === 0 && p.val === 'SECTION') {
+                    if (idx + 1 < pairs.length && pairs[idx + 1].code === 2 && pairs[idx + 1].val === 'ENTITIES') {
+                        inEntities = true;
+                        idx += 2;
+                        continue;
+                    }
+                }
+                if (p.code === 0 && p.val === 'ENDSEC') {
+                    inEntities = false;
+                    idx++;
+                    continue;
+                }
+                if (!inEntities) { idx++; continue; }
+
+                if (p.code === 0 && p.val === 'LINE') {
+                    idx++;
+                    let x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+                    while (idx < pairs.length && pairs[idx].code !== 0) {
+                        const c = pairs[idx].code, v = parseFloat(pairs[idx].val);
+                        if (c === 10) x1 = v;
+                        else if (c === 20) y1 = v;
+                        else if (c === 11) x2 = v;
+                        else if (c === 21) y2 = v;
+                        idx++;
+                    }
+                    if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+                        segments.push({ p1: { x: x1, y: y1 }, p2: { x: x2, y: y2 } });
+                    }
+                    continue;
+                }
+
+                if (p.code === 0 && p.val === 'LWPOLYLINE') {
+                    idx++;
+                    const verts = [];
+                    let curX = null, closed = false;
+                    while (idx < pairs.length && pairs[idx].code !== 0) {
+                        const c = pairs[idx].code, raw = pairs[idx].val;
+                        if (c === 70) closed = (parseInt(raw, 10) & 1) === 1;
+                        else if (c === 10) curX = parseFloat(raw);
+                        else if (c === 20 && curX !== null) {
+                            verts.push({ x: curX, y: parseFloat(raw) });
+                            curX = null;
+                        }
+                        idx++;
+                    }
+                    for (let k = 0; k + 1 < verts.length; k++) {
+                        segments.push({ p1: verts[k], p2: verts[k + 1] });
+                    }
+                    if (closed && verts.length > 2) {
+                        segments.push({ p1: verts[verts.length - 1], p2: verts[0] });
+                    }
+                    continue;
+                }
+
+                if (p.code === 0 && p.val === 'POLYLINE') {
+                    idx++;
+                    let closed = false;
+                    while (idx < pairs.length && pairs[idx].code !== 0) {
+                        if (pairs[idx].code === 70) closed = (parseInt(pairs[idx].val, 10) & 1) === 1;
+                        idx++;
+                    }
+                    const verts = [];
+                    while (idx < pairs.length && !(pairs[idx].code === 0 && pairs[idx].val === 'SEQEND')) {
+                        if (pairs[idx].code === 0 && pairs[idx].val === 'VERTEX') {
+                            idx++;
+                            let vx = 0, vy = 0;
+                            while (idx < pairs.length && pairs[idx].code !== 0) {
+                                if (pairs[idx].code === 10) vx = parseFloat(pairs[idx].val);
+                                else if (pairs[idx].code === 20) vy = parseFloat(pairs[idx].val);
+                                idx++;
+                            }
+                            verts.push({ x: vx, y: vy });
+                        } else {
+                            idx++;
+                        }
+                    }
+                    for (let k = 0; k + 1 < verts.length; k++) {
+                        segments.push({ p1: verts[k], p2: verts[k + 1] });
+                    }
+                    if (closed && verts.length > 2) {
+                        segments.push({ p1: verts[verts.length - 1], p2: verts[0] });
+                    }
+                    continue;
+                }
+
+                idx++;
+            }
+            return segments;
+        }
+
+        window.processDXFText = function(dxfString) {
+            try {
+                const segments = parseDxfNative(dxfString);
+                if (!segments || segments.length === 0) {
+                    showToast("No se encontraron muros/líneas en el DXF");
+                    return;
+                }
+
+                pushHistory();
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                for (const s of segments) {
+                    minX = Math.min(minX, s.p1.x, s.p2.x);
+                    minY = Math.min(minY, s.p1.y, s.p2.y);
+                    maxX = Math.max(maxX, s.p1.x, s.p2.x);
+                    maxY = Math.max(maxY, s.p1.y, s.p2.y);
+                }
+
+                const midX = (minX + maxX) / 2;
+                const midY = (minY + maxY) / 2;
+                const span = Math.max(maxX - minX, maxY - minY, 1);
+                // Auto-detect millimeters (> 500) vs centimeters (> 80) vs meters
+                const unitFactor = span > 500 ? (SCALE / 1000) : (span > 80 ? (SCALE / 100) : SCALE);
+
+                for (const s of segments) {
+                    points.push([
+                        { x: (s.p1.x - midX) * unitFactor + canvas.width / 2, y: -(s.p1.y - midY) * unitFactor + canvas.height / 2 },
+                        { x: (s.p2.x - midX) * unitFactor + canvas.width / 2, y: -(s.p2.y - midY) * unitFactor + canvas.height / 2 }
+                    ]);
+                }
+
+                offsetX = 0;
+                offsetY = 0;
+                zoom = 1.0;
+                draw2D();
+                if (is3DInitialized && document.getElementById('three-container').style.display === 'block') {
+                    build3DScene();
+                }
+                showToast(`Plano DXF importado (${segments.length} trazos)`);
+            } catch (err) {
+                console.error(err);
+                showToast("Error al interpretar el archivo DXF");
+            }
+        };
+
+        window.processDXFBase64 = function(b64) {
+            try {
+                const binary = atob(b64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const text = new TextDecoder('utf-8').decode(bytes);
+                window.processDXFText(text);
+            } catch (e) {
+                console.error(e);
+                showToast("Error leyendo archivo DXF");
+            }
+        };
+
+        // --- MOTOR 3D (THREE.JS) ---
+        let scene, camera, renderer, controls, planGroup;
         let is3DInitialized = false;
 
-        function loadThreeJs(callback) {
-            if (window.THREE) { callback(); return; }
-            let s1 = document.createElement('script');
+        function loadThreeJs(callback, onError) {
+            if (window.THREE && window.THREE.OrbitControls) { callback(); return; }
+            const s1 = document.createElement('script');
             s1.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
             s1.onload = () => {
-                let s2 = document.createElement('script');
+                const s2 = document.createElement('script');
                 s2.src = "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js";
                 s2.onload = callback;
+                s2.onerror = onError;
                 document.head.appendChild(s2);
             };
+            s1.onerror = onError;
             document.head.appendChild(s1);
         }
 
         function init3D() {
             const container = document.getElementById('three-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color('#F4F6F8');
+            scene.background = new THREE.Color(isDarkTheme ? '#121212' : '#EAF0F6');
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
             scene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-            dirLight.position.set(100, 200, 50);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
+            dirLight.position.set(250, 450, 200);
             scene.add(dirLight);
 
-            const gridHelper = new THREE.GridHelper(2000, 40, 0x001D39, 0xBDD8E9);
+            const gridHelper = new THREE.GridHelper(2400, 48, isDarkTheme ? 0x38BDF8 : 0x0A4174, isDarkTheme ? 0x262626 : 0xCBD5E1);
+            gridHelper.name = 'archie_grid';
             scene.add(gridHelper);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth/innerHeight, 1, 5000);
-            camera.position.set(0, 500, 500);
+            planGroup = new THREE.Group();
+            scene.add(planGroup);
 
-            renderer = new THREE.WebGLRenderer({antialias: true});
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / Math.max(1, window.innerHeight), 1, 8000);
+            camera.position.set(0, 420, 480);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             container.innerHTML = '';
             container.appendChild(renderer.domElement);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.maxPolarAngle = Math.PI / 2 - 0.04;
 
             is3DInitialized = true;
             animate3D();
         }
 
+        function getPlanCentroid() {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            let count = 0;
+            for (const path of points) {
+                for (const p of path) {
+                    minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+                    maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+                    count++;
+                }
+            }
+            for (const m of modules) {
+                minX = Math.min(minX, m.x - (m.w || 100) / 2);
+                minY = Math.min(minY, m.y - (m.h || 100) / 2);
+                maxX = Math.max(maxX, m.x + (m.w || 100) / 2);
+                maxY = Math.max(maxY, m.y + (m.h || 100) / 2);
+                count++;
+            }
+            if (count === 0) return { cx: window.innerWidth / 2, cy: window.innerHeight / 2, w: 300, h: 300 };
+            return {
+                cx: (minX + maxX) / 2,
+                cy: (minY + maxY) / 2,
+                w: Math.max(200, maxX - minX + 80),
+                h: Math.max(200, maxY - minY + 80)
+            };
+        }
+
         function build3DScene() {
-            const toRemove = [];
-            scene.children.forEach(c => {
-                if(c.type === 'Mesh' && c.geometry.type !== 'PlaneGeometry') toRemove.push(c);
+            if (!is3DInitialized || !planGroup) return;
+            while (planGroup.children.length > 0) {
+                planGroup.remove(planGroup.children[0]);
+            }
+
+            scene.background = new THREE.Color(isDarkTheme ? '#121212' : '#EAF0F6');
+
+            const bounds = getPlanCentroid();
+            const wallHeight = 140; // ~2.8m
+            const wallThickness = 9;
+
+            // Losa base bajo el plano
+            if (points.length > 0 || modules.length > 0) {
+                const slabGeo = new THREE.BoxGeometry(bounds.w, 4, bounds.h);
+                const slabMat = new THREE.MeshStandardMaterial({
+                    color: isDarkTheme ? 0x1E293B : 0xE2E8F0,
+                    roughness: 0.9
+                });
+                const slab = new THREE.Mesh(slabGeo, slabMat);
+                slab.position.set(0, -2, 0);
+                planGroup.add(slab);
+            }
+
+            const wallMaterial = new THREE.MeshStandardMaterial({
+                color: isDarkTheme ? 0xCBD5E1 : 0xF8FAFC,
+                roughness: 0.7
             });
-            toRemove.forEach(c => scene.remove(c));
 
-            const wallMaterial = new THREE.MeshStandardMaterial({color: 0xEEF2F5, roughness: 0.8});
-            const wallHeight = 150; 
-            const wallThickness = 10;
+            for (const path of points) {
+                for (let i = 0; i < path.length - 1; i++) {
+                    const p1 = path[i], p2 = path[i + 1];
+                    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                    const length = Math.hypot(dx, dy);
+                    if (length < 2) continue;
 
-            for (let path of points) {
-                for(let i=0; i<path.length-1; i++) {
-                    let p1 = path[i];
-                    let p2 = path[i+1];
-                    let dx = p2.x - p1.x;
-                    let dy = p2.y - p1.y;
-                    let length = Math.sqrt(dx*dx + dy*dy);
-                    if(length < 1) continue;
-
-                    let angle = Math.atan2(dy, dx);
-                    
-                    const geometry = new THREE.BoxGeometry(length, wallHeight, wallThickness);
+                    const angle = Math.atan2(dy, dx);
+                    const geometry = new THREE.BoxGeometry(length + wallThickness * 0.5, wallHeight, wallThickness);
                     const mesh = new THREE.Mesh(geometry, wallMaterial);
-                    
-                    mesh.position.set( (p1.x + p2.x)/2 - window.innerWidth/2, wallHeight/2, (p1.y + p2.y)/2 - window.innerHeight/2 );
+                    mesh.position.set((p1.x + p2.x) / 2 - bounds.cx, wallHeight / 2, (p1.y + p2.y) / 2 - bounds.cy);
                     mesh.rotation.y = -angle;
-                    scene.add(mesh);
+                    planGroup.add(mesh);
                 }
             }
 
-            const moduleMaterial = new THREE.MeshStandardMaterial({color: 0x6EA2B3, transparent: true, opacity: 0.8});
-            for (let m of modules) {
-                let w = m.w || 100;
-                let h = m.h || 100;
-                const geometry = new THREE.BoxGeometry(w, wallHeight, h);
-                const mesh = new THREE.Mesh(geometry, moduleMaterial);
-                mesh.position.set(m.x - window.innerWidth/2, wallHeight/2, m.y - window.innerHeight/2);
-                scene.add(mesh);
+            const roomMat = new THREE.MeshStandardMaterial({ color: 0x0A4174, transparent: true, opacity: 0.42, roughness: 0.5 });
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0x92400E, roughness: 0.6 });
+            const windowMat = new THREE.MeshStandardMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.62, roughness: 0.2 });
+
+            for (const m of modules) {
+                const w = m.w || 100;
+                const h = m.h || 100;
+                let geo, mesh, yPos;
+
+                if (m.type === 'door') {
+                    geo = new THREE.BoxGeometry(w, wallHeight * 0.78, wallThickness + 4);
+                    mesh = new THREE.Mesh(geo, doorMat);
+                    yPos = (wallHeight * 0.78) / 2;
+                } else if (m.type === 'window') {
+                    geo = new THREE.BoxGeometry(w, wallHeight * 0.42, wallThickness + 4);
+                    mesh = new THREE.Mesh(geo, windowMat);
+                    yPos = wallHeight * 0.55;
+                } else {
+                    geo = new THREE.BoxGeometry(w, wallHeight * 0.92, h);
+                    mesh = new THREE.Mesh(geo, roomMat);
+                    yPos = (wallHeight * 0.92) / 2;
+                }
+
+                mesh.position.set(m.x - bounds.cx, yPos, m.y - bounds.cy);
+                mesh.rotation.y = -(m.rotation || 0);
+                planGroup.add(mesh);
+            }
+
+            if (controls) {
+                controls.target.set(0, wallHeight * 0.3, 0);
+                controls.update();
             }
         }
 
         function animate3D() {
-            if(!is3DInitialized) return;
+            if (!is3DInitialized) return;
             requestAnimationFrame(animate3D);
             controls.update();
             renderer.render(scene, camera);
         }
 
-        // --- C# Interop ---
+        // --- INTEROP CON C# MAUI ---
+        window.setTheme = function(dark) {
+            isDarkTheme = !!dark;
+            document.body.classList.toggle('dark', isDarkTheme);
+            draw2D();
+            if (is3DInitialized) build3DScene();
+        };
+
+        window.setReadOnly = function(readOnly) {
+            isReadOnly = !!readOnly;
+            if (isReadOnly) mode = 'pan';
+            draw2D();
+        };
+
+        window.setModuleType = function(type) {
+            currentModuleType = type;
+            window.switchMode('modules');
+        };
+
+        window.toggleOrtho = function(enabled) {
+            snapOrthogonal = !!enabled;
+            showToast(snapOrthogonal ? "Modo Orto 90° activado" : "Modo Orto desactivado");
+        };
+
         window.switchMode = function(newMode) {
+            if (isReadOnly && newMode !== 'pan') return;
             mode = newMode;
             tempStartPoint = null;
             tempEndPoint = null;
+            currentSnapPoint = null;
             draw2D();
         };
-        
+
         window.switchCameraMode = function(is3D) {
             const container = document.getElementById('three-container');
-            const canvasEl = document.getElementById('canvas');
-            if(is3D) {
+            const canvasContainer = document.getElementById('canvas-container');
+            measureDialog.style.display = 'none';
+            if (is3D) {
                 loadThreeJs(() => {
-                    canvasEl.style.display = 'none';
+                    canvasContainer.style.display = 'none';
                     container.style.display = 'block';
-                    if(!is3DInitialized) init3D();
+                    if (!is3DInitialized) init3D();
                     build3DScene();
+                }, () => {
+                    showToast("Se requiere conexión a internet para cargar el motor 3D");
                 });
             } else {
-                canvasEl.style.display = 'block';
+                canvasContainer.style.display = 'block';
                 container.style.display = 'none';
                 draw2D();
             }
         };
 
         window.undoLastAction = function() {
-            if(mode === 'modules' && modules.length > 0) modules.pop();
-            else if (points.length > 0) points.pop();
-            tempStartPoint = null; tempEndPoint = null;
+            if (isReadOnly) return;
+            if (tempStartPoint) {
+                tempStartPoint = null;
+                tempEndPoint = null;
+                draw2D();
+                return;
+            }
+            if (historyStack.length > 0) {
+                try {
+                    const prev = JSON.parse(historyStack.pop());
+                    points = prev.points || [];
+                    modules = prev.modules || [];
+                    draw2D();
+                    if (is3DInitialized && document.getElementById('three-container').style.display === 'block') {
+                        build3DScene();
+                    }
+                    showToast("Acción deshecha");
+                } catch (e) { console.error(e); }
+            } else if (points.length > 0) {
+                points.pop();
+                draw2D();
+            } else if (modules.length > 0) {
+                modules.pop();
+                draw2D();
+            }
+        };
+
+        window.loadData = function(jsonString) {
+            try {
+                if (!jsonString) return;
+                const parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+                if (Array.isArray(parsed)) {
+                    points = [];
+                    modules = [];
+                } else {
+                    points = parsed.points || [];
+                    modules = parsed.modules || [];
+                }
+                historyStack = [];
+                tempStartPoint = null;
+                tempEndPoint = null;
+                draw2D();
+                if (is3DInitialized && document.getElementById('three-container').style.display === 'block') {
+                    build3DScene();
+                }
+            } catch (e) {
+                console.error('Error al cargar plano:', e);
+            }
+        };
+
+        window.loadDataBase64 = function(b64) {
+            try {
+                const binary = atob(b64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const jsonString = new TextDecoder('utf-8').decode(bytes);
+                window.loadData(jsonString);
+            } catch (e) {
+                console.error('Error decodificando plano:', e);
+            }
+        };
+
+        window.clearCanvas = function() {
+            points = [];
+            modules = [];
+            historyStack = [];
+            tempStartPoint = null;
+            tempEndPoint = null;
+            offsetX = 0;
+            offsetY = 0;
+            zoom = 1.0;
             draw2D();
-        }
+            if (is3DInitialized && document.getElementById('three-container').style.display === 'block') {
+                build3DScene();
+            }
+        };
 
         window.getExportData = function() {
             return JSON.stringify({ points: points, modules: modules });

@@ -1,54 +1,65 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Archie Measure</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
-        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 10; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #0B1120; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 10; touch-action: none; }
         #video-bg { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; }
-        
-        #info { position: absolute; top: 40px; width: 100%; text-align: center; pointer-events: none; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .chip {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 12px 24px; font-size: 18px; font-weight: bold;
-            background: rgba(30, 30, 30, 0.9); color: #fff; border-radius: 18px;
-            backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1.4;
+
+        #info {
+            position: absolute; top: 16px; width: 100%; text-align: center; pointer-events: none;
+            z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0 14px;
         }
-        
+        .chip {
+            display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px 20px; font-size: 16px; font-weight: 700;
+            background: rgba(15, 23, 42, 0.85); color: #fff; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.14);
+            backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.35); text-align: center; line-height: 1.35;
+        }
+        .chip small { font-size: 11px; font-weight: 500; color: #CBD5E1; margin-top: 2px; }
+
         #controls-panel {
             pointer-events: auto;
-            background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px; color: white;
-            display: flex; flex-direction: column; align-items: center; width: 85%; max-width: 320px;
+            background: rgba(15, 23, 42, 0.78); padding: 10px 14px; border-radius: 14px; color: white;
+            border: 1px solid rgba(255,255,255,0.12);
+            display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 310px;
         }
-        #controls-panel label { font-size: 13px; margin-bottom: 5px; text-align: center;}
-        #heightSlider { width: 100%; margin-bottom: 0px; }
-        
+        #controls-panel label { font-size: 12px; margin-bottom: 4px; text-align: center; color: #E2E8F0; }
+        #heightSlider { width: 100%; margin: 0; accent-color: #38BDF8; }
+
         #freezeBtn {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            pointer-events: auto; width: 80px; height: 80px; border-radius: 40px;
-            background: rgba(255, 255, 255, 0.9); border: 4px solid rgba(0, 122, 255, 0.8);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-            font-size: 30px; cursor: pointer; z-index: 20; transition: 0.2s;
+            position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+            pointer-events: auto; width: 68px; height: 68px; border-radius: 34px;
+            background: rgba(255, 255, 255, 0.95); border: 4px solid #007AFF;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 20; transition: transform 0.15s ease;
         }
-        #freezeBtn:active { transform: translateX(-50%) scale(0.9); background: #e0e0e0; }
-        
-        #confirmBtn {
-            display: none; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            pointer-events: auto; padding: 15px 30px; border-radius: 25px;
-            background: #34c759; color: white; font-weight: bold; font-size: 18px; border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 20;
+        #freezeBtn:active { transform: translateX(-50%) scale(0.92); background: #E2E8F0; }
+
+        #frozenActions {
+            display: none; position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+            pointer-events: auto; z-index: 20; gap: 10px; align-items: center;
         }
-        
+        .action-btn {
+            padding: 12px 20px; border-radius: 22px; font-weight: 700; font-size: 14px; border: none;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35); cursor: pointer; white-space: nowrap;
+        }
+        #cancelBtn { background: rgba(30, 41, 59, 0.92); color: #F8FAFC; border: 1px solid rgba(255,255,255,0.2); }
+        #confirmBtn { background: #10B981; color: #FFFFFF; }
+
         #crosshair {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;
+            width: 22px; height: 22px; border: 2px solid rgba(255,255,255,0.65); border-radius: 50%;
             z-index: 5; pointer-events: none;
         }
         #crosshair::after {
             content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 4px; height: 4px; background: rgba(255,255,255,0.8); border-radius: 50%;
+            width: 4px; height: 4px; background: #38BDF8; border-radius: 50%;
         }
     </style>
     <script type="importmap">
@@ -56,72 +67,86 @@
     </script>
 </head>
 <body>
-    <video id="video-bg" autoplay playsinline></video>
+    <video id="video-bg" autoplay playsinline muted></video>
     <div id="crosshair"></div>
-    
+
     <div id="info">
-        <div class="chip" id="distLabel">Cargando cámara...</div>
+        <div class="chip" id="distLabel">Iniciando cámara...</div>
         <div id="controls-panel">
-            <label id="heightLabel">Altura al escritorio/piso: 1.50 m<br/><small>(Ajusta esto ANTES de tomar la foto)</small></label>
-            <input type="range" id="heightSlider" min="0.1" max="2.0" step="0.05" value="1.5">
+            <label id="heightLabel">Altura al plano: 1.50 m</label>
+            <input type="range" id="heightSlider" min="0.2" max="2.5" step="0.05" value="1.5">
         </div>
     </div>
-    
-    <button id="freezeBtn">📸</button>
-    <button id="confirmBtn">Confirmar Medida</button>
+
+    <button id="freezeBtn" aria-label="Capturar cuadro">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+    </button>
+
+    <div id="frozenActions">
+        <button id="cancelBtn" class="action-btn">Repetir</button>
+        <button id="confirmBtn" class="action-btn">Guardar Medida</button>
+    </div>
 
     <script type="module">
         import * as THREE from 'three';
 
-        // ... [DeviceOrientationControls implementation]
-        const _zee = new THREE.Vector3( 0, 0, 1 );
+        const _zee = new THREE.Vector3(0, 0, 1);
         const _euler = new THREE.Euler();
         const _q0 = new THREE.Quaternion();
-        const _q1 = new THREE.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) );
+        const _q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+
         class DeviceOrientationControls {
-            constructor( object ) {
+            constructor(object) {
                 this.object = object;
-                this.object.rotation.reorder( 'YXZ' );
+                this.object.rotation.reorder('YXZ');
                 this.enabled = true;
-                this.deviceOrientation = {};
+                this.deviceOrientation = null;
                 this.screenOrientation = 0;
                 this.alphaOffset = 0;
                 const scope = this;
-                const onDeviceOrientationChangeEvent = function ( event ) { scope.deviceOrientation = event; };
-                const onScreenOrientationChangeEvent = function () { scope.screenOrientation = window.orientation || 0; };
-                const setObjectQuaternion = function ( quaternion, alpha, beta, gamma, orient ) {
-                    _euler.set( beta, alpha, - gamma, 'YXZ' );
-                    quaternion.setFromEuler( _euler );
-                    quaternion.multiply( _q1 );
-                    quaternion.multiply( _q0.setFromAxisAngle( _zee, - orient ) );
+                const onDeviceOrientationChangeEvent = (event) => {
+                    if (event && (event.alpha !== null || event.beta !== null)) {
+                        scope.deviceOrientation = event;
+                    }
                 };
-                this.connect = function () {
+                const onScreenOrientationChangeEvent = () => {
+                    scope.screenOrientation = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+                };
+                const setObjectQuaternion = (quaternion, alpha, beta, gamma, orient) => {
+                    _euler.set(beta, alpha, -gamma, 'YXZ');
+                    quaternion.setFromEuler(_euler);
+                    quaternion.multiply(_q1);
+                    quaternion.multiply(_q0.setFromAxisAngle(_zee, -orient));
+                };
+                this.connect = () => {
                     onScreenOrientationChangeEvent();
-                    window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent );
-                    window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent );
+                    window.addEventListener('orientationchange', onScreenOrientationChangeEvent);
+                    window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent);
                     scope.enabled = true;
                 };
-                this.update = function () {
-                    if ( scope.enabled === false ) return;
+                this.update = () => {
+                    if (!scope.enabled || !scope.deviceOrientation) return;
                     const device = scope.deviceOrientation;
-                    if ( device ) {
-                        let alpha = device.alpha ? THREE.MathUtils.degToRad( device.alpha ) + scope.alphaOffset : 0;
-                        let beta = device.beta ? THREE.MathUtils.degToRad( device.beta ) : 0;
-                        let gamma = device.gamma ? THREE.MathUtils.degToRad( device.gamma ) : 0;
-                        const orient = scope.screenOrientation ? THREE.MathUtils.degToRad( scope.screenOrientation ) : 0;
-                        setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
-                    }
+                    const alpha = device.alpha ? THREE.MathUtils.degToRad(device.alpha) + scope.alphaOffset : 0;
+                    const beta = device.beta ? THREE.MathUtils.degToRad(device.beta) : 0;
+                    const gamma = device.gamma ? THREE.MathUtils.degToRad(device.gamma) : 0;
+                    const orient = scope.screenOrientation ? THREE.MathUtils.degToRad(scope.screenOrientation) : 0;
+                    setObjectQuaternion(scope.object.quaternion, alpha, beta, gamma, orient);
                 };
                 this.connect();
             }
         }
 
         let camera, scene, renderer, controls;
-        let dot1, dot2, line;
+        let dot1 = null, dot2 = null, line = null;
         let isFrozen = false;
         let cameraHeight = 1.5;
         let activeDot = null;
-        let raycaster = new THREE.Raycaster();
+        const raycaster = new THREE.Raycaster();
+        const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
         init();
         animate();
@@ -130,71 +155,97 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 100);
             camera.position.set(0, cameraHeight, 0);
+            camera.lookAt(0, 0, -2.0);
 
             controls = new DeviceOrientationControls(camera);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 3840 }, height: { ideal: 2160 } } });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                    audio: false
+                });
                 document.getElementById('video-bg').srcObject = stream;
-                document.getElementById('distLabel').innerHTML = "Apunta al objeto<br/><small>Ajusta la altura y toma una foto</small>";
-            } catch(err) {
-                document.getElementById('distLabel').innerText = "Error de cámara";
+                document.getElementById('distLabel').innerHTML = "Apunta a la superficie<small>Ajusta la altura y captura el cuadro</small>";
+            } catch (err) {
+                document.getElementById('distLabel').innerHTML = "Modo regla interactiva<small>Captura para trazar o usa + Manual abajo</small>";
             }
 
             document.getElementById('freezeBtn').addEventListener('click', onCapturePhoto);
+            document.getElementById('cancelBtn').addEventListener('click', resetCapture);
             document.getElementById('confirmBtn').addEventListener('click', onConfirmMeasure);
 
             document.getElementById('heightSlider').addEventListener('input', (e) => {
                 cameraHeight = parseFloat(e.target.value);
                 camera.position.set(0, cameraHeight, 0);
-                document.getElementById('heightLabel').innerHTML = "Altura al escritorio/piso: " + cameraHeight.toFixed(2) + " m<br/><small>(Ajusta esto ANTES de tomar la foto)</small>";
-                
-                if (isFrozen) {
-                    // Actualizar las posiciones si ya estamos en modo foto
-                    updateDotsHeight();
+                document.getElementById('heightLabel').textContent = "Altura al plano: " + cameraHeight.toFixed(2) + " m";
+                if (isFrozen && dot1 && dot2) {
+                    dot1.position.y = 0;
+                    dot2.position.y = 0;
+                    updateLine();
                 }
             });
 
-            // Touch events for dragging dots
-            window.addEventListener('touchstart', onTouchStart, {passive: false});
-            window.addEventListener('touchmove', onTouchMove, {passive: false});
-            window.addEventListener('touchend', () => activeDot = null);
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+            renderer.domElement.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', () => { activeDot = null; });
         }
-        
+
         function onCapturePhoto() {
             isFrozen = true;
-            document.getElementById('video-bg').pause();
+            try { document.getElementById('video-bg').pause(); } catch (_) {}
             document.getElementById('freezeBtn').style.display = 'none';
             document.getElementById('crosshair').style.display = 'none';
-            document.getElementById('confirmBtn').style.display = 'block';
-            document.getElementById('distLabel').innerHTML = "Arrastra los dos puntos<br/><small>Mueve los círculos azules a los extremos</small>";
-            
-            // Generate initial points in front of the camera
-            let p1 = getIntersectionFromScreen(new THREE.Vector2(-0.2, 0));
-            let p2 = getIntersectionFromScreen(new THREE.Vector2(0.2, 0));
-            
-            if(!p1) p1 = new THREE.Vector3(-0.1, 0, -0.5).applyQuaternion(camera.quaternion).add(camera.position);
-            if(!p2) p2 = new THREE.Vector3(0.1, 0, -0.5).applyQuaternion(camera.quaternion).add(camera.position);
-            p1.y = 0; p2.y = 0;
-            
+            document.getElementById('frozenActions').style.display = 'flex';
+
+            let p1 = getIntersectionFromScreen(new THREE.Vector2(-0.22, 0));
+            let p2 = getIntersectionFromScreen(new THREE.Vector2(0.22, 0));
+
+            if (!p1 || p1.distanceTo(camera.position) > 25) {
+                p1 = new THREE.Vector3(-0.4, 0, -1.8);
+            }
+            if (!p2 || p2.distanceTo(camera.position) > 25) {
+                p2 = new THREE.Vector3(0.4, 0, -1.8);
+            }
+            p1.y = 0;
+            p2.y = 0;
+
             dot1 = createDot(p1);
             dot2 = createDot(p2);
             updateLine();
         }
 
+        function resetCapture() {
+            isFrozen = false;
+            try { document.getElementById('video-bg').play(); } catch (_) {}
+            document.getElementById('freezeBtn').style.display = 'flex';
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('frozenActions').style.display = 'none';
+            document.getElementById('distLabel').innerHTML = "Apunta a la superficie<small>Ajusta la altura y captura el cuadro</small>";
+
+            if (dot1) scene.remove(dot1);
+            if (dot2) scene.remove(dot2);
+            if (line) scene.remove(line);
+            dot1 = null; dot2 = null; line = null; activeDot = null;
+        }
+
         function createDot(pos) {
-            let mesh = new THREE.Mesh(
-                new THREE.CircleGeometry(0.05, 32).rotateX(-Math.PI / 2),
+            const mesh = new THREE.Mesh(
+                new THREE.CircleGeometry(0.055, 32).rotateX(-Math.PI / 2),
                 new THREE.MeshBasicMaterial({ color: 0x007AFF, side: THREE.DoubleSide, depthTest: false })
             );
-            // Add an inner white circle
-            let inner = new THREE.Mesh(
-                new THREE.CircleGeometry(0.015, 32).rotateX(-Math.PI / 2),
+            const inner = new THREE.Mesh(
+                new THREE.CircleGeometry(0.018, 32).rotateX(-Math.PI / 2),
                 new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, depthTest: false })
             );
             inner.position.y = 0.001;
@@ -206,47 +257,42 @@
 
         function getIntersectionFromScreen(vec2) {
             raycaster.setFromCamera(vec2, camera);
-            let target = new THREE.Vector3();
-            if(raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), target)) {
+            const target = new THREE.Vector3();
+            if (raycaster.ray.intersectPlane(floorPlane, target)) {
                 return target;
             }
             return null;
         }
-        
-        function onTouchStart(e) {
-            if(!isFrozen || !dot1 || !dot2) return;
-            // Solo arrastrar si toca el canvas, no botones
-            if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-            
+
+        function onPointerDown(e) {
+            if (!isFrozen || !dot1 || !dot2) return;
             e.preventDefault();
-            let mx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-            let my = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
-            
+            const mx = (e.clientX / window.innerWidth) * 2 - 1;
+            const my = -(e.clientY / window.innerHeight) * 2 + 1;
+
             raycaster.setFromCamera(new THREE.Vector2(mx, my), camera);
-            let intersects = raycaster.intersectObjects([dot1, dot2]);
-            if(intersects.length > 0) {
+            const intersects = raycaster.intersectObjects([dot1, dot2], true);
+            if (intersects.length > 0) {
                 activeDot = intersects[0].object;
-                if(activeDot.parent && activeDot.parent.type === "Mesh") activeDot = activeDot.parent; // En caso de tocar el centro blanco
+                if (activeDot.parent && activeDot.parent.type === "Mesh") activeDot = activeDot.parent;
             } else {
-                // Seleccionar el más cercano si no tocó exactamente
-                let target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
-                if(target) {
-                    if(target.distanceTo(dot1.position) < target.distanceTo(dot2.position)) activeDot = dot1;
-                    else activeDot = dot2;
+                const target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
+                if (target) {
+                    activeDot = (target.distanceTo(dot1.position) < target.distanceTo(dot2.position)) ? dot1 : dot2;
                     activeDot.position.copy(target);
                     updateLine();
                 }
             }
         }
-        
-        function onTouchMove(e) {
-            if(!isFrozen || !activeDot) return;
+
+        function onPointerMove(e) {
+            if (!isFrozen || !activeDot) return;
             e.preventDefault();
-            let mx = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-            let my = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
-            
-            let target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
-            if(target) {
+            const mx = (e.clientX / window.innerWidth) * 2 - 1;
+            const my = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            const target = getIntersectionFromScreen(new THREE.Vector2(mx, my));
+            if (target && target.distanceTo(camera.position) < 40) {
                 activeDot.position.copy(target);
                 updateLine();
             }
@@ -258,54 +304,32 @@
         }
 
         function updateLine() {
-            if(dot1 && dot2) {
-                if(line) scene.remove(line);
-                let geo = new THREE.BufferGeometry().setFromPoints([dot1.position, dot2.position]);
-                line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x007AFF, linewidth: 5, depthTest: false }));
-                scene.add(line);
-                let distText = formatDistance(dot1.position.distanceTo(dot2.position));
-                document.getElementById('distLabel').innerHTML = distText + "<br/><small>Arrastra los extremos</small>";
-                
-                // Actualizar tamaño de los puntos para que siempre se vean bien
-                let d1 = camera.position.distanceTo(dot1.position);
-                dot1.scale.setScalar(d1 * 0.5);
-                let d2 = camera.position.distanceTo(dot2.position);
-                dot2.scale.setScalar(d2 * 0.5);
-            }
-        }
-        
-        function updateDotsHeight() {
-            // Si cambian el slider DESPUÉS de congelar
-            if(dot1 && dot2) {
-                // No podemos recalcular tan facil sin rayo original, pero lo aproximamos
-                dot1.position.y = 0; dot2.position.y = 0;
-                updateLine();
-            }
+            if (!dot1 || !dot2) return;
+            if (line) scene.remove(line);
+            const geo = new THREE.BufferGeometry().setFromPoints([dot1.position, dot2.position]);
+            line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x38BDF8, linewidth: 4, depthTest: false }));
+            scene.add(line);
+
+            const distMeters = dot1.position.distanceTo(dot2.position);
+            document.getElementById('distLabel').innerHTML = formatDistance(distMeters) + "<small>Arrastra los puntos azules a los extremos</small>";
+
+            const d1 = Math.max(0.4, camera.position.distanceTo(dot1.position));
+            dot1.scale.setScalar(d1 * 0.45);
+            const d2 = Math.max(0.4, camera.position.distanceTo(dot2.position));
+            dot2.scale.setScalar(d2 * 0.45);
         }
 
         function onConfirmMeasure() {
-            if(dot1 && dot2) {
-                let distMeters = dot1.position.distanceTo(dot2.position);
-                let distText = formatDistance(distMeters);
-                prompt("ARCHIE_MEDIDA:" + distText, distText);
-                
-                // Reiniciar
-                isFrozen = false;
-                document.getElementById('video-bg').play();
-                document.getElementById('freezeBtn').style.display = 'flex';
-                document.getElementById('crosshair').style.display = 'block';
-                document.getElementById('confirmBtn').style.display = 'none';
-                document.getElementById('distLabel').innerHTML = "Apunta al objeto<br/><small>Ajusta la altura y toma una foto</small>";
-                
-                scene.remove(dot1); scene.remove(dot2); scene.remove(line);
-                dot1 = null; dot2 = null; line = null;
-            }
+            if (!dot1 || !dot2) return;
+            const distMeters = dot1.position.distanceTo(dot2.position);
+            resetCapture();
+            window.location.href = "archispace://medida?d=" + encodeURIComponent(distMeters.toFixed(3));
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            if(!isFrozen) {
-                if (controls) controls.update();
+            if (!isFrozen && controls) {
+                controls.update();
             }
             renderer.render(scene, camera);
         }

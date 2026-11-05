@@ -1,8 +1,13 @@
-﻿using MauiApp1.Models;
-using MauiApp1.Services;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
+using MauiApp1.Models;
+using MauiApp1.Services;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 
 namespace MauiApp1.Views;
 
@@ -10,6 +15,8 @@ public partial class MeasureARPage : ContentPage
 {
     private readonly ObservableCollection<MediciónDto> _mediciones = new();
     private List<ProyectoDto> _misProyectos = new();
+    private bool _cameraLoaded;
+    private bool _subscribedSaveEvent;
 
     public MeasureARPage()
     {
@@ -21,65 +28,93 @@ public partial class MeasureARPage : ContentPage
     {
         base.OnAppearing();
 
-        // Verificar permisos de cámara
-        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
-        if (status != PermissionStatus.Granted)
+        if (!_subscribedSaveEvent)
         {
-            status = await Permissions.RequestAsync<Permissions.Camera>();
+            SaveMeasurementPage.OnMedicionGuardadaLocal += OnMedicionGuardadaHandler;
+            _subscribedSaveEvent = true;
         }
 
-        if (status != PermissionStatus.Granted)
+        try
         {
-            await ShowToastAsync("Se requiere permiso de cámara.");
-            return;
+            var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+                status = await Permissions.RequestAsync<Permissions.Camera>();
         }
+        catch { }
 
-        ActualizarProyectoUI();
         await CargarProyectosAsync();
 
-        // Solo cargar la cámara si hay proyecto activo
+        if (UserSession.ActiveProject == null && _misProyectos.Count > 0)
+            UserSession.ActiveProject = _misProyectos.FirstOrDefault();
+
+        ActualizarProyectoUI();
+
         if (UserSession.ActiveProject != null)
         {
-            CargarCamaraAR();
+            if (!_cameraLoaded)
+                CargarCamaraAR();
             await CargarMedicionesAsync();
         }
         else
         {
-            // Mostrar overlay pidiendo proyecto
             NoProjectOverlay.IsVisible = true;
         }
-
-        // Asegurar que el WebView tenga el bridge configurado
-        SetupWebViewBridge();
     }
 
-    // ====================== CÁMARA ======================
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        if (_subscribedSaveEvent)
+        {
+            SaveMeasurementPage.OnMedicionGuardadaLocal -= OnMedicionGuardadaHandler;
+            _subscribedSaveEvent = false;
+        }
+    }
+
+    private async void OnMedicionGuardadaHandler()
+    {
+        await CargarMedicionesAsync();
+    }
+
+    // ====================== CÁMARA & BRIDGE MULTIPLATAFORMA ======================
     private void CargarCamaraAR()
     {
         NoProjectOverlay.IsVisible = false;
+        _cameraLoaded = true;
 
 #if ANDROID
         ArWebView.Source = new UrlWebViewSource { Url = "file:///android_asset/ar_viewer.html" };
-#elif IOS
+#elif IOS || MACCATALYST
         ArWebView.Source = new UrlWebViewSource { Url = Foundation.NSBundle.MainBundle.BundlePath + "/ar_viewer.html" };
 #else
         ArWebView.Source = new UrlWebViewSource { Url = "ar_viewer.html" };
 #endif
     }
 
-    private void SetupWebViewBridge()
+    private void OnArWebViewNavigating(object? sender, WebNavigatingEventArgs e)
     {
-#if ANDROID
-        Microsoft.Maui.Handlers.WebViewHandler.Mapper.AppendToMapping("MeasureAR", (handler, view) =>
+        if (string.IsNullOrEmpty(e.Url)) return;
+
+        if (e.Url.StartsWith("archispace://medida", StringComparison.OrdinalIgnoreCase))
         {
-            handler.PlatformView.Settings.JavaScriptEnabled = true;
-            handler.PlatformView.Settings.MediaPlaybackRequiresUserGesture = false;
-            handler.PlatformView.Settings.AllowFileAccess = true;
-            handler.PlatformView.Settings.AllowFileAccessFromFileURLs = true;
-            handler.PlatformView.Settings.AllowUniversalAccessFromFileURLs = true;
-            handler.PlatformView.SetWebChromeClient(new MeasureWebChromeClient(this));
-        });
-#endif
+            e.Cancel = true;
+            try
+            {
+                var uri = new Uri(e.Url);
+                var query = uri.Query.TrimStart('?');
+                foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var kv = pair.Split('=', 2);
+                    if (kv.Length == 2 && kv[0] == "d")
+                    {
+                        var val = Uri.UnescapeDataString(kv[1]);
+                        GuardarMedidaAutomatica(val);
+                        break;
+                    }
+                }
+            }
+            catch { }
+        }
     }
 
     // ====================== PROYECTO ======================
@@ -101,16 +136,20 @@ public partial class MeasureARPage : ContentPage
     {
         try
         {
-            _misProyectos = UserSession.Rol == "Arquitecto"
+            _misProyectos = UserSession.EsArquitecto
                 ? await ApiService.GetProyectosByArquitectoAsync(UserSession.Idusuario)
                 : await ApiService.GetProyectosByClienteAsync(UserSession.Idusuario);
         }
-        catch { _misProyectos = new(); }
+        catch
+        {
+            _misProyectos = new();
+        }
     }
 
     private async void OnSelectProjectClicked(object? sender, EventArgs e)
     {
         ProjectsSelectionList.Children.Clear();
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
 
         if (_misProyectos == null || _misProyectos.Count == 0)
         {
@@ -118,7 +157,7 @@ public partial class MeasureARPage : ContentPage
             {
                 Text = "No hay proyectos disponibles.",
                 FontSize = 14,
-                TextColor = Colors.Gray,
+                TextColor = Color.FromArgb("#8E8E93"),
                 HorizontalOptions = LayoutOptions.Center,
                 Margin = new Thickness(0, 30)
             });
@@ -143,7 +182,7 @@ public partial class MeasureARPage : ContentPage
                     Text = p.Nombre,
                     FontSize = 15,
                     FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromArgb("#000000")
+                    TextColor = Color.FromArgb(isDark ? "#FFFFFF" : "#000000")
                 });
                 stack.Children.Add(new Label
                 {
@@ -154,22 +193,19 @@ public partial class MeasureARPage : ContentPage
 
                 row.Children.Add(stack);
 
-                // Checkmark si es el activo
                 if (UserSession.ActiveProject?.Idproyecto == p.Idproyecto)
                 {
-                    var check = new Label
+                    var checkIcon = new Image
                     {
-                        Text = "✓",
-                        FontSize = 20,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#007AFF"),
+                        Source = "ic_check.svg",
+                        WidthRequest = 20,
+                        HeightRequest = 20,
                         VerticalOptions = LayoutOptions.Center
                     };
-                    Grid.SetColumn(check, 1);
-                    row.Children.Add(check);
+                    Grid.SetColumn(checkIcon, 1);
+                    row.Children.Add(checkIcon);
                 }
 
-                // Borde inferior separador
                 var border = new Border
                 {
                     BackgroundColor = Colors.Transparent,
@@ -184,8 +220,8 @@ public partial class MeasureARPage : ContentPage
                     ActualizarProyectoUI();
                     await CloseSelectProjectSheetAsync();
 
-                    // Recargar cámara con el nuevo proyecto
-                    CargarCamaraAR();
+                    if (!_cameraLoaded)
+                        CargarCamaraAR();
                     await CargarMedicionesAsync();
                     await ShowToastAsync($"Proyecto: {p.Nombre}");
                 };
@@ -193,11 +229,10 @@ public partial class MeasureARPage : ContentPage
 
                 ProjectsSelectionList.Children.Add(border);
 
-                // Separador visual
                 ProjectsSelectionList.Children.Add(new BoxView
                 {
                     HeightRequest = 1,
-                    Color = Color.FromArgb("#E5E5EA"),
+                    Color = Color.FromArgb(isDark ? "#38383A" : "#E5E5EA"),
                     Margin = new Thickness(20, 0, 20, 0)
                 });
             }
@@ -259,6 +294,35 @@ public partial class MeasureARPage : ContentPage
         }
     }
 
+    private async void OnNuevaMedidaManualTapped(object? sender, TappedEventArgs e)
+    {
+        if (UserSession.ActiveProject == null)
+        {
+            await ShowToastAsync("Selecciona un proyecto primero");
+            return;
+        }
+        await Navigation.PushModalAsync(new SaveMeasurementPage(0));
+    }
+
+    private async void OnEliminarMedicionTapped(object? sender, TappedEventArgs e)
+    {
+        if (!UserSession.EsArquitecto || e.Parameter is not MediciónDto med) return;
+
+        bool confirm = await AlertService.ShowAlertAsync("Eliminar medición", "¿Deseas eliminar este registro de medición?", "Eliminar", "Cancelar");
+        if (!confirm) return;
+
+        var (ok, msg) = await ApiService.EliminarMediciónAsync(med.Idmedicion);
+        if (ok)
+        {
+            _mediciones.Remove(med);
+            await ShowToastAsync("Medición eliminada");
+        }
+        else
+        {
+            await AlertService.ShowAlertAsync("Error", msg, "OK");
+        }
+    }
+
     // ====================== BOTONES HEADER ======================
     private async void OnBackTapped(object? sender, TappedEventArgs e)
     {
@@ -275,8 +339,8 @@ public partial class MeasureARPage : ContentPage
         await ShowToastAsync("Actualizado");
     }
 
-    // ====================== GUARDAR MEDIDA (llamado desde el HTML) ======================
-    public async void GuardarMedidaAutomatica(string distanciaStr)
+    // ====================== GUARDAR MEDIDA ======================
+    public void GuardarMedidaAutomatica(string distanciaStr)
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
@@ -287,28 +351,27 @@ public partial class MeasureARPage : ContentPage
             }
 
             decimal distanciaMeters = 0;
-            string cleanStr = distanciaStr.Replace(",", ".");
+            string cleanStr = distanciaStr.Replace(",", ".").Trim();
 
-            if (cleanStr.Contains("cm"))
+            if (cleanStr.EndsWith("cm", StringComparison.OrdinalIgnoreCase))
             {
-                if (decimal.TryParse(cleanStr.Replace("cm", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
+                if (decimal.TryParse(cleanStr[..^2].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
                     distanciaMeters = d / 100m;
             }
             else
             {
-                if (decimal.TryParse(cleanStr.Replace("m", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
+                cleanStr = cleanStr.Replace("m", "", StringComparison.OrdinalIgnoreCase).Trim();
+                if (decimal.TryParse(cleanStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal d))
                     distanciaMeters = d;
             }
 
             if (distanciaMeters > 0)
             {
-                // Al guardar, recargamos la lista y el modal de SaveMeasurementPage ya existe
                 await Navigation.PushModalAsync(new SaveMeasurementPage(distanciaMeters));
             }
         });
     }
 
-    // ====================== TOAST ======================
     public async Task ShowToastAsync(string message)
     {
         AppleToastMessage.Text = message;
@@ -318,36 +381,4 @@ public partial class MeasureARPage : ContentPage
         await AppleToast.FadeToAsync(0, 300);
         AppleToast.IsVisible = false;
     }
-
-    // Método para cuando SaveMeasurementPage regresa
-    public async Task NotificarMedidaGuardadaAsync()
-    {
-        await CargarMedicionesAsync();
-        await ShowToastAsync("Medición guardada");
-    }
 }
-
-#if ANDROID
-public class MeasureWebChromeClient : Android.Webkit.WebChromeClient
-{
-    private readonly MeasureARPage _page;
-    public MeasureWebChromeClient(MeasureARPage page) { _page = page; }
-
-    public override void OnPermissionRequest(Android.Webkit.PermissionRequest? request)
-    {
-        try { request?.Grant(request.GetResources()); } catch { }
-    }
-
-    public override bool OnJsPrompt(Android.Webkit.WebView? view, string? url, string? message, string? defaultValue, Android.Webkit.JsPromptResult? result)
-    {
-        if (message != null && message.StartsWith("ARCHIE_MEDIDA:"))
-        {
-            string value = message.Substring("ARCHIE_MEDIDA:".Length);
-            _page.GuardarMedidaAutomatica(value);
-            result?.Confirm("OK");
-            return true;
-        }
-        return base.OnJsPrompt(view, url, message, defaultValue, result);
-    }
-}
-#endif

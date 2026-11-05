@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="MauiApp1.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -36,7 +36,7 @@
         <Tab Title="Clientes" Icon="nav_clients.svg">
             <ShellContent ContentTemplate="{DataTemplate views:ClientsPage}" Route="ClientsPage" />
         </Tab>
-        <Tab Title="Medir AR" Icon="nav_search.svg">
+        <Tab Title="Medir AR" Icon="nav_measure_dark.svg">
             <ShellContent ContentTemplate="{DataTemplate views:MeasureARPage}" Route="MeasureARPage" />
         </Tab>
         <Tab Title="Perfil" Icon="nav_user.svg">

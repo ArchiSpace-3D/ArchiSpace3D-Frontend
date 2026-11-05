@@ -1,9 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MauiApp1.Models
 {
+    public sealed class NullableDecimalAsZeroConverter : JsonConverter<decimal>
+    {
+        public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null) return 0m;
+            if (reader.TokenType == JsonTokenType.Number && reader.TryGetDecimal(out var d)) return d;
+            if (reader.TokenType == JsonTokenType.String &&
+                decimal.TryParse(reader.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
+                return parsed;
+            return 0m;
+        }
+
+        public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options) =>
+            writer.WriteNumberValue(value);
+    }
+
+    public sealed class NullableBoolAsTrueConverter : JsonConverter<bool>
+    {
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null) return true;
+            if (reader.TokenType == JsonTokenType.True) return true;
+            if (reader.TokenType == JsonTokenType.False) return false;
+            return true;
+        }
+
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) =>
+            writer.WriteBooleanValue(value);
+    }
+
     public class LoginRequest
     {
         [JsonPropertyName("email")]
@@ -82,8 +114,12 @@ namespace MauiApp1.Models
         public string? Avatarurl { get; set; }
     }
 
-    public class ProyectoDto
+    public class ProyectoDto : System.ComponentModel.INotifyPropertyChanged
     {
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged(string propName) =>
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propName));
+
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
 
@@ -120,11 +156,41 @@ namespace MauiApp1.Models
         [JsonPropertyName("fechacreacion")]
         public DateTime? Fechacreacion { get; set; }
 
+        private string _resumenActividad = "Cargando actividad técnica...";
+        [JsonIgnore]
+        public string ResumenActividad
+        {
+            get => _resumenActividad;
+            set
+            {
+                if (_resumenActividad != value)
+                {
+                    _resumenActividad = value;
+                    OnPropertyChanged(nameof(ResumenActividad));
+                }
+            }
+        }
+
+        private bool _esDestacado;
+        [JsonIgnore]
+        public bool EsDestacado
+        {
+            get => _esDestacado;
+            set
+            {
+                if (_esDestacado != value)
+                {
+                    _esDestacado = value;
+                    OnPropertyChanged(nameof(EsDestacado));
+                }
+            }
+        }
+
         public string FechaFormateada => Fechacreacion?.ToString("dd/MM/yyyy") ?? "Reciente";
 
         public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
-    ? "?"
-    : Nombre.Substring(0, 1).ToUpper();
+            ? "?"
+            : Nombre.Substring(0, 1).ToUpper();
     }
 
     public class CrearProyectoRequest
@@ -156,6 +222,9 @@ namespace MauiApp1.Models
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
 
+        [JsonPropertyName("idcliente")]
+        public int? Idcliente { get; set; }
+
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; } = string.Empty;
 
@@ -171,8 +240,6 @@ namespace MauiApp1.Models
         [JsonPropertyName("presupuesto")]
         public decimal? Presupuesto { get; set; }
     }
-
-
 
     public class SugerenciaDto
     {
@@ -241,6 +308,13 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("fechacaptura")]
         public DateTime? Fechacaptura { get; set; }
+
+        [JsonIgnore]
+        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
+
+        [JsonIgnore]
+        public string DimensionesTexto =>
+            $"{(Largoaproximado ?? 0m):0.##}m × {(Anchoaproximado ?? 0m):0.##}m × {(Altoaproximado ?? 2.5m):0.##}m";
     }
 
     public class CrearEspacioFisicoRequest
@@ -268,6 +342,13 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("fechacaptura")]
         public DateTime? Fechacaptura { get; set; }
+
+        [JsonIgnore]
+        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
+
+        [JsonIgnore]
+        public string DimensionesTexto =>
+            $"{(Largoaproximado ?? 0m):0.##}m × {(Anchoaproximado ?? 0m):0.##}m × {(Altoaproximado ?? 2.5m):0.##}m";
     }
 
     public class VersionDisenoDto
@@ -287,7 +368,10 @@ namespace MauiApp1.Models
         [JsonPropertyName("fechacreacion")]
         public DateTime? Fechacreacion { get; set; }
 
-        public string TituloVersion => $"Version {Numeroversion}" + (Esactual == true ? " (Activa)" : "");
+        [JsonPropertyName("puntosreferencia")]
+        public string? Puntosreferencia { get; set; }
+
+        public string TituloVersion => $"Versión {Numeroversion}" + (Esactual == true ? " (Activa)" : "");
         public string FechaFormateada => Fechacreacion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente";
     }
 
@@ -304,6 +388,9 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("fechacreacion")]
         public DateTime? Fechacreacion { get; set; } = DateTime.UtcNow;
+
+        [JsonPropertyName("puntosreferencia")]
+        public string? Puntosreferencia { get; set; }
     }
 
     public class MarcarActualRequest
@@ -434,8 +521,9 @@ namespace MauiApp1.Models
         [JsonPropertyName("puntofinal")]
         public string? Puntofinal { get; set; }
         [JsonPropertyName("distancia")]
+        [JsonConverter(typeof(NullableDecimalAsZeroConverter))]
         public decimal Distancia { get; set; }
-        public string DistanciaFormateada => $"{Distancia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} m";
+        public string DistanciaFormateada => $"{Distancia.ToString("0.00", CultureInfo.InvariantCulture)} m";
         [JsonPropertyName("fechamedicion")]
         public DateTime? Fechamedicion { get; set; }
         public string FechaFormateada => Fechamedicion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente";
@@ -458,6 +546,22 @@ namespace MauiApp1.Models
         public string? Unidad { get; set; }
         [JsonPropertyName("totalparcial")]
         public decimal? Totalparcial { get; set; }
+
+        [JsonIgnore]
+        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
+
+        [JsonIgnore]
+        public string DetalleResumen
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Descripcion)) return Descripcion;
+                if (!string.IsNullOrWhiteSpace(Partida)) return Partida;
+                if (Largo.HasValue || Ancho.HasValue)
+                    return $"{(Largo ?? 0):0.##}m x {(Ancho ?? 0):0.##}m" + (Alto.HasValue && Alto > 0 ? $" x {Alto:0.##}m" : "");
+                return FechaFormateada;
+            }
+        }
     }
 
     public class CrearMediciónRequest
@@ -470,7 +574,8 @@ namespace MauiApp1.Models
         public string? Puntofinal { get; set; }
         [JsonPropertyName("distancia")]
         public decimal Distancia { get; set; }
-        public string DistanciaFormateada => $"{Distancia.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} m";
+        [JsonIgnore]
+        public string DistanciaFormateada => $"{Distancia.ToString("0.00", CultureInfo.InvariantCulture)} m";
         [JsonPropertyName("fechamedicion")]
         public DateTime? Fechamedicion { get; set; }
 
@@ -493,6 +598,7 @@ namespace MauiApp1.Models
         [JsonPropertyName("totalparcial")]
         public decimal? Totalparcial { get; set; }
     }
+
     public class NotificacionDto
     {
         [JsonPropertyName("idnotificacion")]
@@ -552,9 +658,9 @@ namespace MauiApp1.Models
         [JsonPropertyName("avatarurl")]
         public string? Avatarurl { get; set; }
 
-        // ✅ NUEVO
         [JsonPropertyName("activo")]
-        public bool Activo { get; set; }
+        [JsonConverter(typeof(NullableBoolAsTrueConverter))]
+        public bool Activo { get; set; } = true;
 
         public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
 
@@ -564,6 +670,7 @@ namespace MauiApp1.Models
 
         public string EstadoTexto => Activo ? "Activo" : "Inactivo";
     }
+
     public class ActualizarUsuarioRequest
     {
         [JsonPropertyName("idusuario")]
@@ -579,6 +686,7 @@ namespace MauiApp1.Models
         public string Email { get; set; } = string.Empty;
 
         [JsonPropertyName("contrasena")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Contrasena { get; set; }
 
         [JsonPropertyName("rol")]
@@ -591,13 +699,20 @@ namespace MauiApp1.Models
         public string? Direccion { get; set; }
 
         [JsonPropertyName("tipodocumento")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Tipodocumento { get; set; }
 
         [JsonPropertyName("numerodocumento")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Numerodocumento { get; set; }
 
         [JsonPropertyName("avatarurl")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Avatarurl { get; set; }
+
+        [JsonPropertyName("activo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Activo { get; set; }
     }
 
     public class CrearModeloImportadoRequest
@@ -693,6 +808,3 @@ namespace MauiApp1.Models
         public DateTime? Fechaimportacion { get; set; }
     }
 }
-
-
-

@@ -1,4 +1,4 @@
-﻿using MauiApp1.Services;
+using MauiApp1.Services;
 
 namespace MauiApp1
 {
@@ -10,7 +10,7 @@ namespace MauiApp1
             bool isDark = Preferences.Get("dark_mode", false);
             UserAppTheme = isDark ? AppTheme.Dark : AppTheme.Light;
 
-            _ = SupabaseService.InitializeAsync(); 
+            _ = SupabaseService.InitializeAsync();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
@@ -23,15 +23,18 @@ namespace MauiApp1
                 if (hasSession)
                 {
                     var usuario = await ApiService.GetUsuarioByIdAsync(UserSession.Idusuario);
-                    if (usuario is null)
+                    if (usuario is null || !usuario.Activo)
                     {
                         await UserSession.ClearSession();
                         return;
                     }
 
-                                        MainThread.BeginInvokeOnMainThread(() =>
+                    await UserSession.UpdateProfileFieldsAsync(usuario);
+                    try { await SignalRService.ConnectAsync(); } catch { }
+
+                    MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        _ = MauiApp1.Services.FirebasePushService.InicializarYRegistrarAsync();
+                        _ = FirebasePushService.InicializarYRegistrarAsync();
                         window.Page = new AppShell();
                     });
                 }

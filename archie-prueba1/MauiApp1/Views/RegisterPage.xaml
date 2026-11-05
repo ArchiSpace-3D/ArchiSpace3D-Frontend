@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.RegisterPage"
@@ -8,10 +8,10 @@
     <Grid x:Name="RootGrid">
         <!-- Background Image -->
         <Image x:Name="BgImage" Source="bg_login.jpg" Aspect="AspectFill" VerticalOptions="Fill" HorizontalOptions="Fill" Opacity="0.85"/>
-        
+
         <!-- Glass/White Form Card -->
-        <Border x:Name="FormCard" BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE121212}" 
-                Stroke="{AppThemeBinding Light=#FFFFFF, Dark=#333333}" StrokeThickness="1" 
+        <Border x:Name="FormCard" BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE121212}"
+                Stroke="{AppThemeBinding Light=#FFFFFF, Dark=#333333}" StrokeThickness="1"
                 VerticalOptions="Center" HorizontalOptions="Fill" Margin="24,0">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="30"/>
@@ -19,24 +19,24 @@
 
             <ScrollView VerticalScrollBarVisibility="Never">
                 <VerticalStackLayout x:Name="MainLayout" Spacing="15" Padding="25,30" MaximumWidthRequest="400" HorizontalOptions="Center" VerticalOptions="Center">
-                    
-                    <Image Source="splash.svg" WidthRequest="60" HeightRequest="60" HorizontalOptions="Center" Margin="0,0,0,5"/>
-                    
+
+                    <Image Source="archispaceiconimages.png" WidthRequest="64" HeightRequest="64" HorizontalOptions="Center" Margin="0,0,0,5"/>
+
                     <Label Text="Crear Cuenta" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" HorizontalOptions="Center" Margin="0,0,0,10"/>
-                    
+
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
                         <VerticalStackLayout Spacing="5">
                             <Label Text="Nombre" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                             <Border Stroke="{AppThemeBinding Light=#BDD8E9, Dark=#333333}" StrokeThickness="1" BackgroundColor="Transparent" HeightRequest="50">
                                 <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
-                                <Entry x:Name="RegNombreEntry" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
+                                <Entry x:Name="RegNombreEntry" Placeholder="Ej. Ana" PlaceholderColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
                             </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="5">
                             <Label Text="Apellido" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                             <Border Stroke="{AppThemeBinding Light=#BDD8E9, Dark=#333333}" StrokeThickness="1" BackgroundColor="Transparent" HeightRequest="50">
                                 <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
-                                <Entry x:Name="RegApellidoEntry" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
+                                <Entry x:Name="RegApellidoEntry" Placeholder="Ej. Gómez" PlaceholderColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
                             </Border>
                         </VerticalStackLayout>
                     </Grid>
@@ -45,7 +45,7 @@
                         <Label Text="Correo electrónico" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}"/>
                         <Border Stroke="{AppThemeBinding Light=#BDD8E9, Dark=#333333}" StrokeThickness="1" BackgroundColor="Transparent" HeightRequest="50">
                             <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
-                            <Entry x:Name="RegEmailEntry" Keyboard="Email" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
+                            <Entry x:Name="RegEmailEntry" Keyboard="Email" Placeholder="correo@ejemplo.com" PlaceholderColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="20,0" VerticalOptions="Center"/>
                         </Border>
                     </VerticalStackLayout>
 
@@ -54,8 +54,8 @@
                         <Border Stroke="{AppThemeBinding Light=#BDD8E9, Dark=#333333}" StrokeThickness="1" BackgroundColor="Transparent" HeightRequest="50">
                             <Border.StrokeShape><RoundRectangle CornerRadius="25"/></Border.StrokeShape>
                             <Grid ColumnDefinitions="*,Auto" Padding="20,0,15,0">
-                                <Entry x:Name="RegPasswordEntry" IsPassword="True" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
-                                <Image Grid.Column="1" x:Name="RegPasswordToggleIcon" Source="ic_eye_off.svg" WidthRequest="20" HeightRequest="20" Opacity="0.5" VerticalOptions="Center">
+                                <Entry x:Name="RegPasswordEntry" IsPassword="True" Placeholder="Mínimo 6 caracteres" PlaceholderColor="{AppThemeBinding Light=#94A3B8, Dark=#64748B}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" VerticalOptions="Center"/>
+                                <Image Grid.Column="1" x:Name="RegPasswordToggleIcon" Source="{AppThemeBinding Light=ic_eye_off.svg, Dark=ic_eye_off_white.svg}" WidthRequest="20" HeightRequest="20" Opacity="0.65" VerticalOptions="Center">
                                     <Image.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnToggleRegPasswordVisibility"/>
                                     </Image.GestureRecognizers>

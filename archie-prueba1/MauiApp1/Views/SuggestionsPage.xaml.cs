@@ -7,9 +7,9 @@ namespace MauiApp1.Views;
 public partial class SuggestionsPage : ContentPage
 {
     private readonly ObservableCollection<SugerenciaDto> _sugerencias = new();
-    private int _idProyecto;
+    private readonly int _idProyecto;
 
-    public bool IsArquitecto => UserSession.Rol == "Arquitecto";
+    public bool IsArquitecto => UserSession.EsArquitecto;
 
     public SuggestionsPage(int idProyecto)
     {
@@ -22,6 +22,7 @@ public partial class SuggestionsPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        OnPropertyChanged(nameof(IsArquitecto));
         CargarSugerencias();
     }
 
@@ -59,7 +60,7 @@ public partial class SuggestionsPage : ContentPage
     {
         EntryTitulo.Text = "";
         EntryDesc.Text = "";
-        
+
         SheetBackdrop.IsVisible = true;
         SheetBackdrop.InputTransparent = false;
         await SheetBackdrop.FadeToAsync(1, 200);
@@ -89,7 +90,7 @@ public partial class SuggestionsPage : ContentPage
     {
         if (string.IsNullOrWhiteSpace(EntryTitulo.Text) || string.IsNullOrWhiteSpace(EntryDesc.Text))
         {
-            await DisplayAlertAsync("Error", "Debes ingresar un título y descripción.", "OK");
+            await AlertService.ShowAlertAsync("Aviso", "Debes ingresar un título y descripción.", "OK");
             return;
         }
 
@@ -97,8 +98,8 @@ public partial class SuggestionsPage : ContentPage
         {
             Idproyecto = _idProyecto,
             Idusuario = UserSession.Idusuario,
-            Titulo = EntryTitulo.Text,
-            Descripcion = EntryDesc.Text
+            Titulo = EntryTitulo.Text.Trim(),
+            Descripcion = EntryDesc.Text.Trim()
         };
 
         LoadingIndicator.IsRunning = true;
@@ -114,7 +115,7 @@ public partial class SuggestionsPage : ContentPage
         }
         else
         {
-            await DisplayAlertAsync("Error", msg, "OK");
+            await AlertService.ShowAlertAsync("Error", msg, "OK");
         }
     }
 
@@ -132,14 +133,17 @@ public partial class SuggestionsPage : ContentPage
 
     private async Task UpdateEstado(SugerenciaDto sug, string nuevoEstado)
     {
+        if (!UserSession.EsArquitecto) return;
+
         LoadingIndicator.IsRunning = true;
+        LoadingIndicator.IsVisible = true;
         var (success, msg) = await ApiService.ActualizarEstadoSugerenciaAsync(sug.Idsugerencia, nuevoEstado);
         LoadingIndicator.IsRunning = false;
+        LoadingIndicator.IsVisible = false;
 
         if (success)
         {
             sug.Estado = nuevoEstado;
-            // Force UI update
             int idx = _sugerencias.IndexOf(sug);
             if (idx >= 0)
             {
@@ -149,7 +153,7 @@ public partial class SuggestionsPage : ContentPage
         }
         else
         {
-            await DisplayAlertAsync("Error", msg, "OK");
+            await AlertService.ShowAlertAsync("Error", msg, "OK");
         }
     }
 }

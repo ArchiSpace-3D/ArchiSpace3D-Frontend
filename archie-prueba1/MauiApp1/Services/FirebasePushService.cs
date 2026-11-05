@@ -16,8 +16,6 @@ namespace MauiApp1.Services
             try
             {
 #if ANDROID
-                Debug.WriteLine("🔥 FirebasePushService: iniciando...");
-                
                 if (OperatingSystem.IsAndroidVersionAtLeast(33))
                 {
                     var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
@@ -27,39 +25,26 @@ namespace MauiApp1.Services
                     }
                     if (status != PermissionStatus.Granted)
                     {
-                        Debug.WriteLine("Permiso de notificaciones denegado.");
                         return;
                     }
                 }
 
                 await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
-                Debug.WriteLine("🔥 CheckIfValidAsync completado.");
-
                 var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
-                Debug.WriteLine($"🔥 Token obtenido: {token}");
 
                 if (!string.IsNullOrEmpty(token) && UserSession.Idusuario > 0)
                 {
-                    Debug.WriteLine($"🔥 Enviando token al backend para idusuario={UserSession.Idusuario}...");
-                    var (success, message) = await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
-                    Debug.WriteLine($"🔥 Resultado registro: success={success}, message={message}");
-                }
-                else
-                {
-                    Debug.WriteLine($"🔥 No se envía: token vacío={string.IsNullOrEmpty(token)}, idusuario={UserSession.Idusuario}");
+                    await ApiService.RegistrarFcmTokenAsync(UserSession.Idusuario, token);
                 }
 
                 RegistrarListeners();
+#else
+                await Task.CompletedTask;
 #endif
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"🔥 ERROR en InicializarYRegistrarAsync: {ex.GetType().Name} - {ex.Message}");
-                Debug.WriteLine(ex.StackTrace);
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    Application.Current?.Windows[0]?.Page?.DisplayAlertAsync("Error Notificaciones", ex.Message, "OK");
-                });
+                Debug.WriteLine($"FirebasePushService no disponible en este entorno: {ex.Message}");
             }
         }
 
@@ -79,7 +64,7 @@ namespace MauiApp1.Services
 
             CrossFirebaseCloudMessaging.Current.NotificationReceived += (_, e) =>
             {
-                Debug.WriteLine($"🔥 Push recibido: {e.Notification.Title} - {e.Notification.Body}");
+                Debug.WriteLine($"Push recibido: {e.Notification.Title} - {e.Notification.Body}");
             };
 
             CrossFirebaseCloudMessaging.Current.NotificationTapped += (_, e) =>
@@ -89,7 +74,16 @@ namespace MauiApp1.Services
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        // await Shell.Current.GoToAsync($"//ProyectoDetallePage?idProyecto={idProyecto}");
+                        try
+                        {
+                            var proyecto = await ApiService.GetProyectoByIdAsync(idProyecto);
+                            if (proyecto != null)
+                                UserSession.ActiveProject = proyecto;
+
+                            if (Shell.Current != null)
+                                await Shell.Current.GoToAsync("//DashboardPage");
+                        }
+                        catch { }
                     });
                 }
             };

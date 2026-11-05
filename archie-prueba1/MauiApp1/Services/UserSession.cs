@@ -1,4 +1,4 @@
-﻿using MauiApp1.Models;
+using MauiApp1.Models;
 
 namespace MauiApp1.Services
 {
@@ -21,6 +21,11 @@ namespace MauiApp1.Services
 
         public static bool IsAuthenticated => !string.IsNullOrEmpty(Token);
 
+        public static bool EsArquitecto =>
+            string.Equals(Rol?.Trim(), "Arquitecto", StringComparison.OrdinalIgnoreCase);
+
+        public static bool EsCliente => !EsArquitecto;
+
         public static string NombreCompleto => string.IsNullOrWhiteSpace(Apellido)
             ? Nombre
             : $"{Nombre} {Apellido}";
@@ -32,7 +37,7 @@ namespace MauiApp1.Services
             Nombre = loginResponse.Nombre;
             Apellido = loginResponse.Apellido;
             Email = loginResponse.Email;
-            Rol = loginResponse.Rol;
+            Rol = string.IsNullOrWhiteSpace(loginResponse.Rol) ? "Cliente" : loginResponse.Rol.Trim();
             BaseUrl = baseUrl;
             Telefono = loginResponse.Telefono;
             Direccion = loginResponse.Direccion;
@@ -40,7 +45,28 @@ namespace MauiApp1.Services
             Numerodocumento = loginResponse.Numerodocumento;
             Avatarurl = loginResponse.Avatarurl;
 
-            await SecureStorage.SetAsync("auth_token", Token ?? "");
+            await PersistCurrentFieldsAsync();
+        }
+
+        public static async Task UpdateProfileFieldsAsync(UsuarioDto usuario)
+        {
+            Nombre = usuario.Nombre;
+            Apellido = usuario.Apellido;
+            if (!string.IsNullOrWhiteSpace(usuario.Email)) Email = usuario.Email;
+            if (!string.IsNullOrWhiteSpace(usuario.Rol)) Rol = usuario.Rol.Trim();
+            Telefono = usuario.Telefono;
+            Direccion = usuario.Direccion;
+            Tipodocumento = usuario.Tipodocumento;
+            Numerodocumento = usuario.Numerodocumento;
+            if (!string.IsNullOrWhiteSpace(usuario.Avatarurl)) Avatarurl = usuario.Avatarurl;
+
+            await PersistCurrentFieldsAsync();
+        }
+
+        public static async Task PersistCurrentFieldsAsync()
+        {
+            if (!string.IsNullOrEmpty(Token))
+                await SecureStorage.SetAsync("auth_token", Token);
             await SecureStorage.SetAsync("user_id", Idusuario.ToString());
             await SecureStorage.SetAsync("user_nombre", Nombre ?? "");
             await SecureStorage.SetAsync("user_apellido", Apellido ?? "");
@@ -68,7 +94,7 @@ namespace MauiApp1.Services
             Nombre = await SecureStorage.GetAsync("user_nombre") ?? "Invitado";
             Apellido = await SecureStorage.GetAsync("user_apellido") ?? "";
             Email = await SecureStorage.GetAsync("user_email") ?? "";
-            Rol = await SecureStorage.GetAsync("user_rol") ?? "Arquitecto";
+            Rol = await SecureStorage.GetAsync("user_rol") ?? "Cliente";
             Telefono = await SecureStorage.GetAsync("user_telefono");
             Direccion = await SecureStorage.GetAsync("user_direccion");
             Tipodocumento = await SecureStorage.GetAsync("user_tipodocumento");
@@ -80,14 +106,14 @@ namespace MauiApp1.Services
 
         public static async Task ClearSession()
         {
-            await SignalRService.DisconnectAsync();
+            try { await SignalRService.DisconnectAsync(); } catch { }
 
             Token = null;
             Idusuario = 0;
             Nombre = "Invitado";
             Apellido = string.Empty;
             Email = string.Empty;
-            Rol = "Arquitecto";
+            Rol = "Cliente";
             Telefono = null;
             Direccion = null;
             Tipodocumento = null;

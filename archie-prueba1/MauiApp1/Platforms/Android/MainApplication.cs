@@ -1,6 +1,6 @@
 using Android.App;
-using Android.Runtime;
 using Android.Content;
+using Android.Runtime;
 using Plugin.Firebase.CloudMessaging;
 
 namespace MauiApp1
@@ -26,7 +26,7 @@ namespace MauiApp1
             var channelId = $"{PackageName}.general";
             FirebaseCloudMessagingImplementation.ChannelId = channelId;
 
-            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
             {
                 var notificationManager = (NotificationManager)GetSystemService(Context.NotificationService)!;
                 var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
