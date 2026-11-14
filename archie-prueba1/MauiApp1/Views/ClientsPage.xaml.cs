@@ -383,13 +383,7 @@ public partial class ClientsPage : ContentPage
             LblVerArquiInicial.Text = arquitecto.PrimeraLetra;
         }
 
-        ViewArquiBackdrop.IsVisible = true;
-        await ViewArquiBackdrop.FadeToAsync(1, 200);
-        ViewArquiSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            ViewArquiSheetModal.FadeToAsync(1, 250),
-            ViewArquiSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(ViewArquiBackdrop, ViewArquiSheetModal);
     }
 
     private async void OnCloseViewArquiTapped(object? sender, TappedEventArgs e)
@@ -402,14 +396,6 @@ public partial class ClientsPage : ContentPage
         await CloseViewArqui();
     }
 
-    private async Task CloseViewArqui()
-    {
-        await Task.WhenAll(
-            ViewArquiSheetModal.FadeToAsync(0, 200),
-            ViewArquiSheetModal.TranslateToAsync(0, 500, 250, Easing.CubicIn)
-        );
-        ViewArquiSheetModal.IsVisible = false;
-        await ViewArquiBackdrop.FadeToAsync(0, 200);
-        ViewArquiBackdrop.IsVisible = false;
-    }
+    private Task CloseViewArqui() =>
+        UiHelper.CloseSheetAsync(ViewArquiBackdrop, ViewArquiSheetModal);
 }

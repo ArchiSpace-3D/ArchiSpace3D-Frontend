@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -35,6 +34,8 @@ namespace MauiApp1.Models
         public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) =>
             writer.WriteBooleanValue(value);
     }
+
+    // ─── Autenticación y Usuarios ──────────────────────────────────────────
 
     public class LoginRequest
     {
@@ -114,11 +115,102 @@ namespace MauiApp1.Models
         public string? Avatarurl { get; set; }
     }
 
-    public class ProyectoDto : System.ComponentModel.INotifyPropertyChanged
+    public class UsuarioDto
     {
-        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        [JsonPropertyName("idusuario")]
+        public int Idusuario { get; set; }
+
+        [JsonPropertyName("nombre")]
+        public string Nombre { get; set; } = string.Empty;
+
+        [JsonPropertyName("apellido")]
+        public string Apellido { get; set; } = string.Empty;
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = string.Empty;
+
+        [JsonPropertyName("rol")]
+        public string Rol { get; set; } = string.Empty;
+
+        [JsonPropertyName("telefono")]
+        public string? Telefono { get; set; }
+
+        [JsonPropertyName("direccion")]
+        public string? Direccion { get; set; }
+
+        [JsonPropertyName("tipodocumento")]
+        public string? Tipodocumento { get; set; }
+
+        [JsonPropertyName("numerodocumento")]
+        public string? Numerodocumento { get; set; }
+
+        [JsonPropertyName("avatarurl")]
+        public string? Avatarurl { get; set; }
+
+        [JsonPropertyName("activo")]
+        [JsonConverter(typeof(NullableBoolAsTrueConverter))]
+        public bool Activo { get; set; } = true;
+
+        public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
+
+        public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
+            ? "?"
+            : Nombre[..1].ToUpperInvariant();
+
+        public string EstadoTexto => Activo ? "Activo" : "Inactivo";
+    }
+
+    public class ActualizarUsuarioRequest
+    {
+        [JsonPropertyName("idusuario")]
+        public int Idusuario { get; set; }
+
+        [JsonPropertyName("nombre")]
+        public string Nombre { get; set; } = string.Empty;
+
+        [JsonPropertyName("apellido")]
+        public string Apellido { get; set; } = string.Empty;
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = string.Empty;
+
+        [JsonPropertyName("contrasena")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Contrasena { get; set; }
+
+        [JsonPropertyName("rol")]
+        public string Rol { get; set; } = string.Empty;
+
+        [JsonPropertyName("telefono")]
+        public string? Telefono { get; set; }
+
+        [JsonPropertyName("direccion")]
+        public string? Direccion { get; set; }
+
+        [JsonPropertyName("tipodocumento")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Tipodocumento { get; set; }
+
+        [JsonPropertyName("numerodocumento")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Numerodocumento { get; set; }
+
+        [JsonPropertyName("avatarurl")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Avatarurl { get; set; }
+
+        [JsonPropertyName("activo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Activo { get; set; }
+    }
+
+    // ─── Proyectos ─────────────────────────────────────────────────────────
+
+    public class ProyectoDto : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propName) =>
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
         [JsonPropertyName("idproyecto")]
         public int Idproyecto { get; set; }
@@ -190,7 +282,7 @@ namespace MauiApp1.Models
 
         public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
             ? "?"
-            : Nombre.Substring(0, 1).ToUpper();
+            : Nombre[..1].ToUpperInvariant();
     }
 
     public class CrearProyectoRequest
@@ -241,6 +333,8 @@ namespace MauiApp1.Models
         public decimal? Presupuesto { get; set; }
     }
 
+    // ─── Sugerencias ───────────────────────────────────────────────────────
+
     public class SugerenciaDto
     {
         [JsonPropertyName("idsugerencia")]
@@ -279,6 +373,8 @@ namespace MauiApp1.Models
         [JsonPropertyName("descripcion")]
         public string Descripcion { get; set; } = string.Empty;
     }
+
+    // ─── Espacios Físicos ──────────────────────────────────────────────────
 
     public class EspacioFisicoDto
     {
@@ -342,14 +438,9 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("fechacaptura")]
         public DateTime? Fechacaptura { get; set; }
-
-        [JsonIgnore]
-        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
-
-        [JsonIgnore]
-        public string DimensionesTexto =>
-            $"{(Largoaproximado ?? 0m):0.##}m × {(Anchoaproximado ?? 0m):0.##}m × {(Altoaproximado ?? 2.5m):0.##}m";
     }
+
+    // ─── Versiones de Diseño y Elementos 3D ────────────────────────────────
 
     public class VersionDisenoDto
     {
@@ -462,259 +553,6 @@ namespace MauiApp1.Models
         public decimal? Dimensionprofundidad { get; set; } = 0;
     }
 
-    public class InvitacionDto
-    {
-        [JsonPropertyName("idinvitacion")]
-        public int Idinvitacion { get; set; }
-
-        [JsonPropertyName("idproyecto")]
-        public int Idproyecto { get; set; }
-
-        [JsonPropertyName("idarquitecto")]
-        public int Idarquitecto { get; set; }
-
-        [JsonPropertyName("idclienteusado")]
-        public int? Idclienteusado { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Codigo { get; set; } = string.Empty;
-
-        [JsonPropertyName("usada")]
-        public bool? Usada { get; set; }
-
-        [JsonPropertyName("fechacreacion")]
-        public DateTime? Fechacreacion { get; set; }
-
-        [JsonPropertyName("fechaexpiracion")]
-        public DateTime? Fechaexpiracion { get; set; }
-    }
-
-    public class CrearInvitacionRequest
-    {
-        [JsonPropertyName("idproyecto")]
-        public int Idproyecto { get; set; }
-
-        [JsonPropertyName("idarquitecto")]
-        public int Idarquitecto { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Codigo { get; set; } = string.Empty;
-
-        [JsonPropertyName("fechaexpiracion")]
-        public DateTime? Fechaexpiracion { get; set; }
-    }
-
-    public class UsarInvitacionRequest
-    {
-        [JsonPropertyName("idClienteUsado")]
-        public int IdClienteUsado { get; set; }
-    }
-
-    public class MediciónDto
-    {
-        [JsonPropertyName("idmedicion")]
-        public int Idmedicion { get; set; }
-        [JsonPropertyName("idproyecto")]
-        public int Idproyecto { get; set; }
-        [JsonPropertyName("puntoinicial")]
-        public string? Puntoinicial { get; set; }
-        [JsonPropertyName("puntofinal")]
-        public string? Puntofinal { get; set; }
-        [JsonPropertyName("distancia")]
-        [JsonConverter(typeof(NullableDecimalAsZeroConverter))]
-        public decimal Distancia { get; set; }
-        public string DistanciaFormateada => $"{Distancia.ToString("0.00", CultureInfo.InvariantCulture)} m";
-        [JsonPropertyName("fechamedicion")]
-        public DateTime? Fechamedicion { get; set; }
-        public string FechaFormateada => Fechamedicion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente";
-
-        [JsonPropertyName("etapa")]
-        public string? Etapa { get; set; }
-        [JsonPropertyName("partida")]
-        public string? Partida { get; set; }
-        [JsonPropertyName("descripcion")]
-        public string? Descripcion { get; set; }
-        [JsonPropertyName("veces")]
-        public int? Veces { get; set; }
-        [JsonPropertyName("largo")]
-        public decimal? Largo { get; set; }
-        [JsonPropertyName("ancho")]
-        public decimal? Ancho { get; set; }
-        [JsonPropertyName("alto")]
-        public decimal? Alto { get; set; }
-        [JsonPropertyName("unidad")]
-        public string? Unidad { get; set; }
-        [JsonPropertyName("totalparcial")]
-        public decimal? Totalparcial { get; set; }
-
-        [JsonIgnore]
-        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
-
-        [JsonIgnore]
-        public string DetalleResumen
-        {
-            get
-            {
-                if (!string.IsNullOrWhiteSpace(Descripcion)) return Descripcion;
-                if (!string.IsNullOrWhiteSpace(Partida)) return Partida;
-                if (Largo.HasValue || Ancho.HasValue)
-                    return $"{(Largo ?? 0):0.##}m x {(Ancho ?? 0):0.##}m" + (Alto.HasValue && Alto > 0 ? $" x {Alto:0.##}m" : "");
-                return FechaFormateada;
-            }
-        }
-    }
-
-    public class CrearMediciónRequest
-    {
-        [JsonPropertyName("idproyecto")]
-        public int Idproyecto { get; set; }
-        [JsonPropertyName("puntoinicial")]
-        public string? Puntoinicial { get; set; }
-        [JsonPropertyName("puntofinal")]
-        public string? Puntofinal { get; set; }
-        [JsonPropertyName("distancia")]
-        public decimal Distancia { get; set; }
-        [JsonIgnore]
-        public string DistanciaFormateada => $"{Distancia.ToString("0.00", CultureInfo.InvariantCulture)} m";
-        [JsonPropertyName("fechamedicion")]
-        public DateTime? Fechamedicion { get; set; }
-
-        [JsonPropertyName("etapa")]
-        public string? Etapa { get; set; }
-        [JsonPropertyName("partida")]
-        public string? Partida { get; set; }
-        [JsonPropertyName("descripcion")]
-        public string? Descripcion { get; set; }
-        [JsonPropertyName("veces")]
-        public int? Veces { get; set; }
-        [JsonPropertyName("largo")]
-        public decimal? Largo { get; set; }
-        [JsonPropertyName("ancho")]
-        public decimal? Ancho { get; set; }
-        [JsonPropertyName("alto")]
-        public decimal? Alto { get; set; }
-        [JsonPropertyName("unidad")]
-        public string? Unidad { get; set; }
-        [JsonPropertyName("totalparcial")]
-        public decimal? Totalparcial { get; set; }
-    }
-
-    public class NotificacionDto
-    {
-        [JsonPropertyName("idnotificacion")]
-        public int Idnotificacion { get; set; }
-
-        [JsonPropertyName("idproyecto")]
-        public int Idproyecto { get; set; }
-
-        [JsonPropertyName("idversiondiseno")]
-        public int? Idversiondiseno { get; set; }
-
-        [JsonPropertyName("tipo")]
-        public string? Tipo { get; set; }
-
-        [JsonPropertyName("mensaje")]
-        public string Mensaje { get; set; } = string.Empty;
-
-        [JsonPropertyName("leida")]
-        public bool? Leida { get; set; }
-
-        [JsonPropertyName("fechaenvio")]
-        public DateTime? Fechaenvio { get; set; }
-
-        public string FechaFormateada => Fechaenvio?.ToString("dd/MM HH:mm") ?? "Reciente";
-        public string TipoNormalizado => string.IsNullOrWhiteSpace(Tipo) ? "General" : Tipo;
-    }
-
-    public class UsuarioDto
-    {
-        [JsonPropertyName("idusuario")]
-        public int Idusuario { get; set; }
-
-        [JsonPropertyName("nombre")]
-        public string Nombre { get; set; } = string.Empty;
-
-        [JsonPropertyName("apellido")]
-        public string Apellido { get; set; } = string.Empty;
-
-        [JsonPropertyName("email")]
-        public string Email { get; set; } = string.Empty;
-
-        [JsonPropertyName("rol")]
-        public string Rol { get; set; } = string.Empty;
-
-        [JsonPropertyName("telefono")]
-        public string? Telefono { get; set; }
-
-        [JsonPropertyName("direccion")]
-        public string? Direccion { get; set; }
-
-        [JsonPropertyName("tipodocumento")]
-        public string? Tipodocumento { get; set; }
-
-        [JsonPropertyName("numerodocumento")]
-        public string? Numerodocumento { get; set; }
-
-        [JsonPropertyName("avatarurl")]
-        public string? Avatarurl { get; set; }
-
-        [JsonPropertyName("activo")]
-        [JsonConverter(typeof(NullableBoolAsTrueConverter))]
-        public bool Activo { get; set; } = true;
-
-        public string NombreCompleto => $"{Nombre} {Apellido}".Trim();
-
-        public string PrimeraLetra => string.IsNullOrWhiteSpace(Nombre)
-            ? "?"
-            : Nombre.Substring(0, 1).ToUpper();
-
-        public string EstadoTexto => Activo ? "Activo" : "Inactivo";
-    }
-
-    public class ActualizarUsuarioRequest
-    {
-        [JsonPropertyName("idusuario")]
-        public int Idusuario { get; set; }
-
-        [JsonPropertyName("nombre")]
-        public string Nombre { get; set; } = string.Empty;
-
-        [JsonPropertyName("apellido")]
-        public string Apellido { get; set; } = string.Empty;
-
-        [JsonPropertyName("email")]
-        public string Email { get; set; } = string.Empty;
-
-        [JsonPropertyName("contrasena")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Contrasena { get; set; }
-
-        [JsonPropertyName("rol")]
-        public string Rol { get; set; } = string.Empty;
-
-        [JsonPropertyName("telefono")]
-        public string? Telefono { get; set; }
-
-        [JsonPropertyName("direccion")]
-        public string? Direccion { get; set; }
-
-        [JsonPropertyName("tipodocumento")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Tipodocumento { get; set; }
-
-        [JsonPropertyName("numerodocumento")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Numerodocumento { get; set; }
-
-        [JsonPropertyName("avatarurl")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Avatarurl { get; set; }
-
-        [JsonPropertyName("activo")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public bool? Activo { get; set; }
-    }
-
     public class CrearModeloImportadoRequest
     {
         [JsonPropertyName("idversiondiseno")]
@@ -806,5 +644,200 @@ namespace MauiApp1.Models
 
         [JsonPropertyName("fechaimportacion")]
         public DateTime? Fechaimportacion { get; set; }
+    }
+
+    // ─── Invitaciones ──────────────────────────────────────────────────────
+
+    public class InvitacionDto
+    {
+        [JsonPropertyName("idinvitacion")]
+        public int Idinvitacion { get; set; }
+
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("idarquitecto")]
+        public int Idarquitecto { get; set; }
+
+        [JsonPropertyName("idclienteusado")]
+        public int? Idclienteusado { get; set; }
+
+        [JsonPropertyName("codigo")]
+        public string Codigo { get; set; } = string.Empty;
+
+        [JsonPropertyName("usada")]
+        public bool? Usada { get; set; }
+
+        [JsonPropertyName("fechacreacion")]
+        public DateTime? Fechacreacion { get; set; }
+
+        [JsonPropertyName("fechaexpiracion")]
+        public DateTime? Fechaexpiracion { get; set; }
+    }
+
+    public class CrearInvitacionRequest
+    {
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("idarquitecto")]
+        public int Idarquitecto { get; set; }
+
+        [JsonPropertyName("codigo")]
+        public string Codigo { get; set; } = string.Empty;
+
+        [JsonPropertyName("fechaexpiracion")]
+        public DateTime? Fechaexpiracion { get; set; }
+    }
+
+    public class UsarInvitacionRequest
+    {
+        [JsonPropertyName("idClienteUsado")]
+        public int IdClienteUsado { get; set; }
+    }
+
+    // ─── Mediciones ────────────────────────────────────────────────────────
+
+    public class MedicionDto
+    {
+        [JsonPropertyName("idmedicion")]
+        public int Idmedicion { get; set; }
+
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("puntoinicial")]
+        public string? Puntoinicial { get; set; }
+
+        [JsonPropertyName("puntofinal")]
+        public string? Puntofinal { get; set; }
+
+        [JsonPropertyName("distancia")]
+        [JsonConverter(typeof(NullableDecimalAsZeroConverter))]
+        public decimal Distancia { get; set; }
+
+        public string DistanciaFormateada => $"{Distancia.ToString("0.00", CultureInfo.InvariantCulture)} m";
+
+        [JsonPropertyName("fechamedicion")]
+        public DateTime? Fechamedicion { get; set; }
+
+        public string FechaFormateada => Fechamedicion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente";
+
+        [JsonPropertyName("etapa")]
+        public string? Etapa { get; set; }
+
+        [JsonPropertyName("partida")]
+        public string? Partida { get; set; }
+
+        [JsonPropertyName("descripcion")]
+        public string? Descripcion { get; set; }
+
+        [JsonPropertyName("veces")]
+        public int? Veces { get; set; }
+
+        [JsonPropertyName("largo")]
+        public decimal? Largo { get; set; }
+
+        [JsonPropertyName("ancho")]
+        public decimal? Ancho { get; set; }
+
+        [JsonPropertyName("alto")]
+        public decimal? Alto { get; set; }
+
+        [JsonPropertyName("unidad")]
+        public string? Unidad { get; set; }
+
+        [JsonPropertyName("totalparcial")]
+        public decimal? Totalparcial { get; set; }
+
+        [JsonIgnore]
+        public bool PuedeEliminar => Services.UserSession.EsArquitecto;
+
+        [JsonIgnore]
+        public string DetalleResumen
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Descripcion)) return Descripcion;
+                if (!string.IsNullOrWhiteSpace(Partida)) return Partida;
+                if (Largo.HasValue || Ancho.HasValue)
+                    return $"{(Largo ?? 0):0.##}m x {(Ancho ?? 0):0.##}m" + (Alto.HasValue && Alto > 0 ? $" x {Alto:0.##}m" : "");
+                return FechaFormateada;
+            }
+        }
+    }
+
+    public class CrearMedicionRequest
+    {
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("puntoinicial")]
+        public string? Puntoinicial { get; set; }
+
+        [JsonPropertyName("puntofinal")]
+        public string? Puntofinal { get; set; }
+
+        [JsonPropertyName("distancia")]
+        public decimal Distancia { get; set; }
+
+        [JsonPropertyName("fechamedicion")]
+        public DateTime? Fechamedicion { get; set; }
+
+        [JsonPropertyName("etapa")]
+        public string? Etapa { get; set; }
+
+        [JsonPropertyName("partida")]
+        public string? Partida { get; set; }
+
+        [JsonPropertyName("descripcion")]
+        public string? Descripcion { get; set; }
+
+        [JsonPropertyName("veces")]
+        public int? Veces { get; set; }
+
+        [JsonPropertyName("largo")]
+        public decimal? Largo { get; set; }
+
+        [JsonPropertyName("ancho")]
+        public decimal? Ancho { get; set; }
+
+        [JsonPropertyName("alto")]
+        public decimal? Alto { get; set; }
+
+        [JsonPropertyName("unidad")]
+        public string? Unidad { get; set; }
+
+        [JsonPropertyName("totalparcial")]
+        public decimal? Totalparcial { get; set; }
+    }
+
+    // ─── Notificaciones ────────────────────────────────────────────────────
+
+    public class NotificacionDto
+    {
+        [JsonPropertyName("idnotificacion")]
+        public int Idnotificacion { get; set; }
+
+        [JsonPropertyName("idproyecto")]
+        public int Idproyecto { get; set; }
+
+        [JsonPropertyName("idversiondiseno")]
+        public int? Idversiondiseno { get; set; }
+
+        [JsonPropertyName("tipo")]
+        public string? Tipo { get; set; }
+
+        [JsonPropertyName("mensaje")]
+        public string Mensaje { get; set; } = string.Empty;
+
+        [JsonPropertyName("leida")]
+        public bool? Leida { get; set; }
+
+        [JsonPropertyName("fechaenvio")]
+        public DateTime? Fechaenvio { get; set; }
+
+        public string FechaFormateada => Fechaenvio?.ToString("dd/MM HH:mm") ?? "Reciente";
+        public string TipoNormalizado => string.IsNullOrWhiteSpace(Tipo) ? "General" : Tipo;
     }
 }

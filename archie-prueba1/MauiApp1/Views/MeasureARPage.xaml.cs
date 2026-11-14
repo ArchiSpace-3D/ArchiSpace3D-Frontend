@@ -13,7 +13,7 @@ namespace MauiApp1.Views;
 
 public partial class MeasureARPage : ContentPage
 {
-    private readonly ObservableCollection<MediciónDto> _mediciones = new();
+    private readonly ObservableCollection<MedicionDto> _mediciones = new();
     private List<ProyectoDto> _misProyectos = new();
     private bool _cameraLoaded;
     private bool _subscribedSaveEvent;
@@ -252,16 +252,8 @@ public partial class MeasureARPage : ContentPage
         await CloseSelectProjectSheetAsync();
     }
 
-    private async Task CloseSelectProjectSheetAsync()
-    {
-        await Task.WhenAll(
-            SelectProjectSheetModal.FadeToAsync(0, 200),
-            SelectProjectSheetModal.TranslateToAsync(0, 500, 250, Easing.CubicIn)
-        );
-        SelectProjectSheetModal.IsVisible = false;
-        await SelectProjectBackdrop.FadeToAsync(0, 200);
-        SelectProjectBackdrop.IsVisible = false;
-    }
+    private Task CloseSelectProjectSheetAsync() =>
+        UiHelper.CloseSheetAsync(SelectProjectBackdrop, SelectProjectSheetModal);
 
     // ====================== MEDICIONES ======================
     private async Task CargarMedicionesAsync()
@@ -277,14 +269,11 @@ public partial class MeasureARPage : ContentPage
 
         try
         {
-            var mediciones = await ApiService.GetMediciónesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+            var mediciones = await ApiService.GetMedicionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
 
             _mediciones.Clear();
-            if (mediciones != null)
-            {
-                foreach (var m in mediciones)
-                    _mediciones.Add(m);
-            }
+            foreach (var m in mediciones)
+                _mediciones.Add(m);
         }
         catch { }
         finally
@@ -306,12 +295,12 @@ public partial class MeasureARPage : ContentPage
 
     private async void OnEliminarMedicionTapped(object? sender, TappedEventArgs e)
     {
-        if (!UserSession.EsArquitecto || e.Parameter is not MediciónDto med) return;
+        if (!UserSession.EsArquitecto || e.Parameter is not MedicionDto med) return;
 
         bool confirm = await AlertService.ShowAlertAsync("Eliminar medición", "¿Deseas eliminar este registro de medición?", "Eliminar", "Cancelar");
         if (!confirm) return;
 
-        var (ok, msg) = await ApiService.EliminarMediciónAsync(med.Idmedicion);
+        var (ok, msg) = await ApiService.EliminarMedicionAsync(med.Idmedicion);
         if (ok)
         {
             _mediciones.Remove(med);
@@ -372,13 +361,6 @@ public partial class MeasureARPage : ContentPage
         });
     }
 
-    public async Task ShowToastAsync(string message)
-    {
-        AppleToastMessage.Text = message;
-        AppleToast.IsVisible = true;
-        await AppleToast.FadeToAsync(1, 300);
-        await Task.Delay(2500);
-        await AppleToast.FadeToAsync(0, 300);
-        AppleToast.IsVisible = false;
-    }
+    public Task ShowToastAsync(string message) =>
+        UiHelper.ShowToastAsync(AppleToast, AppleToastMessage, message);
 }

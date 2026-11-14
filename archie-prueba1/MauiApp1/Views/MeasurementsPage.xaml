@@ -127,7 +127,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:FloatingTabBar Grid.Row="2" SelectedIndex="3" />
+        <controls:FloatingTabBar x:Name="BottomTabBar" Grid.Row="2" SelectedIndex="3" />
 
     </Grid>
 </ContentPage>

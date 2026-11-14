@@ -141,7 +141,7 @@ namespace MauiApp1.Views
             BtnGuardarComputo.IsEnabled = false;
             try
             {
-                var req = new CrearMediciónRequest
+                var req = new CrearMedicionRequest
                 {
                     Idproyecto = UserSession.ActiveProject.Idproyecto,
                     Distancia = largo,
@@ -159,7 +159,7 @@ namespace MauiApp1.Views
                     Totalparcial = _total
                 };
 
-                var (success, msg) = await ApiService.GuardarMediciónAsync(req);
+                var (success, msg) = await ApiService.GuardarMedicionAsync(req);
                 if (success)
                 {
                     OnMedicionGuardadaLocal?.Invoke();

@@ -16,7 +16,7 @@ namespace MauiApp1.Views;
 public partial class ProfilePage : ContentPage
 {
     private readonly ObservableCollection<ProyectoDto> _proyectos = new();
-    private readonly ObservableCollection<MediciónDto> _mediciones = new();
+    private readonly ObservableCollection<MedicionDto> _mediciones = new();
     private readonly ObservableCollection<ProyectoDto> _salas = new();
     private readonly ObservableCollection<SugerenciaDto> _sugerencias = new();
     private int _currentTab = 1;
@@ -104,7 +104,7 @@ public partial class ProfilePage : ContentPage
 
             foreach (var proyecto in proyectos)
             {
-                var medsTask = ApiService.GetMediciónesByProyectoAsync(proyecto.Idproyecto);
+                var medsTask = ApiService.GetMedicionesByProyectoAsync(proyecto.Idproyecto);
                 var sugsTask = ApiService.GetSugerenciasByProyectoAsync(proyecto.Idproyecto);
                 await Task.WhenAll(medsTask, sugsTask);
 
@@ -576,15 +576,8 @@ public partial class ProfilePage : ContentPage
     }
 
     // ====================== TOAST ======================
-    private async Task ShowToastAsync(string message)
-    {
-        AppleToastMessage.Text = message;
-        AppleToast.IsVisible = true;
-        await AppleToast.FadeToAsync(1, 300);
-        await Task.Delay(2500);
-        await AppleToast.FadeToAsync(0, 300);
-        AppleToast.IsVisible = false;
-    }
+    private Task ShowToastAsync(string message) =>
+        UiHelper.ShowToastAsync(AppleToast, AppleToastMessage, message);
 
     private class MenuItemModel
     {

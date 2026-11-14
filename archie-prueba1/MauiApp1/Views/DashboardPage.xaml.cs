@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using MauiApp1.Models;
 using MauiApp1.Services;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
 
 namespace MauiApp1.Views;
 
@@ -104,11 +96,8 @@ public partial class DashboardPage : ContentPage
     {
         if (UserSession.ActiveProject != null)
         {
-            var actualizado = _proyectos.FirstOrDefault(p => p.Idproyecto == UserSession.ActiveProject.Idproyecto);
-            if (actualizado != null)
-                UserSession.ActiveProject = actualizado;
-            else
-                UserSession.ActiveProject = _proyectos.FirstOrDefault();
+            UserSession.ActiveProject = _proyectos.FirstOrDefault(p => p.Idproyecto == UserSession.ActiveProject.Idproyecto)
+                                        ?? _proyectos.FirstOrDefault();
         }
         else if (_proyectos.Count > 0)
         {
@@ -332,7 +321,7 @@ public partial class DashboardPage : ContentPage
         _proyectos.Clear();
         try
         {
-            List<ProyectoDto> list = UserSession.EsArquitecto
+            var list = UserSession.EsArquitecto
                 ? await ApiService.GetProyectosByArquitectoAsync(UserSession.Idusuario)
                 : await ApiService.GetProyectosByClienteAsync(UserSession.Idusuario);
 
@@ -352,7 +341,7 @@ public partial class DashboardPage : ContentPage
         {
             try
             {
-                var medsTask = ApiService.GetMediciónesByProyectoAsync(prj.Idproyecto);
+                var medsTask = ApiService.GetMedicionesByProyectoAsync(prj.Idproyecto);
                 var sugsTask = ApiService.GetSugerenciasByProyectoAsync(prj.Idproyecto);
                 await Task.WhenAll(medsTask, sugsTask);
 
@@ -444,7 +433,6 @@ public partial class DashboardPage : ContentPage
 
     // ====================== DETALLE PROYECTO ======================
     private async void OnActiveProjectDetailsClicked(object? sender, EventArgs e) => await OpenDetailsSheetAsync();
-
     private async void OnCloseDetailsSheetClicked(object? sender, EventArgs e) => await CloseDetailsSheetAsync();
     private async void OnCloseDetailsSheetTapped(object? sender, TappedEventArgs e) => await CloseDetailsSheetAsync();
 
@@ -452,7 +440,7 @@ public partial class DashboardPage : ContentPage
     {
         if (UserSession.ActiveProject == null)
         {
-            await ShowAlertAsync("Aviso", "Selecciona un proyecto primero.", "OK");
+            await AlertService.ShowAlertAsync("Aviso", "Selecciona un proyecto primero.", "OK");
             return;
         }
 
@@ -471,52 +459,22 @@ public partial class DashboardPage : ContentPage
         SepInvitarCliente.IsVisible = esArquitecto;
         SectionAdmin.IsVisible = esArquitecto;
 
-        DetailsBackdrop.IsVisible = true;
-        await DetailsBackdrop.FadeToAsync(1, 200);
-        ProjectDetailsSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            ProjectDetailsSheetModal.FadeToAsync(1, 250),
-            ProjectDetailsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(DetailsBackdrop, ProjectDetailsSheetModal);
 
-        if (esArquitecto)
+        int? idContraparte = esArquitecto ? proy.Idcliente : proy.Idarquitecto;
+        if (idContraparte.HasValue && idContraparte.Value > 0)
         {
-            var idCliente = proy.Idcliente;
-            if (idCliente.HasValue && idCliente.Value > 0)
-            {
-                var cliente = await ApiService.GetUsuarioByIdAsync(idCliente.Value);
-                SheetProjectClient.Text = cliente != null ? cliente.NombreCompleto : "Sin asignar";
-            }
-            else
-            {
-                SheetProjectClient.Text = "Sin asignar";
-            }
+            var u = await ApiService.GetUsuarioByIdAsync(idContraparte.Value);
+            SheetProjectClient.Text = u != null ? u.NombreCompleto : (esArquitecto ? "Sin asignar" : "Arquitecto asignado");
         }
         else
         {
-            var idArq = proy.Idarquitecto;
-            if (idArq.HasValue && idArq.Value > 0)
-            {
-                var arq = await ApiService.GetUsuarioByIdAsync(idArq.Value);
-                SheetProjectClient.Text = arq != null ? arq.NombreCompleto : "Arquitecto asignado";
-            }
-            else
-            {
-                SheetProjectClient.Text = "No especificado";
-            }
+            SheetProjectClient.Text = esArquitecto ? "Sin asignar" : "No especificado";
         }
     }
 
-    private async Task CloseDetailsSheetAsync()
-    {
-        await Task.WhenAll(
-            ProjectDetailsSheetModal.FadeToAsync(0, 200),
-            ProjectDetailsSheetModal.TranslateToAsync(0, 500, 250, Easing.CubicIn)
-        );
-        ProjectDetailsSheetModal.IsVisible = false;
-        await DetailsBackdrop.FadeToAsync(0, 200);
-        DetailsBackdrop.IsVisible = false;
-    }
+    private Task CloseDetailsSheetAsync() =>
+        UiHelper.CloseSheetAsync(DetailsBackdrop, ProjectDetailsSheetModal);
 
     private async void OnEnterDesignClicked(object? sender, EventArgs e)
     {
@@ -552,20 +510,12 @@ public partial class DashboardPage : ContentPage
         EditUbicacionProyecto.Text = proy.Ubicacion;
         EditPresupuestoProyecto.Text = (proy.Presupuesto ?? 0m).ToString("0.##", CultureInfo.InvariantCulture);
 
-        if (!string.IsNullOrWhiteSpace(proy.Estado) && EditEstadoProyecto.Items.Contains(proy.Estado))
-            EditEstadoProyecto.SelectedItem = proy.Estado;
-        else
-            EditEstadoProyecto.SelectedItem = "Borrador";
+        EditEstadoProyecto.SelectedItem = !string.IsNullOrWhiteSpace(proy.Estado) && EditEstadoProyecto.Items.Contains(proy.Estado)
+            ? proy.Estado
+            : "Borrador";
 
         await CargarClientesParaEditPickerAsync(proy.Idcliente);
-
-        EditProjectBackdrop.IsVisible = true;
-        await EditProjectBackdrop.FadeToAsync(1, 200);
-        EditProjectSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            EditProjectSheetModal.FadeToAsync(1, 250),
-            EditProjectSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(EditProjectBackdrop, EditProjectSheetModal);
     }
 
     private async Task CargarClientesParaEditPickerAsync(int? idClienteActual)
@@ -577,21 +527,16 @@ public partial class DashboardPage : ContentPage
             {
                 new UsuarioDto { Idusuario = 0, Nombre = "Sin", Apellido = "asignar" }
             };
-            var clientes = usuarios?
+            var clientes = usuarios
                 .Where(u => string.Equals(u.Rol, "Cliente", StringComparison.OrdinalIgnoreCase))
-                .ToList() ?? new List<UsuarioDto>();
+                .ToList();
 
             opciones.AddRange(clientes);
             EditPickerClienteProyecto.ItemsSource = opciones;
 
-            if (idClienteActual.HasValue && idClienteActual.Value > 0)
-            {
-                EditPickerClienteProyecto.SelectedItem = opciones.FirstOrDefault(c => c.Idusuario == idClienteActual.Value) ?? opciones[0];
-            }
-            else
-            {
-                EditPickerClienteProyecto.SelectedItem = opciones[0];
-            }
+            EditPickerClienteProyecto.SelectedItem = (idClienteActual.HasValue && idClienteActual.Value > 0)
+                ? opciones.FirstOrDefault(c => c.Idusuario == idClienteActual.Value) ?? opciones[0]
+                : opciones[0];
         }
         catch
         {
@@ -604,13 +549,7 @@ public partial class DashboardPage : ContentPage
 
     private async Task CloseEditProjectSheetAsync()
     {
-        await Task.WhenAll(
-            EditProjectSheetModal.FadeToAsync(0, 200),
-            EditProjectSheetModal.TranslateToAsync(0, 500, 250, Easing.CubicIn)
-        );
-        EditProjectSheetModal.IsVisible = false;
-        await EditProjectBackdrop.FadeToAsync(0, 200);
-        EditProjectBackdrop.IsVisible = false;
+        await UiHelper.CloseSheetAsync(EditProjectBackdrop, EditProjectSheetModal);
         _imagenEditProyectoSeleccionada = null;
     }
 
@@ -618,21 +557,8 @@ public partial class DashboardPage : ContentPage
     {
         try
         {
-            var resultado = await FilePicker.Default.PickAsync(new PickOptions
-            {
-                PickerTitle = "Selecciona una nueva imagen",
-                FileTypes = FilePickerFileType.Images
-            });
-
+            var resultado = await UiHelper.PickValidatedImageAsync("Selecciona una nueva imagen");
             if (resultado == null) return;
-
-            var extensionesValidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var ext = Path.GetExtension(resultado.FileName).ToLowerInvariant();
-            if (!extensionesValidas.Contains(ext))
-            {
-                await ShowAlertAsync("Formato no válido", "Solo se permiten imágenes JPG, PNG o WEBP.", "OK");
-                return;
-            }
 
             _imagenEditProyectoSeleccionada = resultado;
 
@@ -645,23 +571,12 @@ public partial class DashboardPage : ContentPage
         }
         catch (Exception ex)
         {
-            await ShowAlertAsync("Error", $"No se pudo seleccionar la imagen: {ex.Message}", "OK");
+            await AlertService.ShowAlertAsync("Error", $"No se pudo seleccionar la imagen: {ex.Message}", "OK");
         }
     }
 
     private async void OnSubmitEditarProyectoClicked(object? sender, EventArgs e) => await SubmitEditarProyectoAsync();
     private async void OnSubmitEditarProyectoClicked(object? sender, TappedEventArgs e) => await SubmitEditarProyectoAsync();
-
-    private static decimal ParsePresupuestoSeguro(string? raw, decimal fallback = 0m)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return fallback;
-        string clean = raw.Replace("$", "").Trim();
-        if (decimal.TryParse(clean, NumberStyles.Any, CultureInfo.InvariantCulture, out var val))
-            return val;
-        if (decimal.TryParse(clean, NumberStyles.Any, CultureInfo.CurrentCulture, out val))
-            return val;
-        return fallback;
-    }
 
     private async Task SubmitEditarProyectoAsync()
     {
@@ -681,14 +596,14 @@ public partial class DashboardPage : ContentPage
             Nombre = string.IsNullOrWhiteSpace(EditNombreProyecto.Text) ? p.Nombre : EditNombreProyecto.Text.Trim(),
             Descripcion = EditDescripcionProyecto.Text?.Trim() ?? p.Descripcion,
             Ubicacion = EditUbicacionProyecto.Text?.Trim() ?? p.Ubicacion,
-            Presupuesto = ParsePresupuestoSeguro(EditPresupuestoProyecto.Text, p.Presupuesto ?? 0m),
+            Presupuesto = UiHelper.ParseDecimal(EditPresupuestoProyecto.Text, p.Presupuesto ?? 0m),
             Estado = EditEstadoProyecto.SelectedItem?.ToString() ?? p.Estado
         };
 
         var res = await ApiService.ActualizarProyectoAsync(p.Idproyecto, req);
         if (!res.Success)
         {
-            ShowCustomAlert("Error", res.Message, true);
+            await AlertService.ShowAlertAsync("Error", res.Message, "OK");
             return;
         }
 
@@ -705,7 +620,7 @@ public partial class DashboardPage : ContentPage
             if (okImg && !string.IsNullOrEmpty(urlImg))
                 p.Imagenurl = urlImg;
             else if (!okImg)
-                await ShowAlertAsync("Imagen no actualizada",
+                await AlertService.ShowAlertAsync("Imagen no actualizada",
                     $"Los datos se guardaron, pero la imagen no se pudo subir:\n{msgImg}", "OK");
         }
 
@@ -718,7 +633,7 @@ public partial class DashboardPage : ContentPage
 
     private async void OnEliminarProyectoFromDetailsClicked(object? sender, EventArgs e)
     {
-        var confirm = await ShowAlertConfirmAsync("Eliminar Proyecto", "¿Estás seguro de eliminar este proyecto de forma permanente?", "Eliminar", "Cancelar");
+        var confirm = await AlertService.ShowAlertAsync("Eliminar Proyecto", "¿Estás seguro de eliminar este proyecto de forma permanente?", "Eliminar", "Cancelar");
         if (!confirm || UserSession.ActiveProject == null) return;
 
         var res = await ApiService.EliminarProyectoAsync(UserSession.ActiveProject.Idproyecto);
@@ -732,7 +647,7 @@ public partial class DashboardPage : ContentPage
         }
         else
         {
-            ShowCustomAlert("Error al Eliminar", res.Message, true);
+            await AlertService.ShowAlertAsync("Error al Eliminar", res.Message, "OK");
         }
     }
 
@@ -746,14 +661,7 @@ public partial class DashboardPage : ContentPage
         LblNombreImagenProyecto.IsVisible = false;
 
         await CargarClientesParaPickerAsync();
-
-        NewProjectBackdrop.IsVisible = true;
-        await NewProjectBackdrop.FadeToAsync(1, 200);
-        NewProjectSheetCard.IsVisible = true;
-        await Task.WhenAll(
-            NewProjectSheetCard.FadeToAsync(1, 250),
-            NewProjectSheetCard.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(NewProjectBackdrop, NewProjectSheetCard);
     }
 
     private async Task CargarClientesParaPickerAsync()
@@ -761,22 +669,13 @@ public partial class DashboardPage : ContentPage
         try
         {
             var usuarios = await ApiService.GetUsuariosAsync();
-            _clientesCache = usuarios?
+            _clientesCache = usuarios
                 .Where(u => string.Equals(u.Rol, "Cliente", StringComparison.OrdinalIgnoreCase))
-                .ToList() ?? new List<UsuarioDto>();
+                .ToList();
 
             PickerClienteProyecto.ItemsSource = _clientesCache;
-
-            if (_clientesCache.Count == 0)
-            {
-                LblSinClientes.IsVisible = true;
-                PickerClienteProyecto.IsEnabled = false;
-            }
-            else
-            {
-                LblSinClientes.IsVisible = false;
-                PickerClienteProyecto.IsEnabled = true;
-            }
+            LblSinClientes.IsVisible = _clientesCache.Count == 0;
+            PickerClienteProyecto.IsEnabled = _clientesCache.Count > 0;
         }
         catch
         {
@@ -790,21 +689,8 @@ public partial class DashboardPage : ContentPage
     {
         try
         {
-            var resultado = await FilePicker.Default.PickAsync(new PickOptions
-            {
-                PickerTitle = "Selecciona una imagen para el proyecto",
-                FileTypes = FilePickerFileType.Images
-            });
-
+            var resultado = await UiHelper.PickValidatedImageAsync("Selecciona una imagen para el proyecto");
             if (resultado == null) return;
-
-            var extensionesValidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var ext = Path.GetExtension(resultado.FileName).ToLowerInvariant();
-            if (!extensionesValidas.Contains(ext))
-            {
-                await ShowAlertAsync("Formato no válido", "Solo se permiten imágenes JPG, PNG o WEBP.", "OK");
-                return;
-            }
 
             _imagenProyectoSeleccionada = resultado;
 
@@ -817,7 +703,7 @@ public partial class DashboardPage : ContentPage
         }
         catch (Exception ex)
         {
-            await ShowAlertAsync("Error", $"No se pudo seleccionar la imagen: {ex.Message}", "OK");
+            await AlertService.ShowAlertAsync("Error", $"No se pudo seleccionar la imagen: {ex.Message}", "OK");
         }
     }
 
@@ -838,13 +724,7 @@ public partial class DashboardPage : ContentPage
         ImgPlaceholderProyecto.IsVisible = true;
         LblNombreImagenProyecto.IsVisible = false;
 
-        await Task.WhenAll(
-            NewProjectSheetCard.FadeToAsync(0, 200),
-            NewProjectSheetCard.TranslateToAsync(0, 400, 250, Easing.CubicIn)
-        );
-        NewProjectSheetCard.IsVisible = false;
-        await NewProjectBackdrop.FadeToAsync(0, 200);
-        NewProjectBackdrop.IsVisible = false;
+        await UiHelper.CloseSheetAsync(NewProjectBackdrop, NewProjectSheetCard, 400);
     }
 
     private async void OnSubmitCrearProyectoClicked(object? sender, EventArgs e) => await SubmitCrearProyectoAsync(sender);
@@ -854,11 +734,11 @@ public partial class DashboardPage : ContentPage
     {
         if (string.IsNullOrWhiteSpace(EntryNombreProyecto.Text))
         {
-            ShowCustomAlert("Falta el nombre", "El nombre del proyecto es obligatorio.", true);
+            await AlertService.ShowAlertAsync("Falta el nombre", "El nombre del proyecto es obligatorio.", "OK");
             return;
         }
 
-        decimal presupuesto = ParsePresupuestoSeguro(EntryPresupuestoProyecto.Text, 0m);
+        decimal presupuesto = UiHelper.ParseDecimal(EntryPresupuestoProyecto.Text, 0m);
 
         int? idCliente = null;
         if (PickerClienteProyecto.SelectedItem is UsuarioDto cliente && cliente.Idusuario > 0)
@@ -887,7 +767,7 @@ public partial class DashboardPage : ContentPage
             var res = await ApiService.CrearProyectoAsync(p);
             if (!res.Success || res.Data == null)
             {
-                ShowCustomAlert("Error", res.Message, true);
+                await AlertService.ShowAlertAsync("Error", res.Message, "OK");
                 return;
             }
 
@@ -895,7 +775,7 @@ public partial class DashboardPage : ContentPage
             {
                 var (okImg, msgImg, _) = await ApiService.SubirImagenProyectoAsync(res.Data.Idproyecto, _imagenProyectoSeleccionada);
                 if (!okImg)
-                    await ShowAlertAsync("Proyecto creado",
+                    await AlertService.ShowAlertAsync("Proyecto creado",
                         $"El proyecto se creó, pero la imagen no se pudo subir:\n{msgImg}", "OK");
             }
 
@@ -905,7 +785,7 @@ public partial class DashboardPage : ContentPage
             LoadRooms();
             _ = CargarResumenesActividadAsync();
             _ = ConectarSalasSignalRAsync();
-            ShowCustomAlert("Proyecto Creado", $"El proyecto '{p.Nombre}' ha sido guardado exitosamente.", false);
+            await ShowToastAsync($"Proyecto '{p.Nombre}' creado");
         }
         finally
         {
@@ -917,14 +797,7 @@ public partial class DashboardPage : ContentPage
     private async void OnOpenNewRoomSheetClicked(object? sender, EventArgs e)
     {
         await CargarProyectosSinSalaAsync();
-
-        NewRoomBackdrop.IsVisible = true;
-        await NewRoomBackdrop.FadeToAsync(1, 200);
-        NewRoomSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            NewRoomSheetModal.FadeToAsync(1, 250),
-            NewRoomSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(NewRoomBackdrop, NewRoomSheetModal);
     }
 
     private async Task CargarProyectosSinSalaAsync()
@@ -936,39 +809,22 @@ public partial class DashboardPage : ContentPage
         PickerProyectoSinSala.SelectedItem = null;
         NewRoomNombreEntry.Text = "";
 
-        if (sinSala.Count == 0)
-        {
-            LblSinProyectos.IsVisible = true;
-            PickerProyectoSinSala.IsEnabled = false;
-        }
-        else
-        {
-            LblSinProyectos.IsVisible = false;
-            PickerProyectoSinSala.IsEnabled = true;
-        }
+        LblSinProyectos.IsVisible = sinSala.Count == 0;
+        PickerProyectoSinSala.IsEnabled = sinSala.Count > 0;
     }
 
     private void OnProyectoSinSalaSelected(object? sender, EventArgs e)
     {
-        if (PickerProyectoSinSala.SelectedItem is ProyectoDto proyecto)
+        if (PickerProyectoSinSala.SelectedItem is ProyectoDto proyecto && string.IsNullOrWhiteSpace(NewRoomNombreEntry.Text))
         {
-            if (string.IsNullOrWhiteSpace(NewRoomNombreEntry.Text))
-                NewRoomNombreEntry.Text = proyecto.Nombre;
+            NewRoomNombreEntry.Text = proyecto.Nombre;
         }
     }
 
     private async void OnCloseNewRoomSheetClicked(object? sender, TappedEventArgs e) => await CloseNewRoomSheetAsync();
 
-    private async Task CloseNewRoomSheetAsync()
-    {
-        await Task.WhenAll(
-            NewRoomSheetModal.FadeToAsync(0, 200),
-            NewRoomSheetModal.TranslateToAsync(0, 400, 250, Easing.CubicIn)
-        );
-        NewRoomSheetModal.IsVisible = false;
-        await NewRoomBackdrop.FadeToAsync(0, 200);
-        NewRoomBackdrop.IsVisible = false;
-    }
+    private Task CloseNewRoomSheetAsync() =>
+        UiHelper.CloseSheetAsync(NewRoomBackdrop, NewRoomSheetModal, 400);
 
     private async void OnSubmitNewRoomClicked(object? sender, EventArgs e) => await SubmitNewRoomAsync();
     private async void OnSubmitNewRoomClicked(object? sender, TappedEventArgs e) => await SubmitNewRoomAsync();
@@ -977,17 +833,15 @@ public partial class DashboardPage : ContentPage
     {
         if (PickerProyectoSinSala.SelectedItem is not ProyectoDto proyectoSeleccionado)
         {
-            await ShowAlertAsync("Aviso", "Selecciona un proyecto para activar su sala.", "OK");
+            await AlertService.ShowAlertAsync("Aviso", "Selecciona un proyecto para activar su sala.", "OK");
             return;
         }
 
-        // 1. Activar sala en Proyecto para que Codigosalaactiva quede persistido
         var (okSala, codigoSala) = await ApiService.ActivarSalaAsync(proyectoSeleccionado.Idproyecto);
         string codigoFinal = okSala && !string.IsNullOrWhiteSpace(codigoSala)
             ? codigoSala
             : $"ARQ-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
 
-        // 2. Registrar invitación vinculable por código para el Cliente
         var (okInv, msgInv, data) = await ApiService.CrearInvitacionAsync(proyectoSeleccionado.Idproyecto, codigoFinal);
         string codigoMostrar = data?.Codigo ?? codigoFinal;
 
@@ -1003,40 +857,26 @@ public partial class DashboardPage : ContentPage
             _ = ConectarSalasSignalRAsync();
 
             await Clipboard.Default.SetTextAsync(codigoMostrar);
-            await ShowAlertAsync("Sala Activada",
+            await AlertService.ShowAlertAsync("Sala Activada",
                 $"Código de invitación copiado al portapapeles:\n\n{codigoMostrar}\n\nCompártelo con tu cliente para que se vincule al proyecto.",
                 "Listo");
         }
         else
         {
-            await ShowAlertAsync("Error", $"No se pudo activar la sala: {msgInv}", "OK");
+            await AlertService.ShowAlertAsync("Error", $"No se pudo activar la sala: {msgInv}", "OK");
         }
     }
 
     // ====================== UNIRSE CON CÓDIGO ======================
     private async void OnOpenJoinCodeSheetClicked(object? sender, EventArgs e)
     {
-        JoinCodeBackdrop.IsVisible = true;
-        await JoinCodeBackdrop.FadeToAsync(1, 200);
-        JoinCodeSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            JoinCodeSheetModal.FadeToAsync(1, 250),
-            JoinCodeSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
+        await UiHelper.OpenSheetAsync(JoinCodeBackdrop, JoinCodeSheetModal);
     }
 
     private async void OnCloseJoinCodeSheetClicked(object? sender, TappedEventArgs e) => await CloseJoinCodeSheetAsync();
 
-    private async Task CloseJoinCodeSheetAsync()
-    {
-        await Task.WhenAll(
-            JoinCodeSheetModal.FadeToAsync(0, 200),
-            JoinCodeSheetModal.TranslateToAsync(0, 400, 250, Easing.CubicIn)
-        );
-        JoinCodeSheetModal.IsVisible = false;
-        await JoinCodeBackdrop.FadeToAsync(0, 200);
-        JoinCodeBackdrop.IsVisible = false;
-    }
+    private Task CloseJoinCodeSheetAsync() =>
+        UiHelper.CloseSheetAsync(JoinCodeBackdrop, JoinCodeSheetModal, 400);
 
     private async void OnSubmitJoinCodeClicked(object? sender, EventArgs e) => await SubmitJoinCodeAsync();
     private async void OnSubmitJoinCodeClicked(object? sender, TappedEventArgs e) => await SubmitJoinCodeAsync();
@@ -1046,7 +886,7 @@ public partial class DashboardPage : ContentPage
         var codigo = JoinCodeEntry.Text?.Trim().ToUpperInvariant() ?? "";
         if (string.IsNullOrEmpty(codigo))
         {
-            await ShowAlertAsync("Código requerido", "Ingresa el código que te compartió tu arquitecto.", "Entendido");
+            await AlertService.ShowAlertAsync("Código requerido", "Ingresa el código que te compartió tu arquitecto.", "Entendido");
             return;
         }
 
@@ -1063,7 +903,7 @@ public partial class DashboardPage : ContentPage
         }
         else
         {
-            await ShowAlertAsync("Error al vincular", msg, "OK");
+            await AlertService.ShowAlertAsync("Error al vincular", msg, "OK");
         }
     }
 
@@ -1072,37 +912,29 @@ public partial class DashboardPage : ContentPage
         if (UserSession.ActiveProject == null) return;
 
         var proy = UserSession.ActiveProject;
-        string codigoGenerado;
-
-        if (string.IsNullOrWhiteSpace(proy.Codigosalaactiva))
-        {
-            var (okSala, codSala) = await ApiService.ActivarSalaAsync(proy.Idproyecto);
-            codigoGenerado = okSala && !string.IsNullOrWhiteSpace(codSala)
-                ? codSala
-                : $"ARQ-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
-        }
-        else
-        {
-            codigoGenerado = $"ARQ-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
-        }
+        var (okSala, codSala) = await ApiService.ActivarSalaAsync(proy.Idproyecto);
+        string codigoGenerado = okSala && !string.IsNullOrWhiteSpace(codSala)
+            ? codSala
+            : $"ARQ-{Guid.NewGuid().ToString()[..6].ToUpperInvariant()}";
 
         var (success, msg, data) = await ApiService.CrearInvitacionAsync(proy.Idproyecto, codigoGenerado);
+        string codigoFinal = data?.Codigo ?? codigoGenerado;
 
-        if (success && data != null)
+        if (okSala || success)
         {
-            await Clipboard.Default.SetTextAsync(data.Codigo);
+            await Clipboard.Default.SetTextAsync(codigoFinal);
             await CargarProyectosAsync();
             LoadRooms();
-            await ShowAlertAsync("Código Copiado",
-                $"Comparte este código con tu cliente (ya está copiado en tu portapapeles):\n\n{data.Codigo}", "Listo");
+            await AlertService.ShowAlertAsync("Código Copiado",
+                $"Comparte este código con tu cliente (ya está copiado en tu portapapeles):\n\n{codigoFinal}", "Listo");
         }
         else
         {
-            await ShowAlertAsync("Error", $"No se pudo generar la invitación: {msg}", "OK");
+            await AlertService.ShowAlertAsync("Error", $"No se pudo generar la invitación: {msg}", "OK");
         }
     }
 
-    // ====================== ESPACIOS / SUGERENCIAS ======================
+    // ====================== ESPACIOS / SUGERENCIAS / MEDICIONES ======================
     private async void OnVerEspaciosClicked(object? sender, EventArgs e)
     {
         if (UserSession.ActiveProject == null) return;
@@ -1117,107 +949,14 @@ public partial class DashboardPage : ContentPage
         await Navigation.PushModalAsync(new SuggestionsPage(UserSession.ActiveProject.Idproyecto));
     }
 
-    // ====================== MEDICIONES ======================
     private async void OnVerMedicionesClicked(object? sender, EventArgs e)
     {
         if (UserSession.ActiveProject == null) return;
-
         await CloseDetailsSheetAsync();
-
-        MeasurementsBackdrop.IsVisible = true;
-        await MeasurementsBackdrop.FadeToAsync(1, 200);
-        MeasurementsSheetModal.IsVisible = true;
-        await Task.WhenAll(
-            MeasurementsSheetModal.FadeToAsync(1, 250),
-            MeasurementsSheetModal.TranslateToAsync(0, 0, 300, Easing.CubicOut)
-        );
-
-        LoadingMeasurementsIndicator.IsVisible = true;
-        LoadingMeasurementsIndicator.IsRunning = true;
-        MeasurementsCollectionView.ItemsSource = null;
-
-        var mediciones = await ApiService.GetMediciónesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
-
-        LoadingMeasurementsIndicator.IsRunning = false;
-        LoadingMeasurementsIndicator.IsVisible = false;
-
-        MeasurementsCollectionView.ItemsSource = mediciones;
-    }
-
-    private async void OnCloseMeasurementsSheetClicked(object? sender, EventArgs e) => await CloseMeasurementsSheetAsync();
-    private async void OnCloseMeasurementsSheetClicked(object? sender, TappedEventArgs e) => await CloseMeasurementsSheetAsync();
-
-    private async Task CloseMeasurementsSheetAsync()
-    {
-        await Task.WhenAll(
-            MeasurementsSheetModal.FadeToAsync(0, 200),
-            MeasurementsSheetModal.TranslateToAsync(0, 500, 250, Easing.CubicIn)
-        );
-        MeasurementsSheetModal.IsVisible = false;
-        await MeasurementsBackdrop.FadeToAsync(0, 200);
-        MeasurementsBackdrop.IsVisible = false;
+        await Navigation.PushModalAsync(new MeasurementsPage(UserSession.ActiveProject.Idproyecto));
     }
 
     // ====================== HELPERS ======================
-    private async Task ShowToastAsync(string message)
-    {
-        AppleToastMessage.Text = message;
-        AppleToast.IsVisible = true;
-        await AppleToast.FadeToAsync(1, 300);
-        await Task.Delay(3000);
-        await AppleToast.FadeToAsync(0, 300);
-        AppleToast.IsVisible = false;
-    }
-
-    private Task ShowAlertAsync(string title, string message, string cancel)
-        => AlertService.ShowAlertAsync(title, message, cancel);
-
-    private Task<bool> ShowAlertConfirmAsync(string title, string message, string accept, string cancel)
-        => AlertService.ShowAlertAsync(title, message, accept, cancel);
-
-    public void ShowCustomAlert(string title, string message, bool isError = false)
-    {
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            AlertTitle.Text = title;
-            AlertMessage.Text = message;
-
-            if (isError)
-            {
-                AlertIconBox.BackgroundColor = Color.FromArgb("#FAD2E1");
-                AlertIconImage.Source = "ic_error.svg";
-                AlertButton.BackgroundColor = Color.FromArgb("#FFB3C6");
-                AlertButton.Text = "Cerrar";
-            }
-            else
-            {
-                AlertIconBox.BackgroundColor = Color.FromArgb("#D1F4E0");
-                AlertIconImage.Source = "ic_check.svg";
-                AlertButton.BackgroundColor = Color.FromArgb("#A3E7C9");
-                AlertButton.Text = "Continuar";
-            }
-
-            AlertBackdrop.IsVisible = true;
-            AlertModal.IsVisible = true;
-            await Task.WhenAll(
-                AlertBackdrop.FadeToAsync(1, 200),
-                AlertModal.FadeToAsync(1, 250),
-                AlertModal.ScaleToAsync(1, 250, Easing.SpringOut)
-            );
-        });
-    }
-
-    private async void OnCloseAlertClicked(object? sender, EventArgs e) => await CloseAlertAsync();
-    private async void OnCloseAlertClicked(object? sender, TappedEventArgs e) => await CloseAlertAsync();
-
-    private async Task CloseAlertAsync()
-    {
-        await Task.WhenAll(
-            AlertBackdrop.FadeToAsync(0, 200),
-            AlertModal.FadeToAsync(0, 200),
-            AlertModal.ScaleToAsync(0.9, 200, Easing.CubicIn)
-        );
-        AlertBackdrop.IsVisible = false;
-        AlertModal.IsVisible = false;
-    }
+    private Task ShowToastAsync(string message) =>
+        UiHelper.ShowToastAsync(AppleToast, AppleToastMessage, message, 3000);
 }

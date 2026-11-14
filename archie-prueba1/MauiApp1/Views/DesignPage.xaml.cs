@@ -124,32 +124,9 @@ public partial class DesignPage : ContentPage
 
         try
         {
-            string? planJson = null;
+            string? planJson = await ApiService.ObtenerPlanoProyectoAsync(projId.Value);
 
-            // 1. Intentar desde la versión activa (o más reciente con datos)
-            var versiones = await ApiService.GetVersionesByProyectoAsync(projId.Value);
-            if (versiones != null && versiones.Count > 0)
-            {
-                var candidata = versiones
-                    .OrderByDescending(v => v.Esactual == true)
-                    .ThenByDescending(v => v.Numeroversion)
-                    .FirstOrDefault(v => EsJsonPlanoValido(v.Puntosreferencia));
-
-                if (candidata != null)
-                    planJson = candidata.Puntosreferencia;
-            }
-
-            // 2. Fallback a EspacioFisico del proyecto
-            if (!EsJsonPlanoValido(planJson))
-            {
-                var espacio = await ApiService.GetEspacioFisicoByProyectoAsync(projId.Value);
-                if (espacio != null && EsJsonPlanoValido(espacio.Puntosreferencia))
-                {
-                    planJson = espacio.Puntosreferencia;
-                }
-            }
-
-            if (EsJsonPlanoValido(planJson))
+            if (ApiService.EsJsonPlanoValido(planJson))
             {
                 string b64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(planJson!));
                 if (_isWebViewReady)
@@ -163,13 +140,6 @@ public partial class DesignPage : ContentPage
             }
         }
         catch { }
-    }
-
-    private static bool EsJsonPlanoValido(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return false;
-        var trimmed = raw.Trim();
-        return trimmed.StartsWith("{") && trimmed != "{}" && (trimmed.Contains("points") || trimmed.Contains("modules"));
     }
 
     private async void OnBackClicked(object? sender, EventArgs e)
@@ -366,13 +336,13 @@ public partial class DesignPage : ContentPage
         var elegida = ordenadas[idx];
         string? jsonPlano = elegida.Puntosreferencia;
 
-        if (!EsJsonPlanoValido(jsonPlano))
+        if (!ApiService.EsJsonPlanoValido(jsonPlano))
         {
             var espacio = await ApiService.GetEspacioFisicoByProyectoAsync(UserSession.ActiveProject.Idproyecto);
             jsonPlano = espacio?.Puntosreferencia;
         }
 
-        if (EsJsonPlanoValido(jsonPlano))
+        if (ApiService.EsJsonPlanoValido(jsonPlano))
         {
             string b64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonPlano!));
             ViewerWebView.Eval($"if(window.loadDataBase64) window.loadDataBase64('{b64}');");
@@ -416,56 +386,9 @@ public partial class DesignPage : ContentPage
             string jsonData = DesempaquetarJsonWebView(result);
             int idProyecto = UserSession.ActiveProject.Idproyecto;
 
-            // 1. Crear nueva versión de diseño
-            var versiones = await ApiService.GetVersionesByProyectoAsync(idProyecto);
-            int nextVersion = (versiones != null && versiones.Count > 0)
-                ? versiones.Max(v => v.Numeroversion) + 1
-                : 1;
+            var (ok, msg, nextVersion) = await ApiService.GuardarPlanoProyectoAsync(idProyecto, jsonData);
 
-            var nuevaVersion = new CrearVersionDisenoRequest
-            {
-                Idproyecto = idProyecto,
-                Numeroversion = nextVersion,
-                Esactual = true,
-                Fechacreacion = DateTime.UtcNow,
-                Puntosreferencia = jsonData
-            };
-            var (verOk, _, _) = await ApiService.GuardarVersionAsync(nuevaVersion);
-
-            // 2. Guardar respaldo sincronizado en EspacioFisico (__PLANO_CAD__)
-            var existente = await ApiService.GetEspacioFisicoByProyectoAsync(idProyecto);
-            bool espOk;
-            string espMsg;
-
-            if (existente != null && (existente.Descripcion == "__PLANO_CAD__" || string.IsNullOrWhiteSpace(existente.Descripcion)))
-            {
-                existente.Descripcion = "__PLANO_CAD__";
-                existente.Puntosreferencia = jsonData;
-                (espOk, espMsg) = await ApiService.ActualizarEspacioFisicoAsync(existente.Idespaciofisico, existente);
-            }
-            else
-            {
-                var req = new CrearEspacioFisicoRequest
-                {
-                    Idproyecto = idProyecto,
-                    Descripcion = "__PLANO_CAD__",
-                    Puntosreferencia = jsonData
-                };
-                var (okCrear, msgCrear, _) = await ApiService.GuardarEspacioFisicoAsync(req);
-                if (!okCrear && existente != null)
-                {
-                    // Fallback si el servidor remoto aún tiene restricción 1-a-1 en espaciofisico
-                    existente.Puntosreferencia = jsonData;
-                    (espOk, espMsg) = await ApiService.ActualizarEspacioFisicoAsync(existente.Idespaciofisico, existente);
-                }
-                else
-                {
-                    espOk = okCrear;
-                    espMsg = msgCrear;
-                }
-            }
-
-            if (verOk || espOk)
+            if (ok)
             {
                 await AlertService.ShowAlertAsync(
                     "Plano Guardado",
@@ -474,7 +397,7 @@ public partial class DesignPage : ContentPage
             }
             else
             {
-                await AlertService.ShowAlertAsync("Error", "No se pudo guardar el plano: " + espMsg);
+                await AlertService.ShowAlertAsync("Error", "No se pudo guardar el plano: " + msg);
             }
         }
         catch (Exception ex)
