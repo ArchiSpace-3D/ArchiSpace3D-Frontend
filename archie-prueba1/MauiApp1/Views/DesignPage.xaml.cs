@@ -2,6 +2,7 @@ using MauiApp1.Models;
 using MauiApp1.Services;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 
 namespace MauiApp1.Views;
 
@@ -12,6 +13,13 @@ public partial class DesignPage : ContentPage
     private bool _isWebViewReady = false;
     private int? _loadedProjectId = null;
     private string? _pendingBase64Plan = null;
+
+    // CLIENTE
+    private bool _pickMode = false;
+    private bool _enviando = false;
+    private string _versionTexto = "";
+    private string? _zonaNombre, _zonaTipo, _zonaX, _zonaY;
+    private FileResult? _fotoSolicitud;
 
     public DesignPage()
     {
@@ -61,6 +69,23 @@ public partial class DesignPage : ContentPage
                 ? "Gira con un dedo y haz zoom con dos dedos para explorar el modelo."
                 : "Desliza con un dedo o haz zoom con dos dedos. Usa Historial para ver versiones.";
         }
+
+        // CLIENTE: interfaz propia; el arquitecto conserva la suya
+        ArchitectTopBar.IsVisible = esArquitecto;
+        ContextPanel.IsVisible = esArquitecto;
+        ClientTopBar.IsVisible = !esArquitecto;
+        ClientFabs.IsVisible = !esArquitecto;
+
+        if (!esArquitecto)
+        {
+            ClientTitleLabel.Text = UserSession.ActiveProject != null
+                ? UserSession.ActiveProject.Nombre
+                : "Sin proyecto";
+            BtnClient3D.Source = _is3DMode ? "ic_client_2d.svg" : "ic_client_3d.svg";
+            BtnClientSugerir.IsVisible = !_is3DMode;
+            if (_is3DMode) CerrarPanelSolicitud();
+            ActualizarSubtituloCliente();
+        }
     }
 
     private async Task LoadLocalCadViewerAsync()
@@ -77,6 +102,28 @@ public partial class DesignPage : ContentPage
         {
             await AlertService.ShowAlertAsync("Error", "No se pudo iniciar el editor CAD: " + ex.Message);
         }
+    }
+
+    // CLIENTE: recibe archie://zone?... desde el HTML
+    private void OnWebViewNavigating(object? sender, WebNavigatingEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Url) ||
+            !e.Url.StartsWith("archie://", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        e.Cancel = true;
+        if (UserSession.EsArquitecto) return;
+
+        try
+        {
+            var uri = new Uri(e.Url);
+            if (!uri.Host.Equals("zone", StringComparison.OrdinalIgnoreCase)) return;
+
+            var q = HttpUtility.ParseQueryString(uri.Query);
+            string? name = q["name"], type = q["type"], x = q["x"], y = q["y"];
+            MainThread.BeginInvokeOnMainThread(() => AbrirPanelSolicitud(name, type, x, y));
+        }
+        catch { }
     }
 
     private async void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
@@ -114,6 +161,8 @@ public partial class DesignPage : ContentPage
     {
         int? projId = UserSession.ActiveProject?.Idproyecto;
         _loadedProjectId = projId;
+
+        if (!UserSession.EsArquitecto) _ = ActualizarVersionClienteAsync(); // CLIENTE
 
         if (projId == null)
         {
@@ -352,6 +401,13 @@ public partial class DesignPage : ContentPage
                 await ApiService.MarcarVersionComoActualAsync(elegida.Idversiondiseno, UserSession.ActiveProject.Idproyecto);
             }
 
+            // CLIENTE: reflejar la versión que se está viendo
+            if (!UserSession.EsArquitecto)
+            {
+                _versionTexto = $" · v{elegida.Numeroversion}";
+                ActualizarSubtituloCliente();
+            }
+
             await AlertService.ShowAlertAsync("Versión Cargada", $"Se cargó la Versión {elegida.Numeroversion} en el visor.", "OK");
         }
         else
@@ -425,5 +481,293 @@ public partial class DesignPage : ContentPage
             jsonData = jsonData.Trim('"').Replace("\\\"", "\"").Replace("\\\\", "\\");
         }
         return jsonData;
+    }
+
+    // =====================================================================
+    // CLIENTE
+    // =====================================================================
+
+    private void ActualizarSubtituloCliente()
+    {
+        ClientSubtitleLabel.Text = _pickMode
+            ? "Toca una zona del plano"
+            : "Solo lectura" + _versionTexto;
+    }
+
+    private async Task ActualizarVersionClienteAsync()
+    {
+        _versionTexto = "";
+        try
+        {
+            if (UserSession.ActiveProject != null)
+            {
+                var versiones = await ApiService.GetVersionesByProyectoAsync(UserSession.ActiveProject.Idproyecto);
+                if (versiones != null && versiones.Count > 0)
+                {
+                    var actual = versiones.FirstOrDefault(v => v.Esactual == true)
+                                 ?? versiones.OrderByDescending(v => v.Numeroversion).First();
+                    _versionTexto = $" · v{actual.Numeroversion}";
+                }
+            }
+        }
+        catch { }
+        ActualizarSubtituloCliente();
+    }
+
+    // La versión (subtítulo) abre el historial, así el cliente no pierde esa función
+    private void OnClientSubtitleTapped(object? sender, EventArgs e)
+    {
+        if (_pickMode) return;
+        OnHistorialClicked(null, EventArgs.Empty);
+    }
+
+    // ---- Desplegable de proyectos ----
+
+    private async void OnProjectSelectorTapped(object? sender, EventArgs e)
+    {
+        if (ProjectDropdown.IsVisible)
+        {
+            CerrarDropdown();
+            return;
+        }
+
+        try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); } catch { }
+
+        var proyectos = new List<ProyectoDto>();
+        try
+        {
+            var vinculados = await ApiService.GetProyectosByClienteAsync(UserSession.Idusuario);
+            if (vinculados != null) proyectos.AddRange(vinculados);
+        }
+        catch { }
+
+        // El proyecto activo (el que ya venía del Inicio) siempre aparece en la lista
+        if (UserSession.ActiveProject is ProyectoDto activoActual &&
+            !proyectos.Any(p => p.Idproyecto == activoActual.Idproyecto))
+        {
+            proyectos.Insert(0, activoActual);
+        }
+
+        ProjectListHost.Children.Clear();
+
+        if (proyectos.Count == 0)
+        {
+            var vacio = new Label { Text = "No tienes proyectos vinculados", FontSize = 13, Padding = new Thickness(12, 10) };
+            vacio.SetAppThemeColor(Label.TextColorProperty, Color.FromArgb("#5B6478"), Color.FromArgb("#94A3B8"));
+            ProjectListHost.Children.Add(vacio);
+        }
+        else
+        {
+            foreach (var p in proyectos)
+            {
+                bool activo = p.Idproyecto == UserSession.ActiveProject?.Idproyecto;
+
+                var nombre = new Label
+                {
+                    Text = p.Nombre,
+                    FontSize = 15,
+                    FontAttributes = activo ? FontAttributes.Bold : FontAttributes.None,
+                    LineBreakMode = LineBreakMode.TailTruncation,
+                    MaxLines = 1,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                nombre.SetAppThemeColor(Label.TextColorProperty, Color.FromArgb("#1F2A44"), Color.FromArgb("#FFFFFF"));
+
+                var punto = new BoxView
+                {
+                    WidthRequest = 8,
+                    HeightRequest = 8,
+                    CornerRadius = 4,
+                    Color = Color.FromArgb("#3B5FB5"),
+                    VerticalOptions = LayoutOptions.Center,
+                    IsVisible = activo
+                };
+
+                var fila = new Grid
+                {
+                    ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+                    Padding = new Thickness(12, 12),
+                    ColumnSpacing = 10
+                };
+                fila.Add(nombre, 0, 0);
+                fila.Add(punto, 1, 0);
+                if (activo)
+                    fila.SetAppThemeColor(VisualElement.BackgroundColorProperty, Color.FromArgb("#EEF2FD"), Color.FromArgb("#26304F"));
+
+                var tap = new TapGestureRecognizer();
+                var proyectoElegido = p;
+                tap.Tapped += async (_, _) => await SeleccionarProyectoAsync(proyectoElegido);
+                fila.GestureRecognizers.Add(tap);
+
+                ProjectListHost.Children.Add(fila);
+            }
+        }
+
+        ProjectDropdown.IsVisible = true;
+        ClientBackdrop.IsVisible = true;
+        ClientChevron.Rotation = 180;
+    }
+    private async Task SeleccionarProyectoAsync(ProyectoDto proyecto)
+    {
+        CerrarDropdown();
+        CerrarPanelSolicitud();
+
+        UserSession.ActiveProject = proyecto;
+        ClientTitleLabel.Text = proyecto.Nombre;
+        await CargarPlanoProyectoActivoAsync();
+    }
+
+    private void CerrarDropdown()
+    {
+        ProjectDropdown.IsVisible = false;
+        ClientBackdrop.IsVisible = false;
+        ClientChevron.Rotation = 0;
+    }
+
+    private void OnDropdownBackdropTapped(object? sender, EventArgs e) => CerrarDropdown();
+
+    // ---- Solicitud de cambio ----
+
+    private void OnClientSugerirClicked(object? sender, EventArgs e)
+    {
+        try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); } catch { }
+
+        if (RequestPanel.IsVisible)
+        {
+            CerrarPanelSolicitud();
+            return;
+        }
+
+        _zonaNombre = null; _zonaTipo = null; _zonaX = null; _zonaY = null;
+        _pickMode = true;
+        if (_isWebViewReady) ViewerWebView.Eval("if(window.setPickMode) window.setPickMode(true);");
+
+        RequestZoneLabel.Text = "Sin zona seleccionada";
+        MostrarPanelSolicitud();
+    }
+
+    private void AbrirPanelSolicitud(string? nombre, string? tipo, string? x, string? y)
+    {
+        if (_is3DMode) return;
+
+        try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); } catch { }
+
+        _zonaNombre = string.IsNullOrWhiteSpace(nombre) ? "Zona del plano" : nombre;
+        _zonaTipo = tipo;
+        _zonaX = x;
+        _zonaY = y;
+
+        if (!_pickMode)
+        {
+            _pickMode = true;
+            ViewerWebView.Eval("if(window.setPickMode) window.setPickMode(true);");
+        }
+
+        RequestZoneLabel.Text = _zonaNombre;
+        MostrarPanelSolicitud();
+    }
+
+    private void MostrarPanelSolicitud()
+    {
+        CerrarDropdown();
+        RequestPanel.IsVisible = true;
+        BottomTabBar.IsVisible = false;
+        ActualizarSubtituloCliente();
+    }
+
+    private void CerrarPanelSolicitud()
+    {
+        _pickMode = false;
+        _zonaNombre = null; _zonaTipo = null; _zonaX = null; _zonaY = null;
+        _fotoSolicitud = null;
+
+        RequestEditor.Text = string.Empty;
+        BtnRequestPhoto.SetAppThemeColor(VisualElement.BackgroundColorProperty, Color.FromArgb("#F0F2F7"), Color.FromArgb("#2C2C32"));
+        RequestPanel.IsVisible = false;
+        BottomTabBar.IsVisible = true;
+
+        if (_isWebViewReady) ViewerWebView.Eval("if(window.setPickMode) window.setPickMode(false);");
+        ActualizarSubtituloCliente();
+    }
+
+    private void OnRequestCloseClicked(object? sender, EventArgs e) => CerrarPanelSolicitud();
+
+    private async void OnRequestPhotoClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            var foto = await MediaPicker.Default.PickPhotoAsync();
+            if (foto == null) return;
+            _fotoSolicitud = foto;
+            BtnRequestPhoto.BackgroundColor = Color.FromArgb("#D3E0FA");
+        }
+        catch (Exception ex)
+        {
+            await AlertService.ShowAlertAsync("Error", "No se pudo adjuntar la foto: " + ex.Message);
+        }
+    }
+
+    private async void OnRequestSendClicked(object? sender, EventArgs e)
+    {
+        if (_enviando) return;
+
+        string texto = RequestEditor.Text?.Trim() ?? "";
+        if (texto.Length == 0)
+        {
+            await AlertService.ShowAlertAsync("Solicitud", "Describe el cambio que necesitas antes de enviar.");
+            return;
+        }
+
+        if (UserSession.ActiveProject == null)
+        {
+            await AlertService.ShowAlertAsync("Proyecto Requerido", "Selecciona un proyecto para enviar la solicitud.");
+            return;
+        }
+
+        _enviando = true;
+        BtnRequestSend.IsEnabled = false;
+
+        try
+        {
+            // La zona viaja dentro de la descripción para que el arquitecto sepa dónde es el cambio
+            string zona = _zonaNombre ?? "General";
+            string descripcion = (_zonaX != null && _zonaY != null)
+                ? $"[{zona} · x:{_zonaX} m, y:{_zonaY} m] {texto}"
+                : $"[{zona}] {texto}";
+
+            // Título corto (el mismo largo máximo que usaba el flujo anterior)
+            string prefijo = $"[{zona}] ";
+            int max = Math.Max(10, 50 - prefijo.Length);
+            string resumen = texto.Length > max ? texto[..max] + "…" : texto;
+
+            var request = new CrearSugerenciaRequest
+            {
+                Idproyecto = UserSession.ActiveProject.Idproyecto,
+                Idusuario = UserSession.Idusuario,
+                Titulo = prefijo + resumen,
+                Descripcion = descripcion
+            };
+
+            var (ok, msg, _) = await ApiService.CrearSugerenciaAsync(request);
+
+            if (ok)
+            {
+                CerrarPanelSolicitud();
+                await AlertService.ShowAlertAsync("Solicitud enviada", "El arquitecto recibirá tu solicitud.", "OK");
+            }
+            else
+            {
+                await AlertService.ShowAlertAsync("Error", "No se pudo enviar la solicitud: " + msg);
+            }
+        }
+        catch (Exception ex)
+        {
+            await AlertService.ShowAlertAsync("Error", "Excepción al enviar: " + ex.Message);
+        }
+        finally
+        {
+            _enviando = false;
+            BtnRequestSend.IsEnabled = true;
+        }
     }
 }

@@ -12,10 +12,12 @@
                  StyleId="CadEditorWebView"
                  HorizontalOptions="Fill"
                  VerticalOptions="Fill"
+                 Navigating="OnWebViewNavigating"
                  Navigated="OnWebViewNavigated" />
 
-        <!-- Floating Top Bar -->
-        <Border BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE1C1C1E}"
+        <!-- ================= ARQUITECTO (sin cambios) ================= -->
+        <Border x:Name="ArchitectTopBar"
+                BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#EE1C1C1E}"
                 StrokeThickness="0"
                 HorizontalOptions="Fill"
                 VerticalOptions="Start"
@@ -67,7 +69,6 @@
             </Grid>
         </Border>
 
-        <!-- Floating Right CAD Toolbar (Scrollable so it never overlaps Top Bar or Bottom ContextPanel) -->
         <ScrollView x:Name="ToolbarScroll"
                     HorizontalOptions="End"
                     VerticalOptions="Start"
@@ -79,7 +80,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnModoMoverClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnModoLibre"
@@ -87,7 +90,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnModoLibreClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnModoMuros"
@@ -95,7 +100,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnModoMurosClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnOrto"
@@ -103,7 +110,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnToggleOrtoClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnModoModulos"
@@ -111,7 +120,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnModoModulosClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnPuerta"
@@ -119,7 +130,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnPuertaClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnVentana"
@@ -127,7 +140,9 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E22}"
                              Clicked="OnVentanaClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
 
                 <ImageButton x:Name="BtnImportarDXF"
@@ -135,12 +150,13 @@
                              Padding="11" WidthRequest="44" HeightRequest="44" CornerRadius="22"
                              BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#13558F}"
                              Clicked="OnImportarDXFClicked">
-                    <ImageButton.Shadow><Shadow Brush="#000000" Opacity="0.18" Offset="0,3" Radius="6"/></ImageButton.Shadow>
+                    <ImageButton.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.18" Offset="0,3" Radius="6"/>
+                    </ImageButton.Shadow>
                 </ImageButton>
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Floating Bottom Contextual Panel -->
         <Border x:Name="ContextPanel"
                 BackgroundColor="{AppThemeBinding Light=#F2FFFFFF, Dark=#F21C1C1E}"
                 StrokeThickness="0"
@@ -148,8 +164,12 @@
                 VerticalOptions="End"
                 Margin="16,0,16,96"
                 Padding="16,12">
-            <Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape>
-            <Border.Shadow><Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="14"/></Border.Shadow>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.15" Offset="0,-4" Radius="14"/>
+            </Border.Shadow>
 
             <VerticalStackLayout Spacing="6">
                 <Label x:Name="ContextTitle"
@@ -199,6 +219,199 @@
             </VerticalStackLayout>
         </Border>
 
-        <controls:FloatingTabBar SelectedIndex="1" VerticalOptions="End" />
+        <!-- ================= CLIENTE ================= -->
+
+        <!-- Fondo transparente para cerrar el desplegable al tocar fuera.
+             (Se usa Grid y no BoxView: un BoxView transparente se pinta oscuro en Android) -->
+        <Grid x:Name="ClientBackdrop" BackgroundColor="Transparent" IsVisible="False">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnDropdownBackdropTapped"/>
+            </Grid.GestureRecognizers>
+        </Grid>
+
+        <!-- Barra superior -->
+        <Border x:Name="ClientTopBar"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light=#F5FFFFFF, Dark=#F51C1C1E}"
+                Stroke="{AppThemeBinding Light=#DDE2EB, Dark=#2C2C32}"
+                StrokeThickness="1"
+                HorizontalOptions="Fill"
+                VerticalOptions="Start"
+                Margin="16,42,16,0"
+                Padding="12,12">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.06" Offset="0,3" Radius="10"/>
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="36,*,36">
+                <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="Transparent" VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackClicked"/>
+                    </Border.GestureRecognizers>
+                    <Image Source="{AppThemeBinding Light=ic_back.svg, Dark=ic_back_white.svg}"
+                           WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                        <Label x:Name="ClientTitleLabel"
+                               Text="Proyecto"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               MaximumWidthRequest="200"
+                               LineBreakMode="TailTruncation"
+                               MaxLines="1"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#1F2A44, Dark=#FFFFFF}"/>
+                        <Image x:Name="ClientChevron"
+                               Source="{AppThemeBinding Light=ic_client_chevron.svg, Dark=ic_client_chevron_white.svg}"
+                               WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProjectSelectorTapped"/>
+                        </HorizontalStackLayout.GestureRecognizers>
+                    </HorizontalStackLayout>
+
+                    <Label x:Name="ClientSubtitleLabel"
+                           Text="Solo lectura"
+                           FontSize="12"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#5B6478, Dark=#94A3B8}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnClientSubtitleTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Desplegable de proyectos vinculados -->
+        <Border x:Name="ProjectDropdown"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                Stroke="{AppThemeBinding Light=#DDE2EB, Dark=#2C2C32}"
+                StrokeThickness="1"
+                HorizontalOptions="Fill"
+                VerticalOptions="Start"
+                Margin="16,116,16,0"
+                Padding="6"
+                MaximumHeightRequest="280">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.14" Offset="0,6" Radius="14"/>
+            </Border.Shadow>
+            <ScrollView>
+                <VerticalStackLayout x:Name="ProjectListHost" Spacing="2"/>
+            </ScrollView>
+        </Border>
+
+        <!-- Botones flotantes: 3D/2D y sugerencias -->
+        <VerticalStackLayout x:Name="ClientFabs"
+                             IsVisible="False"
+                             Spacing="12"
+                             HorizontalOptions="End"
+                             VerticalOptions="End"
+                             Margin="0,0,16,112">
+            <ImageButton x:Name="BtnClient3D"
+                         Source="ic_client_3d.svg"
+                         Padding="12" WidthRequest="48" HeightRequest="48" CornerRadius="24"
+                         BackgroundColor="{AppThemeBinding Light=#E6ECFB, Dark=#26304F}"
+                         Clicked="OnToggle3DClicked">
+                <ImageButton.Shadow>
+                    <Shadow Brush="#3B5FB5" Opacity="0.18" Offset="0,3" Radius="8"/>
+                </ImageButton.Shadow>
+            </ImageButton>
+            <ImageButton x:Name="BtnClientSugerir"
+                         Source="ic_client_suggest.svg"
+                         Padding="12" WidthRequest="48" HeightRequest="48" CornerRadius="24"
+                         BackgroundColor="{AppThemeBinding Light=#E6ECFB, Dark=#26304F}"
+                         Clicked="OnClientSugerirClicked">
+                <ImageButton.Shadow>
+                    <Shadow Brush="#3B5FB5" Opacity="0.18" Offset="0,3" Radius="8"/>
+                </ImageButton.Shadow>
+            </ImageButton>
+        </VerticalStackLayout>
+
+        <!-- Modal de solicitud de cambio -->
+        <Border x:Name="RequestPanel"
+                IsVisible="False"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+                StrokeThickness="0"
+                HorizontalOptions="Fill"
+                VerticalOptions="End"
+                Margin="16,0,16,16"
+                Padding="16,14,16,16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="22"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.08" Offset="0,4" Radius="8"/>
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="12">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <Image Source="{AppThemeBinding Light=ic_client_pin.svg, Dark=ic_client_pin_white.svg}"
+                           WidthRequest="18" HeightRequest="18" VerticalOptions="Center"/>
+                    <Label x:Name="RequestZoneLabel"
+                           Grid.Column="1"
+                           Text="Sin zona seleccionada"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           LineBreakMode="TailTruncation"
+                           MaxLines="1"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#1F2A44, Dark=#FFFFFF}"/>
+                    <ImageButton Grid.Column="2"
+                                 Source="{AppThemeBinding Light=ic_client_close.svg, Dark=ic_client_close_white.svg}"
+                                 Padding="8" WidthRequest="34" HeightRequest="34"
+                                 BackgroundColor="Transparent"
+                                 Clicked="OnRequestCloseClicked"/>
+                </Grid>
+
+                <Border BackgroundColor="{AppThemeBinding Light=#F3F5FA, Dark=#26262B}"
+                        Stroke="{AppThemeBinding Light=#D9DEE8, Dark=#38383F}"
+                        StrokeThickness="1"
+                        Padding="12,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Editor x:Name="RequestEditor"
+                            Placeholder="Describe el cambio que necesitas..."
+                            PlaceholderColor="#8A93A6"
+                            HeightRequest="64"
+                            FontSize="14"
+                            MaxLength="500"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#1F2A44, Dark=#FFFFFF}"/>
+                </Border>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <ImageButton x:Name="BtnRequestPhoto"
+                                 Source="{AppThemeBinding Light=ic_client_camera.svg, Dark=ic_client_camera_white.svg}"
+                                 Padding="12" WidthRequest="48" HeightRequest="48" CornerRadius="14"
+                                 BackgroundColor="{AppThemeBinding Light=#F0F2F7, Dark=#2C2C32}"
+                                 Clicked="OnRequestPhotoClicked"/>
+                    <Button x:Name="BtnRequestSend"
+                            Grid.Column="1"
+                            Text="Enviar"
+                            ImageSource="ic_client_arrow.svg"
+                            ContentLayout="Right,8"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#1F2A44"
+                            BackgroundColor="#D3E0FA"
+                            CornerRadius="14"
+                            HeightRequest="48"
+                            Clicked="OnRequestSendClicked"/>
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <controls:FloatingTabBar x:Name="BottomTabBar" SelectedIndex="1" VerticalOptions="End" />
     </Grid>
 </ContentPage>
+    

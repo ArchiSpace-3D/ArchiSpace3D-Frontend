@@ -199,22 +199,36 @@ namespace MauiApp1.Services
 
         // ─── Autenticación y Usuarios ──────────────────────────────────────
 
-        public static Task<(bool Success, string Message, LoginResponse? Data)> LoginAsync(string email, string contrasena) =>
-            SendAsync<LoginResponse>(
+        public static async Task<(bool Success, string Message, LoginResponse? Data)> LoginAsync(string email, string contrasena)
+        {
+            var result = await SendAsync<LoginResponse>(
                 HttpMethod.Post,
                 "usuario/login",
                 new LoginRequest { Email = email, Contrasena = contrasena },
                 requiresAuth: false);
 
+            if (result.Success && result.Data != null)
+                await UserSession.SetSessionAsync(result.Data, UserSession.BaseUrl);
+
+            return result;
+        }
+
         public static Task<(bool Success, string Message, LoginResponse? Data)> LoginAsync(string _, string email, string contrasena) =>
             LoginAsync(email, contrasena);
 
-        public static Task<(bool Success, string Message, LoginResponse? Data)> GoogleLoginAsync(string accessToken) =>
-            SendAsync<LoginResponse>(
+        public static async Task<(bool Success, string Message, LoginResponse? Data)> GoogleLoginAsync(string accessToken)
+        {
+            var result = await SendAsync<LoginResponse>(
                 HttpMethod.Post,
                 "usuario/google-login",
                 new { accessToken },
                 requiresAuth: false);
+
+            if (result.Success && result.Data != null)
+                await UserSession.SetSessionAsync(result.Data, UserSession.BaseUrl);
+
+            return result;
+        }
 
         public static Task<(bool Success, string Message)> RegistrarUsuarioAsync(UsuarioRegistroRequest request) =>
             SendAsync(HttpMethod.Post, "usuario", request, requiresAuth: false);

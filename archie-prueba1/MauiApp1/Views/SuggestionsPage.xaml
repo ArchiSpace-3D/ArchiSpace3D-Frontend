@@ -1,92 +1,285 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:MauiApp1.Views"
              x:Class="MauiApp1.Views.SuggestionsPage"
-             BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#0B1120}"
+             BackgroundColor="{AppThemeBinding Light=#F3F3F9, Dark=#121317}"
              Title="Sugerencias">
 
-    <Grid>
-        <ScrollView>
-            <VerticalStackLayout Padding="20,40,20,100" Spacing="25">
-                
-                <Grid ColumnDefinitions="*,Auto">
-                    <VerticalStackLayout>
-                        <Label Text="Ideas y Sugerencias" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"/>
-                        <Label Text="Buzón de ideas del proyecto" FontSize="14" TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}"/>
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- ===== Proyecto + cerrar ===== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="20,44,20,0">
+            <Border HorizontalOptions="Start" VerticalOptions="Center"
+                    StrokeThickness="0" Padding="10,6"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1C20}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="14"/>
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="6">
+                    <Path Data="M80-120v-720h400v160h400v560H80Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h320v-400H480v80h80v80h-80v80h80v80h-80v80Zm160-240v-80h80v80h-80Zm0 160v-80h80v80h-80Z"
+                          Fill="{AppThemeBinding Light=#002753, Dark=#A9C7FF}"
+                          Aspect="Uniform" WidthRequest="13" HeightRequest="13" VerticalOptions="Center"/>
+                    <Label x:Name="ProjectChipLabel" Text="Proyecto"
+                           FontSize="11" FontAttributes="Bold"
+                           LineBreakMode="TailTruncation" MaxLines="1" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="1" WidthRequest="36" HeightRequest="36" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light=#E8E8ED, Dark=#282A2E}">
+                <Border.StrokeShape>
+                    <Ellipse/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseClicked"/>
+                </Border.GestureRecognizers>
+                <Path Data="M6 6L18 18 M18 6L6 18"
+                      Stroke="{AppThemeBinding Light=#434750, Dark=#C3C6D1}"
+                      StrokeThickness="2" StrokeLineCap="Round"
+                      Aspect="Uniform" WidthRequest="12" HeightRequest="12"
+                      HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+        <!-- ===== Título + total ===== -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="20,14,20,0">
+            <Label Text="Sugerencias" FontSize="30" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+            <Label x:Name="CountLabel" Grid.Column="1" Text="0 en total"
+                   FontSize="11" FontAttributes="Bold" VerticalOptions="End" Margin="0,0,0,6"
+                   TextColor="{AppThemeBinding Light=#434750, Dark=#C3C6D1}"/>
+        </Grid>
+
+        <!-- ===== Pestañas ===== -->
+        <Border Grid.Row="2" Margin="20,16,20,14" Padding="4" StrokeThickness="0"
+                BackgroundColor="{AppThemeBinding Light=#E8E8ED, Dark=#1E2024}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="14"/>
+            </Border.StrokeShape>
+
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                <Border x:Name="TabTodas" Grid.Column="0" StrokeThickness="0" Padding="0,9">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="11"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label x:Name="LblTodas" Text="Todas" FontSize="12" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Border x:Name="TabRevision" Grid.Column="1" StrokeThickness="0" Padding="0,9">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="11"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label x:Name="LblRevision" Text="En revisión" FontSize="12" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Border x:Name="TabAprobadas" Grid.Column="2" StrokeThickness="0" Padding="0,9">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="11"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTabTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label x:Name="LblAprobadas" Text="Aprobadas" FontSize="12" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ===== Lista: una sola tarjeta con filas ===== -->
+        <ScrollView Grid.Row="3">
+            <VerticalStackLayout Padding="20,0,20,110" Spacing="0">
+
+                <Border x:Name="ListCard" StrokeThickness="0" Padding="0"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1A1C20}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#002753" Opacity="0.06" Offset="0,4" Radius="10"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout x:Name="ListHost" Spacing="0">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="14,14,12,14">
+
+                                        <!-- Icono de la zona -->
+                                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeThickness="0"
+                                                VerticalOptions="Start"
+                                                BackgroundColor="{Binding TileBg}">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="12"/>
+                                            </Border.StrokeShape>
+                                            <Path Data="{Binding IconoGeometry}"
+                                                  Fill="{Binding IconoFill}"
+                                                  Aspect="Uniform" WidthRequest="20" HeightRequest="20"
+                                                  HorizontalOptions="Center" VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <!-- Contenido -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                <Label Text="{Binding Zona}"
+                                                       FontSize="14" FontAttributes="Bold"
+                                                       LineBreakMode="TailTruncation" MaxLines="1" VerticalOptions="Center"
+                                                       TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+                                                <Border Grid.Column="1" StrokeThickness="0" Padding="9,3" VerticalOptions="Center"
+                                                        BackgroundColor="{Binding ChipBg}">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="8"/>
+                                                    </Border.StrokeShape>
+                                                    <Label Text="{Binding EstadoTexto}" FontSize="10" FontAttributes="Bold"
+                                                           TextColor="{Binding ChipText}"/>
+                                                </Border>
+                                            </Grid>
+
+                                            <Label Text="{Binding Texto}"
+                                                   FontSize="13" LineHeight="1.2"
+                                                   TextColor="{AppThemeBinding Light=#434750, Dark=#C3C6D1}"/>
+
+                                            <Label Text="{Binding Meta}"
+                                                   FontSize="11" FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+
+                                            <!-- Acciones (solo arquitecto) -->
+                                            <HorizontalStackLayout Spacing="10" Margin="0,8,0,0" IsVisible="{Binding MostrarAcciones}">
+                                                <Button Text="Aprobar" HeightRequest="35" FontSize="12" CornerRadius="17"
+                                                        BackgroundColor="#E8F5E9" TextColor="#2E7D32"
+                                                        CommandParameter="{Binding .}" Clicked="OnApproveClicked"/>
+                                                <Button Text="Rechazar" HeightRequest="35" FontSize="12" CornerRadius="17"
+                                                        BackgroundColor="#FFEBEE" TextColor="#C62828"
+                                                        CommandParameter="{Binding .}" Clicked="OnRejectClicked"/>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <!-- Flecha -->
+                                        <Path Grid.Column="2" Data="M9 6L15 12 9 18"
+                                              Stroke="{AppThemeBinding Light=#737781, Dark=#8D919B}"
+                                              StrokeThickness="2" StrokeLineCap="Round" StrokeLineJoin="Round"
+                                              Aspect="Uniform" WidthRequest="7" HeightRequest="12"
+                                              VerticalOptions="Center"/>
+                                    </Grid>
+
+                                    <BoxView HeightRequest="1" Margin="14,0,0,0" IsVisible="{Binding MostrarDivisor}"
+                                             Color="{AppThemeBinding Light=#EEEDF3, Dark=#282A2E}"/>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
-                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#0A4174, Dark=#1E293B}" WidthRequest="44" HeightRequest="44" StrokeThickness="0" VerticalOptions="Center">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="22"/></Border.StrokeShape>
-                        <Image Source="ic_close_white.svg" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseClicked"/></Border.GestureRecognizers>
-                    </Border>
-                </Grid>
+                </Border>
 
-                <Button Text="Nueva Sugerencia" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontAttributes="Bold" Clicked="OnNewSuggestionClicked"/>
+                <!-- Vacío -->
+                <VerticalStackLayout x:Name="EmptyState" IsVisible="False" HorizontalOptions="Center" Spacing="8" Padding="20,60,20,20">
+                    <Label Text="Buzón vacío" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+                    <Label Text="No hay ideas ni sugerencias aún." FontSize="14"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light=#434750, Dark=#C3C6D1}"/>
+                </VerticalStackLayout>
 
-                <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" Color="{AppThemeBinding Light=#0A4174, Dark=#7BBDE8}" HorizontalOptions="Center" Margin="0,20"/>
-                
-                <CollectionView x:Name="SuggestionsCollectionView">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" Margin="0,0,0,12" Padding="15">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
-                                <Border.Shadow><Shadow Brush="#000000" Opacity="0.05" Offset="0,2" Radius="5"/></Border.Shadow>
-                                
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                    <VerticalStackLayout Spacing="5">
-                                        <Label Text="{Binding Titulo}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="16" FontAttributes="Bold"/>
-                                        <Label Text="{Binding Descripcion}" TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="13"/>
-                                    </VerticalStackLayout>
-                                    
-                                    <Border Grid.Column="1" BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#1E1E1E}" StrokeThickness="0" Padding="10,5" VerticalOptions="Start">
-                                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                                        <Label Text="{Binding Estado}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#0A4174, Dark=#93C5FD}"/>
-                                    </Border>
-
-                                    <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="10" Margin="0,15,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type views:SuggestionsPage}}, Path=IsArquitecto}">
-                                        <Button Text="Aprobar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#E8F5E9" TextColor="#2E7D32" CommandParameter="{Binding .}" Clicked="OnApproveClicked"/>
-                                        <Button Text="Rechazar" HeightRequest="35" FontSize="12" CornerRadius="17" BackgroundColor="#FFEBEE" TextColor="#C62828" CommandParameter="{Binding .}" Clicked="OnRejectClicked"/>
-                                    </HorizontalStackLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                    <CollectionView.EmptyView>
-                        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Padding="20">
-                            <Label Text="Buzón vacío" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
-                            <Label Text="No hay ideas ni sugerencias aún." TextColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" FontSize="14" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-                        </VerticalStackLayout>
-                    </CollectionView.EmptyView>
-                </CollectionView>
-
+                <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False"
+                                   Color="{AppThemeBinding Light=#002753, Dark=#A9C7FF}"
+                                   HorizontalOptions="Center" Margin="0,30,0,0"/>
             </VerticalStackLayout>
         </ScrollView>
 
-        <BoxView x:Name="SheetBackdrop" BackgroundColor="#99000000" Opacity="0" IsVisible="False" InputTransparent="True">
-            <BoxView.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseSheetClicked"/></BoxView.GestureRecognizers>
+        <!-- ===== Botón inferior ===== -->
+        <Button Grid.Row="0" Grid.RowSpan="4"
+                Text="Nueva sugerencia"
+                ImageSource="{AppThemeBinding Light=ms_add.svg, Dark=ms_add_dark.svg}"
+                ContentLayout="Left,10"
+                VerticalOptions="End"
+                Margin="20,0,20,20"
+                HeightRequest="52"
+                CornerRadius="16"
+                FontSize="13"
+                FontAttributes="Bold"
+                BackgroundColor="{AppThemeBinding Light=#D2E0FE, Dark=#3C4961}"
+                TextColor="{AppThemeBinding Light=#002753, Dark=#A9C7FF}"
+                Clicked="OnNewSuggestionClicked">
+            <Button.Shadow>
+                <Shadow Brush="#83A9EA" Opacity="0.38" Offset="0,6" Radius="10"/>
+            </Button.Shadow>
+        </Button>
+
+        <!-- ===== Hoja "Enviar idea" ===== -->
+        <BoxView x:Name="SheetBackdrop" Grid.Row="0" Grid.RowSpan="4"
+                 BackgroundColor="#99000000" Opacity="0" IsVisible="False" InputTransparent="True">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseSheetClicked"/>
+            </BoxView.GestureRecognizers>
         </BoxView>
-        <Border x:Name="NewSuggestionSheet" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#121212}" StrokeThickness="0" VerticalOptions="End" HorizontalOptions="Fill" Margin="0" IsVisible="False" Opacity="0" TranslationY="500">
-            <Border.StrokeShape><RoundRectangle CornerRadius="24,24,0,0"/></Border.StrokeShape>
-            <VerticalStackLayout Spacing="15" Padding="24,20,24,40">
+
+        <Border x:Name="NewSuggestionSheet" Grid.Row="0" Grid.RowSpan="4"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#0C0E12}"
+                StrokeThickness="0"
+                VerticalOptions="End" HorizontalOptions="Fill"
+                Margin="0" IsVisible="False" Opacity="0" TranslationY="500">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24,24,0,0"/>
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="14" Padding="20,20,20,32">
                 <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="Enviar Idea" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}"/>
-                    <Image Grid.Column="1" Source="{AppThemeBinding Light=ic_close.svg, Dark=ic_close_white.svg}" WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
-                        <Image.GestureRecognizers><TapGestureRecognizer Tapped="OnCloseSheetClicked"/></Image.GestureRecognizers>
-                    </Image>
+                    <Label Text="Enviar idea" FontSize="18" FontAttributes="Bold" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"/>
+                    <Border Grid.Column="1" WidthRequest="36" HeightRequest="36" StrokeThickness="0"
+                            BackgroundColor="{AppThemeBinding Light=#E8E8ED, Dark=#282A2E}">
+                        <Border.StrokeShape>
+                            <Ellipse/>
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCloseSheetClicked"/>
+                        </Border.GestureRecognizers>
+                        <Path Data="M6 6L18 18 M18 6L6 18"
+                              Stroke="{AppThemeBinding Light=#434750, Dark=#C3C6D1}"
+                              StrokeThickness="2" StrokeLineCap="Round"
+                              Aspect="Uniform" WidthRequest="12" HeightRequest="12"
+                              HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
                 </Grid>
-                
-                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="50">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Entry x:Name="EntryTitulo" Placeholder="Título de la idea (ej. Iluminación cálida)" PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,0" VerticalOptions="Center"/>
-                </Border>
-                
-                <Border BackgroundColor="{AppThemeBinding Light=#F4F6F8, Dark=#000000}" StrokeThickness="0" HeightRequest="100">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
-                    <Editor x:Name="EntryDesc" Placeholder="Detalles..." PlaceholderColor="{AppThemeBinding Light=#6EA2B3, Dark=#7BBDE8}" TextColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" Margin="15,10"/>
+
+                <Border StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light=#C3C6D1, Dark=#434750}"
+                        BackgroundColor="{AppThemeBinding Light=#F3F3F9, Dark=#1A1C20}"
+                        HeightRequest="48">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Entry x:Name="EntryTitulo"
+                           Placeholder="Título de la idea (ej. Iluminación cálida)"
+                           PlaceholderColor="{AppThemeBinding Light=#737781, Dark=#8D919B}"
+                           TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"
+                           FontSize="14" Margin="14,0" VerticalOptions="Center"/>
                 </Border>
 
-                <Button Text="Enviar" BackgroundColor="{AppThemeBinding Light=#001D39, Dark=#FFFFFF}" TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#001D39}" HeightRequest="50" CornerRadius="25" FontAttributes="Bold" Clicked="OnSubmitSuggestionClicked" Margin="0,10,0,0"/>
+                <Border StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light=#C3C6D1, Dark=#434750}"
+                        BackgroundColor="{AppThemeBinding Light=#F3F3F9, Dark=#1A1C20}"
+                        HeightRequest="100">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Editor x:Name="EntryDesc"
+                            Placeholder="Detalles..."
+                            PlaceholderColor="{AppThemeBinding Light=#737781, Dark=#8D919B}"
+                            TextColor="{AppThemeBinding Light=#1A1C20, Dark=#E2E2E8}"
+                            FontSize="14" Margin="14,8"/>
+                </Border>
+
+                <Button Text="Enviar"
+                        ImageSource="{AppThemeBinding Light=ms_arrow_forward.svg, Dark=ms_arrow_forward_dark.svg}"
+                        ContentLayout="Right,6"
+                        HeightRequest="48" CornerRadius="14" FontSize="14" FontAttributes="Bold"
+                        BackgroundColor="{AppThemeBinding Light=#D2E0FE, Dark=#3C4961}"
+                        TextColor="{AppThemeBinding Light=#002753, Dark=#A9C7FF}"
+                        Clicked="OnSubmitSuggestionClicked"/>
             </VerticalStackLayout>
         </Border>
     </Grid>
